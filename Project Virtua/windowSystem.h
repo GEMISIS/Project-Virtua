@@ -1,0 +1,189 @@
+#ifdef _WIN32
+// Include windows header file for Windows (duh)
+#include <Windows.h>
+
+/**
+ * The default bits per pixel to use for an OpenGL context.
+ */
+#define DEFAULT_BITS_PER_PIXEL 16
+
+/**
+ * A list of potential errors when creating and destroy a window and it's parts.
+ */
+enum WINDOW_ERRORS
+{
+	/**
+	 * This indicates that everything was ok with creating a window.
+	 */
+	OK = 1,
+	/**
+	 * This indicates that an unhandled error occured!  If this happens, please file a bug report!
+	 */
+	RANDOM_FAILURE = 0,
+	/**
+	 * This indicates that the window-class could not be registered properly.
+	 */
+	REGISTER_ERROR = -1,
+	/**
+	 * This indicates that there was an error creating a fullscreen window.
+	 */
+	FULLSCREEN_ERROR = -2,
+	/**
+	 * This indicates that there was an error actually creating the window.
+	 */
+	CREATION_ERROR = -3,
+	/**
+	 * This indicates there was an error releasing the device context.
+	 */
+	DC_RELEASE_ERROR = -4,
+	/**
+	 * This indicates that there was a problem destroying a window associated with a window handle.
+	 */
+	WH_DESTROY_ERROR = -5,
+	/**
+	 * This indicates that there was an error unregistering the window's class.
+	 */
+	WC_UNREGISTER_ERROR = -6,
+	/**
+	 * This indicates that there was an error changing the OpenGL context for destroying the context.
+	 */
+	WDGL_CHANGE_CONTEXT_ERROR = -7,
+	/**
+	 * This indicates there was an error actually deleting the OpenGL context.
+	 */
+	WDGL_DELETE_CONTEXT_ERROR = -8,
+	/**
+	 * This indicates that there was an error getting the device context.
+	 */
+	WCGL_GET_CONTEXT_ERROR = -9,
+	/**
+	 * This indicates that there was an error getting the pixel format.
+	 */
+	WCGL_GET_PF_ERROR = -10,
+	/**
+	 * This indicates that there was an error setting the pixel format.
+	 */
+	WCGL_SET_PF_ERROR = -11,
+	/**
+	 * This indicates that there was an error creating the OpenGL context.
+	 */
+	WCGL_CREATE_CONTEXT_ERROR = -12,
+	/**
+	 * This indicates that there was an error setting the OpenGL context.
+	 */
+	WCGL_SET_CONTEXT_ERROR = -13
+};
+
+/**
+ * A class for creating windows.  These windows can then be associated with OpenGL rendering contexts.
+ * TODO Still: Add support for directX.
+ */
+class Window
+{
+// The variables that are visible to everything using an instance of this
+// class.
+public:
+	/**
+	 * The rendering context for where to draw stuff to.
+	 */
+	HGLRC renderingContext;
+
+	/**
+	 * A device context for connecting the window to the graphics
+	 * interface device.
+	 */
+	HDC deviceContext;
+
+	/**
+	 * A window handle for managing the actual window.
+	 */
+	HWND windowHandle;
+
+	/**
+	 * A variable for an instance of the application.
+	 */
+	HINSTANCE appInstance;
+
+	/**
+	 * A boolean variable indicating whether the window is active.
+	 */
+	bool windowActive;
+
+	/**
+	 * A boolean variable indicating whether the window is fullscreen or not.
+	 */
+	bool isFullscreen;
+
+	/**
+	 * An instance of the window.
+	 */
+	WNDCLASS windowsClass;
+
+	/**
+	 * The window's process method for processing its events.
+	 */
+	LRESULT windowProcess;
+
+	/**
+	 * The window's title.
+	 */
+	LPCWSTR title;
+
+	/**
+	 * Creates a window for use with OpenGL and returns an instance of it.
+	 *
+	 * This method takes in a title, width, hight, and full screen boolean, and then creates
+	 * a window using the given information.  An instance of the window is the returned from the method.
+	 * @param title The title to be displayed in the window.
+	 * @param width An unsigned integer for the width of the window.
+	 * @param height An unsigned integer for the height of the window.
+	 * @param fullscreen If true, the window will be made full screen, with the width and height determining the
+	 * screen resolution.  If false, it will simply create the window with the selected width and height as its
+	 * size.
+	 * @param bitsPerPixel The bits per pixel to use for the window.
+	 * @return On success, this method will return a full created window instance that can be used later on.
+	 * On fail, it will return NULL.
+	 */
+	WINDOW_ERRORS create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, int bitsPerPixel);
+	/**
+	 * Sets whether a window is visible or not.
+	 *
+	 * @param visible If true, the window will be shown, otherwise it will be hidden.
+	 * @return This will return 1 if it was previously visible and 0 if it was previously hidden.
+	 */
+	int setVisible(bool visible);
+	/**
+	 * This will set the window as the current focus.
+	 * @return This will return 1 if the window was brougth to the foreground and 0 otherwise.
+	 */
+	int Focus();
+	/**
+	 * This will update the window's buffer.
+	 */
+	void updateWindow();
+	/**
+	 * This will set the window to use an OpenGL drawing context.
+	 * @param bitsPerPixel The bits per pixel to use for the OpenGL context.
+	 * @return Returns an error if something goes wrong when setting the drawing state.
+	 */
+	int setWindowDrawingStateGL(int bitsPerPixel);
+	/**
+	 * Make this window the current OpenGL context for rendering to.
+	 * @return Return OK if there is no error, otherwise return the error.
+	 */
+	int MakeCurrentGLContext();
+	/**
+	 * This will destroy the window and its associated properties.  Be careful calling this if
+	 * the window is already destroyed by the user!
+	 */
+	void destroy();
+	/**
+	 * This will destroy the OpenGL context associated with this window.
+	 */
+	void destroyGLSystem();
+protected:
+};
+
+#elif __APPLE__
+#elif __linux__
+#endif
