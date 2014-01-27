@@ -1,4 +1,4 @@
-﻿Build started 1/26/2014 3:54:36 PM.
+﻿Build started 1/26/2014 9:06:28 PM.
      1>Project "C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Test Project\Test Project.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\Test Project.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -8,7 +8,7 @@
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Test Project.exe" /INCREMENTAL /NOLOGO glu32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Test Project.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Test Project.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Test Project.lib" /MACHINE:X86 "Debug\Test Project.exe.embed.manifest.res"
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Test Project.exe" /INCREMENTAL /NOLOGO winmm.lib libovrd.lib glu32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Test Project.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Test Project.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Test Project.lib" /MACHINE:X86 "Debug\Test Project.exe.embed.manifest.res"
          Debug\main.obj
          "C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Project Virtua.lib"
        Manifest:
@@ -24,4 +24,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.55
+Time Elapsed 00:00:01.73

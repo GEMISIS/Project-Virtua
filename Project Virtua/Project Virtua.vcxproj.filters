@@ -18,9 +18,15 @@
     <ClInclude Include="windowSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OculusRift.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windowSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OculusRift.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

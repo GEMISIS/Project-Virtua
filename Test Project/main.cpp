@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "windowSystem.h"
+#include "OculusRift.h"
 
 #include <GL/GL.h>
 #include <GL/GLU.h>
@@ -57,21 +58,17 @@ int drawGLScene()
 
 int main()
 {
-	Window testWindow, testWindow2;
-	testWindow.windowProcess = (LRESULT)windowProcess;
-	testWindow.create(L"testing", 640, 480, false, DEFAULT_BITS_PER_PIXEL);
-	testWindow.setWindowDrawingStateGL(16);
-	testWindow.setVisible(true);
+	OculusRift rift;
 
-	testWindow2.windowProcess = (LRESULT)windowProcess;
-	testWindow2.create(L"testing2", 640, 480, false, DEFAULT_BITS_PER_PIXEL);
-	testWindow2.setWindowDrawingStateGL(16);
-	testWindow2.setVisible(true);
+	Window testWindow;
+	testWindow.create(L"testing", 640, 480, false, windowProcess);
+	testWindow.setWindowDrawingStateGL();
+	testWindow.setVisible(true);
 
 	onResize(640, 480);
 	glEnable(GL_DEPTH_TEST);
 
-	printf("Testing debugging");
+	printf("Rift Connected: %s", (rift.connected) ? "Yes" : "No");
 
 	MSG msg;
 	while(!done)
@@ -91,14 +88,12 @@ int main()
 
 		testWindow.MakeCurrentGLContext();
 		drawGLScene();
-		testWindow2.MakeCurrentGLContext();
-		drawGLScene();
 
 		testWindow.updateWindow();
-		testWindow2.updateWindow();
 	}
 
 	testWindow.destroyGLSystem();
 	testWindow.destroy();
+	exit(0);
 	return 0;
 }

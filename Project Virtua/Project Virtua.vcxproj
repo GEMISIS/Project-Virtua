@@ -11,9 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="OculusRift.h" />
     <ClInclude Include="windowSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="OculusRift.cpp" />
     <ClCompile Include="windowSystem.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -3,10 +3,8 @@
 #ifdef _WIN32
 
 /**
- * Creates a window for use with OpenGL and returns an instance of it.
- *
- * This method takes in a title, width, hight, and full screen boolean, and then creates
- * a window using the given information.  An instance of the window is the returned from the method.
+ * This method creates a window using the given information.  If an error occurs, it is returned.
+ * a window using the given information.  If an error occurs, it is returned.
  * @param title The title to be displayed in the window.
  * @param width An unsigned integer for the width of the window.
  * @param height An unsigned integer for the height of the window.
@@ -14,18 +12,21 @@
  * screen resolution.  If false, it will simply create the window with the selected width and height as its
  * size.
  * @param bitsPerPixel The bits per pixel to use for the window.
- * @return On success, this method will return a full created window instance that can be used later on.
- * On fail, it will return NULL.
+ * @return On success, this method will return 1.
+ * On fail, it will return an error code.
  */
 WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, int bitsPerPixel)
 {
 	// Create a variable for storing the window's extended styling.
 	unsigned long windowExtendedStyle;
-	// Create a variable for storign the window's styling.
+	// Create a variable for storing the window's styling.
 	unsigned long windowStyle;
 
 	// Set the window's title.
 	this->title = title;
+
+	// Set the bits per pixel for this window.
+	this->bitsPerPixel = bitsPerPixel;
 	
 	// Create a rectangle variable for the size of the window.
 	RECT windowRectangle;
@@ -41,11 +42,11 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 	// Set the boolean indicating whether the window is full screen or not to
 	// false by default.  This will be changed later on if it is successfully
 	// made full screen.
-	isFullscreen = false;
+	this->isFullscreen = false;
 
 	// Get a handle to the instance of the application.
 	appInstance = GetModuleHandle(NULL);
-	// Set the style to redraw vertically and horizantally, as well as to own it's on device context.
+	// Set the style to redraw vertically and horizantally, as well as to own it's own device context.
 	windowsClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	// Set the handle to the window processing method (this is set on the developer's end).
 	windowsClass.lpfnWndProc = (WNDPROC)this->windowProcess;
@@ -94,7 +95,7 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 		if(!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &deviceModeScreenSettings))
 		{
 			// If so, set the bits per pixel manually.
-			deviceModeScreenSettings.dmBitsPerPel = bitsPerPixel;
+			deviceModeScreenSettings.dmBitsPerPel = this->bitsPerPixel;
 			// Set the width of the device surface.
 			deviceModeScreenSettings.dmPelsWidth = width;
 			// Set the height of the device surface.
@@ -187,6 +188,37 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 }
 
 /**
+ * This method creates a window using the given information.  If an error occurs, it is returned.
+ * @param title The title to be displayed in the window.
+ * @param width An unsigned integer for the width of the window.
+ * @param height An unsigned integer for the height of the window.
+ * @param fullscreen If true, the window will be made full screen, with the width and height determining the
+ * screen resolution.  If false, it will simply create the window with the selected width and height as its
+ * size.
+ * @param callback The callback to use when updating the window.
+ * @return On success, this method will return 1.
+ * On fail, it will return an error code.
+ */
+WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, windowProcessCallback callback)
+{
+	// Set the window process callback.
+	this->setWindowProcessCallback(callback);
+	// Create the window returning any errors that come up.
+	return this->create(title, width, height, fullscreen, DEFAULT_BITS_PER_PIXEL);
+}
+
+/**
+ * Set the window's process callback method.  This is used when doing things such as resizing
+ * the window, closing the window, etc.
+ * @param callback The function to use.
+ */
+void Window::setWindowProcessCallback(windowProcessCallback callback)
+{
+	// Set the callback casted.
+	this->windowProcess = ((LRESULT)callback);
+}
+
+/**
  * Sets whether a window is visible or not.
  *
  * @param visible If true, the window will be shown, otherwise it will be hidden.
@@ -204,6 +236,8 @@ int Window::setVisible(bool visible)
  */
 int Window::Focus()
 {
+	// Make sure the window is visible first.
+	this->setVisible(true);
 	// Set the window as the topmost window and record its results.
 	int returnValue = SetForegroundWindow(windowHandle);
 	// Set the window to be the current focus.
@@ -223,10 +257,9 @@ void Window::updateWindow()
 
 /**
  * This will set the window to use an OpenGL drawing context.
- * @param bitsPerPixel The bits per pixel to use for the OpenGL context.
  * @return Returns an error if something goes wrong when setting the drawing state.
  */
-int Window::setWindowDrawingStateGL(int bitsPerPixel)
+int Window::setWindowDrawingStateGL()
 {
 	// Create a variable for storing the pixel format of the window.
 	int pixelFormat;
@@ -241,7 +274,7 @@ int Window::setWindowDrawingStateGL(int bitsPerPixel)
 		// Set the window to have the normal RGB spectrum, as well as an alpha value.
 		PFD_TYPE_RGBA,
 		// Set the bits per pixel to the desired value.
-		bitsPerPixel,
+		this->bitsPerPixel,
 		0, 0, 0, 0, 0, 0,
 		0,
 		0,

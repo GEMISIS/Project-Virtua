@@ -7,6 +7,8 @@
  */
 #define DEFAULT_BITS_PER_PIXEL 16
 
+typedef LRESULT CALLBACK windowProcessCallback(HWND winHandle, UINT message, WPARAM windowParam, LPARAM messageParam);
+
 /**
  * A list of potential errors when creating and destroy a window and it's parts.
  */
@@ -75,6 +77,8 @@ enum WINDOW_ERRORS
 };
 
 /**
+ * A class used for creating and managing windows.
+ *
  * A class for creating windows.  These windows can then be associated with OpenGL rendering contexts.
  * TODO Still: Add support for directX.
  */
@@ -115,6 +119,11 @@ public:
 	bool isFullscreen;
 
 	/**
+	 * The bits per pixel for this window.
+	 */
+	int bitsPerPixel;
+
+	/**
 	 * An instance of the window.
 	 */
 	WNDCLASS windowsClass;
@@ -130,10 +139,7 @@ public:
 	LPCWSTR title;
 
 	/**
-	 * Creates a window for use with OpenGL and returns an instance of it.
-	 *
-	 * This method takes in a title, width, hight, and full screen boolean, and then creates
-	 * a window using the given information.  An instance of the window is the returned from the method.
+	 * This method creates a window using the given information.  If an error occurs, it is returned.
 	 * @param title The title to be displayed in the window.
 	 * @param width An unsigned integer for the width of the window.
 	 * @param height An unsigned integer for the height of the window.
@@ -141,10 +147,32 @@ public:
 	 * screen resolution.  If false, it will simply create the window with the selected width and height as its
 	 * size.
 	 * @param bitsPerPixel The bits per pixel to use for the window.
-	 * @return On success, this method will return a full created window instance that can be used later on.
-	 * On fail, it will return NULL.
+	 * @return On success, this method will return 1.
+	 * On fail, it will return an error code.
 	 */
 	WINDOW_ERRORS create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, int bitsPerPixel);
+
+	/**
+	 * This method creates a window using the given information.  If an error occurs, it is returned.
+	 * @param title The title to be displayed in the window.
+	 * @param width An unsigned integer for the width of the window.
+	 * @param height An unsigned integer for the height of the window.
+	 * @param fullscreen If true, the window will be made full screen, with the width and height determining the
+	 * screen resolution.  If false, it will simply create the window with the selected width and height as its
+	 * size.
+	 * @param callback The callback to use when updating the window.
+	 * @return On success, this method will return 1.
+	 * On fail, it will return an error code.
+	 */
+	WINDOW_ERRORS create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, windowProcessCallback callback);
+
+	/**
+	 * Set the window's process callback method.  This is used when doing things such as resizing
+	 * the window, closing the window, etc.
+	 * @param callback The function to use.
+	 */
+	void setWindowProcessCallback(windowProcessCallback callback);
+
 	/**
 	 * Sets whether a window is visible or not.
 	 *
@@ -163,10 +191,9 @@ public:
 	void updateWindow();
 	/**
 	 * This will set the window to use an OpenGL drawing context.
-	 * @param bitsPerPixel The bits per pixel to use for the OpenGL context.
 	 * @return Returns an error if something goes wrong when setting the drawing state.
 	 */
-	int setWindowDrawingStateGL(int bitsPerPixel);
+	int setWindowDrawingStateGL();
 	/**
 	 * Make this window the current OpenGL context for rendering to.
 	 * @return Return OK if there is no error, otherwise return the error.
