@@ -6,14 +6,44 @@
 using namespace OVR;
 using namespace OVR::Util::Render;
 
+/**
+ * This is a structure used for the orientation of an Oculus Rift headset.
+ *
+ * This is a structure used for the orientation of an Oculus Rift headset.  The
+ * angles are stored as Eular angles.
+ */
 struct orientation_t
 {
-	float yaw, pitch, roll;
+	/**
+	 * Rotation on the Y axis.
+	 */
+	float yaw;
+	/**
+	 * Rotation on the X axis.
+	 */
+	float pitch;
+	/**
+	 * Rotation on the Z axis.
+	 */
+	float roll;
 };
 
-struct orentation_quart_t
+/**
+ * This is a structure used for the orientation of an Oculus Rift headset.
+ *
+ * This is a structure used for the orientation of an Oculus Rift headset.  The
+ * angles are stored as Quartonian angles.
+ */
+struct orientation_quart_t
 {
+	/**
+	 * A vector with X, Y, and Z variables respresenting the axis as normals that
+	 * is being roated around.
+	 */
 	Vector3f axis;
+	/**
+	 * The angle of rotation for this orientation.
+	 */
 	float angle;
 };
 
@@ -57,7 +87,7 @@ public:
 	/**
 	  * The orientation of the oculus rift. (Quaternion)
 	  */
-	orentation_quart_t OculusRiftOrientation_quart;
+	orientation_quart_t OculusRiftOrientation_quart;
 	/**
 	  * The configuration for the stereo-scopic viewing.  Contains properties like how big
 	  * the display for each eye is.
@@ -98,9 +128,36 @@ public:
 	 */
 	Viewport viewport;
 
+	/**
+	 * This is the constructor used to create a new Oculus Rift device.
+	 *
+	 * This constructor will automatically attempt to initialize and setup an
+	 * Oculus Rift device that is connected to the computer.  Use the IsConnected
+	 * method to see if the device was successfully setup.
+	 */
 	OculusRift();
+	/**
+	 * This method will initialize the Oculus Rift headset.
+	 *
+	 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
+	 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
+	 * from the Oculus Rift.
+	 */
 	void Initialize();
+	/**
+	 * This method will setup the Oculus Rift headset.
+	 *
+	 * This method goes through and sets up the user's data for the Oculus Rift headset.
+	 * This data includes things such as the interpupillary distance, field of view, and more.
+	 */
 	void Setup();
+
+	/**
+	 * This is the deconstructor for the Oculus Rift device.
+	 *
+	 * This is the deconstructor for he Oculus Rift device.  This method will automatically
+	 * cleanup all resources associated with the Oculus Rift device.
+	 */
 	~OculusRift();
 };
 

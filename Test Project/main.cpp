@@ -89,11 +89,10 @@ int main()
 		testWindow.MakeCurrentGLContext();
 		drawGLScene();
 
-		testWindow.updateWindow();
+		testWindow.Update();
 	}
 
 	testWindow.destroyGLSystem();
 	testWindow.destroy();
-	exit(0);
 	return 0;
 }

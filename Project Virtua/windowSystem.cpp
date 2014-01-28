@@ -17,6 +17,9 @@
  */
 WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, int bitsPerPixel)
 {
+	// Set the window as not active.
+	this->active = false;
+
 	// Create a variable for storing the window's extended styling.
 	unsigned long windowExtendedStyle;
 	// Create a variable for storing the window's styling.
@@ -249,7 +252,7 @@ int Window::Focus()
 /**
  * This will update the window's buffer.
  */
-void Window::updateWindow()
+void Window::Update()
 {
 	// Swap the buffers to update the display for the device context.
 	SwapBuffers(deviceContext);
@@ -412,6 +415,70 @@ int Window::MakeCurrentGLContext()
 }
 
 /**
+ * Get the window's handle object.
+ *
+ * This method returns the window's handle object if it exists.  It will return NULL otherwise.
+ */
+const HWND Window::GetWindowHandle()
+{
+	return this->windowHandle;
+}
+
+/**
+ * Gets the applications instance.
+ *
+ * Gets the applications instance if it exists.  it will return NULL otherwise.
+ */
+const HINSTANCE Window::GetAppInstance()
+{
+	return this->appInstance;
+}
+
+/**
+ * Gets whether the window is active or not.
+ *
+ * Gets whether the window is active or not.
+ * @return Returns true if the window is active, false otherwise.
+ */
+const bool Window::IsActive()
+{
+	return this->active;
+}
+
+/**
+ * Gets whether the window is fullscreen or not.
+ *
+ * Gets whether the window is fullscreen or not.
+ * @return Returns true if the window is fullscreen, false otherwise.
+ */
+const bool Window::IsFullscreen()
+{
+	return this->isFullscreen;
+}
+	
+/**
+ * Gets bits per pixel for the window.
+ *
+ * Gets bits per pixel for the window.
+ * @return Returns an integer indicating the bits per pixel for the window.
+ */
+const int Window::BitsPerPixel()
+{
+	return this->bitsPerPixel;
+}
+
+/**
+ * The title of the window.
+ *
+ * Gets the title of the window.
+ * @return The title of the window as a 16-bit unicode string.
+ */
+const LPCWSTR Window::Title()
+{
+	return this->title;
+}
+
+/**
  * This will destroy the window and its associated properties.  Be careful calling this if
  * the window is already destroyed by the user!
  */
@@ -513,6 +580,7 @@ void Window::destroyGLSystem()
 		renderingContext = NULL;
 	}
 }
+
 #elif __APPLE__
 #elif __linux__
 #endif

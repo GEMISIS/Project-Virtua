@@ -1,12 +1,29 @@
 #include "OculusRift.h"
 
+/**
+ * This is the constructor used to create a new Oculus Rift device.
+ *
+ * This constructor will automatically attempt to initialize and setup an
+ * Oculus Rift device that is connected to the computer.  Use the IsConnected
+ * method to see if the device was successfully setup.
+ */
 OculusRift::OculusRift()
 {
+	// Set the viewport to the max of the Oculus Rift currently (1280x800).
 	this->viewport = Viewport(0, 0, 1280, 800);
+	// Initialize the Oculus Rift.
 	this->Initialize();
+	// Setup the user's data for the Oculus Rift.
 	this->Setup();
 }
 
+/**
+ * This method will initialize the Oculus Rift headset.
+ *
+ * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
+ * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
+ * from the Oculus Rift.
+ */
 void OculusRift::Initialize()
 {
 	// Check if we are debugging or not.
@@ -47,6 +64,12 @@ void OculusRift::Initialize()
 	}
 }
 
+/**
+ * This method will setup the Oculus Rift headset.
+ *
+ * This method goes through and sets up the user's data for the Oculus Rift headset.
+ * This data includes things such as the interpupillary distance, field of view, and more.
+ */
 void OculusRift::Setup()
 {
 	/**
@@ -85,7 +108,13 @@ void OculusRift::Setup()
 	this->RightEye = this->StereoConfiguration.GetEyeRenderParams(StereoEye_Right);
 }
 
+/**
+ * This is the deconstructor for the Oculus Rift device.
+ *
+ * This is the deconstructor for he Oculus Rift device.  This method will automatically
+ * cleanup all resources associated with the Oculus Rift device.
+ */
 OculusRift::~OculusRift()
 {
-	System::Destroy();
+	//System::Destroy();
 }
