@@ -1,55 +1,69 @@
 #ifndef _OCULUS_RIFT_H_
 #define _OCULUS_RIFT_H_
 
-#include <ovr/Include/OVR.h>
-
-using namespace OVR;
-using namespace OVR::Util::Render;
-
-/**
- * This is a structure used for the orientation of an Oculus Rift headset.
- *
- * This is a structure used for the orientation of an Oculus Rift headset.  The
- * angles are stored as Eular angles.
- */
-struct orientation_t
-{
-	/**
-	 * Rotation on the Y axis.
-	 */
-	float yaw;
-	/**
-	 * Rotation on the X axis.
-	 */
-	float pitch;
-	/**
-	 * Rotation on the Z axis.
-	 */
-	float roll;
-};
-
-/**
- * This is a structure used for the orientation of an Oculus Rift headset.
- *
- * This is a structure used for the orientation of an Oculus Rift headset.  The
- * angles are stored as Quartonian angles.
- */
-struct orientation_quart_t
-{
-	/**
-	 * A vector with X, Y, and Z variables respresenting the axis as normals that
-	 * is being roated around.
-	 */
-	Vector3f axis;
-	/**
-	 * The angle of rotation for this orientation.
-	 */
-	float angle;
-};
+#include "types.h"
 
 class OculusRift
 {
 public:
+	/**
+	 * This is the constructor used to create a new Oculus Rift device.
+	 *
+	 * This constructor will automatically attempt to initialize and setup an
+	 * Oculus Rift device that is connected to the computer.  Use the IsConnected
+	 * method to see if the device was successfully setup.
+	 */
+	OculusRift();
+	/**
+	 * This method will initialize the Oculus Rift headset.
+	 *
+	 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
+	 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
+	 * from the Oculus Rift.
+	 */
+	void Initialize();
+	/**
+	 * This method will setup the Oculus Rift headset.
+	 *
+	 * This method goes through and sets up the user's data for the Oculus Rift headset.
+	 * This data includes things such as the interpupillary distance, field of view, and more.
+	 */
+	void Setup();
+
+	/**
+	 * Returns a boolean indicating whether the Oculus Rift is connected.
+	 *
+	 * This method checks to see if the Oculus Rift is connected and returns
+	 * a boolean indicating whether it is or not.
+	 * @return Returns true if the Oculus Rift is connected, false otherwise.
+	 */
+	const bool isConnected();
+
+	/**
+	 * This method updates the data from the Oculus Rift headset.
+	 *
+	 * This method updates data recieved from the Oculus Rift.  It currently pulls the change in
+	 * orientation and updates the rotation of where the user is looking.
+	 */
+	void Update();
+
+	/**
+	 * Get the rotation values for where the user is looking.
+	 *
+	 * Get the rotation values for the angle of rotation for where the user is looking.
+	 * This is in Euler angles.
+	 * @return The rotation on the X, Y, and Z axis in Euler angles.
+	 */
+	const rotation_t getRotation();
+
+	/**
+	 * This is the deconstructor for the Oculus Rift device.
+	 *
+	 * This is the deconstructor for he Oculus Rift device.  This method will automatically
+	 * cleanup all resources associated with the Oculus Rift device.
+	 */
+	~OculusRift();
+private:
 	/**
 	  * Manages the USB devices connected to the computer.
 	  */
@@ -83,11 +97,26 @@ public:
 	/**
 	  * The orientation of the oculus rift. (yaw, pitch, roll)
 	  */
-	orientation_t OculusRiftOrientation;
+	orientation_t Orientation;
 	/**
 	  * The orientation of the oculus rift. (Quaternion)
 	  */
-	orientation_quart_t OculusRiftOrientation_quart;
+	orientation_quart_t Orientation_quart;
+	/**
+	  * The previous orientation of the oculus rift. (yaw, pitch, roll)
+	  *
+	  * The previous orientation of the oculus rift. (yaw, pitch, roll) This is used to
+	  * update the orientation data properly.
+	  */
+	orientation_t OldOrientation;
+	/**
+	  * The previous orientation of the oculus rift. (Quaternion)
+	  *
+	  * The previous orientation of the oculus rift. (Quaternion) This is used to
+	  * update the orientation data properly.
+	  */
+	orientation_quart_t OldOrientation_quart;
+
 	/**
 	  * The configuration for the stereo-scopic viewing.  Contains properties like how big
 	  * the display for each eye is.
@@ -129,36 +158,9 @@ public:
 	Viewport viewport;
 
 	/**
-	 * This is the constructor used to create a new Oculus Rift device.
-	 *
-	 * This constructor will automatically attempt to initialize and setup an
-	 * Oculus Rift device that is connected to the computer.  Use the IsConnected
-	 * method to see if the device was successfully setup.
+	 * The rotation data for where the user is looking.
 	 */
-	OculusRift();
-	/**
-	 * This method will initialize the Oculus Rift headset.
-	 *
-	 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
-	 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
-	 * from the Oculus Rift.
-	 */
-	void Initialize();
-	/**
-	 * This method will setup the Oculus Rift headset.
-	 *
-	 * This method goes through and sets up the user's data for the Oculus Rift headset.
-	 * This data includes things such as the interpupillary distance, field of view, and more.
-	 */
-	void Setup();
-
-	/**
-	 * This is the deconstructor for the Oculus Rift device.
-	 *
-	 * This is the deconstructor for he Oculus Rift device.  This method will automatically
-	 * cleanup all resources associated with the Oculus Rift device.
-	 */
-	~OculusRift();
+	rotation_t Rotation;
 };
 
 #endif

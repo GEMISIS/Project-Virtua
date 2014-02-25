@@ -30,10 +30,12 @@ LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam,
 	return DefWindowProc(winHandle, message, windowParam, messageParam);
 }
 
-int drawGLScene()
+int drawGLScene(OculusRift rift)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
+
+	glRotatef(rift.getRotation().y, 0.0f, 1.0f, 0.0f);
 
 	glTranslatef(-1.5f, 0.0f, -6.0f);
 	glBegin(GL_TRIANGLES);
@@ -68,7 +70,7 @@ int main()
 	onResize(640, 480);
 	glEnable(GL_DEPTH_TEST);
 
-	printf("Rift Connected: %s", (rift.connected) ? "Yes" : "No");
+	printf("Rift Connected: %s", (rift.isConnected()) ? "Yes" : "No");
 
 	MSG msg;
 	while(!done)
@@ -86,8 +88,9 @@ int main()
 			}
 		}
 
+		rift.Update();
 		testWindow.MakeCurrentGLContext();
-		drawGLScene();
+		drawGLScene(rift);
 
 		testWindow.Update();
 	}

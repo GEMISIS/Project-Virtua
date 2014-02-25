@@ -9,6 +9,30 @@
  */
 OculusRift::OculusRift()
 {
+	// Setup the initial values.
+	this->Rotation.x = 0.0f;
+	this->Rotation.y = 0.0f;
+	this->Rotation.z = 0.0f;
+	this->Rotation.w = 0.0f;
+
+	this->Orientation.yaw = 0.0f;
+	this->Orientation.pitch = 0.0f;
+	this->Orientation.roll = 0.0f;
+
+	this->OldOrientation.yaw = 0.0f;
+	this->OldOrientation.pitch = 0.0f;
+	this->OldOrientation.roll = 0.0f;
+
+	this->Orientation_quart.angle = 0.0f;
+	this->Orientation_quart.axis.x = 0.0f;
+	this->Orientation_quart.axis.y = 0.0f;
+	this->Orientation_quart.axis.z = 0.0f;
+
+	this->OldOrientation_quart.angle = 0.0f;
+	this->OldOrientation_quart.axis.x = 0.0f;
+	this->OldOrientation_quart.axis.y = 0.0f;
+	this->OldOrientation_quart.axis.z = 0.0f;
+
 	// Set the viewport to the max of the Oculus Rift currently (1280x800).
 	this->viewport = Viewport(0, 0, 1280, 800);
 	// Initialize the Oculus Rift.
@@ -107,6 +131,62 @@ void OculusRift::Setup()
 	// Get the rendering properties for the right eye.
 	this->RightEye = this->StereoConfiguration.GetEyeRenderParams(StereoEye_Right);
 }
+
+/**
+ * Returns a boolean indicating whether the Oculus Rift is connected.
+ *
+ * This method checks to see if the Oculus Rift is connected and returns
+ * a boolean indicating whether it is or not.
+ * @return Returns true if the Oculus Rift is connected, false otherwise.
+ */
+const bool OculusRift::isConnected()
+{
+	return (const bool)this->connected;
+}
+
+/**
+ * This method updates the data from the Oculus Rift headset.
+ *
+ * This method updates data recieved from the Oculus Rift.  It currently pulls the change in
+ * orientation and updates the rotation of where the user is looking.
+ */
+void OculusRift::Update()
+{
+	this->OldOrientation.yaw = this->Orientation.yaw;
+	this->OldOrientation.pitch = this->Orientation.pitch;
+	this->OldOrientation.roll = this->Orientation.roll;
+
+	this->sensorFusion->GetOrientation().GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
+
+	this->Orientation.yaw = RadToDegree(this->Orientation.yaw);
+	this->Orientation.pitch = RadToDegree(this->Orientation.pitch);
+	this->Orientation.roll = RadToDegree(this->Orientation.roll);
+
+	this->Rotation.x -= (this->Orientation.pitch - this->OldOrientation.pitch);
+	this->Rotation.y -= (this->Orientation.yaw - this->OldOrientation.yaw);
+	this->Rotation.z -= (this->Orientation.roll - this->OldOrientation.roll);
+
+	this->OldOrientation_quart.angle = this->Orientation_quart.angle;
+	this->OldOrientation_quart.axis.x = this->Orientation_quart.axis.x;
+	this->OldOrientation_quart.axis.y = this->Orientation_quart.axis.y;
+	this->OldOrientation_quart.axis.z = this->Orientation_quart.axis.z;
+
+	this->sensorFusion->GetOrientation().GetAxisAngle(&this->Orientation_quart.axis, &this->Orientation_quart.angle);
+	this->Orientation_quart.angle = -RadToDegree(this->Orientation_quart.angle);
+}
+
+/**
+ * Get the rotation values for where the user is looking.
+ *
+ * Get the rotation values for the angle of rotation for where the user is looking.
+ * This is in Euler angles.
+ * @return The rotation on the X, Y, and Z axis in Euler angles.
+ */
+const rotation_t OculusRift::getRotation()
+{
+	return (const rotation_t)this->Rotation;
+}
+
 
 /**
  * This is the deconstructor for the Oculus Rift device.
