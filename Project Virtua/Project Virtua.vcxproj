@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OculusRift.h" />
+    <ClInclude Include="types.h" />
     <ClInclude Include="windowSystem.h" />
   </ItemGroup>
   <ItemGroup>
