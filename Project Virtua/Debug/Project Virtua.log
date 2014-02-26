@@ -1,4 +1,4 @@
-﻿Build started 2/25/2014 10:52:51 AM.
+﻿Build started 2/25/2014 8:37:59 PM.
      1>Project "C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Project Virtua\Project Virtua.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\Project Virtua.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -16,4 +16,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.91
+Time Elapsed 00:00:00.89
