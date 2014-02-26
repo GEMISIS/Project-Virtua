@@ -37,8 +37,12 @@ OculusRift::OculusRift()
 	this->viewport = Viewport(0, 0, 1280, 800);
 	// Initialize the Oculus Rift.
 	this->Initialize();
-	// Setup the user's data for the Oculus Rift.
-	this->Setup();
+
+	if(this->connected)
+	{
+		// Setup the user's data for the Oculus Rift.
+		this->Setup();
+	}
 }
 
 /**
@@ -152,27 +156,30 @@ const bool OculusRift::isConnected()
  */
 void OculusRift::Update()
 {
-	this->OldOrientation.yaw = this->Orientation.yaw;
-	this->OldOrientation.pitch = this->Orientation.pitch;
-	this->OldOrientation.roll = this->Orientation.roll;
+	if(this->connected)
+	{
+		this->OldOrientation.yaw = this->Orientation.yaw;
+		this->OldOrientation.pitch = this->Orientation.pitch;
+		this->OldOrientation.roll = this->Orientation.roll;
 
-	this->sensorFusion->GetOrientation().GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
+		this->sensorFusion->GetOrientation().GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
 
-	this->Orientation.yaw = RadToDegree(this->Orientation.yaw);
-	this->Orientation.pitch = RadToDegree(this->Orientation.pitch);
-	this->Orientation.roll = RadToDegree(this->Orientation.roll);
+		this->Orientation.yaw = RadToDegree(this->Orientation.yaw);
+		this->Orientation.pitch = RadToDegree(this->Orientation.pitch);
+		this->Orientation.roll = RadToDegree(this->Orientation.roll);
 
-	this->Rotation.x -= (this->Orientation.pitch - this->OldOrientation.pitch);
-	this->Rotation.y -= (this->Orientation.yaw - this->OldOrientation.yaw);
-	this->Rotation.z -= (this->Orientation.roll - this->OldOrientation.roll);
+		this->Rotation.x -= (this->Orientation.pitch - this->OldOrientation.pitch);
+		this->Rotation.y -= (this->Orientation.yaw - this->OldOrientation.yaw);
+		this->Rotation.z -= (this->Orientation.roll - this->OldOrientation.roll);
 
-	this->OldOrientation_quart.angle = this->Orientation_quart.angle;
-	this->OldOrientation_quart.axis.x = this->Orientation_quart.axis.x;
-	this->OldOrientation_quart.axis.y = this->Orientation_quart.axis.y;
-	this->OldOrientation_quart.axis.z = this->Orientation_quart.axis.z;
+		this->OldOrientation_quart.angle = this->Orientation_quart.angle;
+		this->OldOrientation_quart.axis.x = this->Orientation_quart.axis.x;
+		this->OldOrientation_quart.axis.y = this->Orientation_quart.axis.y;
+		this->OldOrientation_quart.axis.z = this->Orientation_quart.axis.z;
 
-	this->sensorFusion->GetOrientation().GetAxisAngle(&this->Orientation_quart.axis, &this->Orientation_quart.angle);
-	this->Orientation_quart.angle = -RadToDegree(this->Orientation_quart.angle);
+		this->sensorFusion->GetOrientation().GetAxisAngle(&this->Orientation_quart.axis, &this->Orientation_quart.angle);
+		this->Orientation_quart.angle = -RadToDegree(this->Orientation_quart.angle);
+	}
 }
 
 /**
