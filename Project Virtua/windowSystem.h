@@ -1,7 +1,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 
-#include "types.h"
+#include "pv/types.h"
 
 /**
  * The default bits per pixel to use for an OpenGL context.

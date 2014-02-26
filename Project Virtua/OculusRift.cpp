@@ -1,4 +1,6 @@
-#include "OculusRift.h"
+#include "pv/OculusRift.h"
+#include "pv/OpenGL.h"
+
 
 /**
  * This is the constructor used to create a new Oculus Rift device.
@@ -182,8 +184,26 @@ void OculusRift::Update()
 	}
 }
 
-void ShiftEye(RiftEye eye)
+void ShiftView(RiftEye eye)
 {
+	int openGlVersion[] = {0, 0};
+	glGetIntegerv(GL_MAJOR_VERSION, &openGlVersion[0]);
+	glGetIntegerv(GL_MINOR_VERSION, &openGlVersion[1]);
+
+	switch(openGlVersion[0])
+	{
+	case 2:
+		switch(openGlVersion[1])
+		{
+		case 1:
+		default:
+			break;
+		}
+		break;
+	case 1:
+	default:
+		break;
+	}
 }
 
 /**

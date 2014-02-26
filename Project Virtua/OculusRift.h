@@ -1,7 +1,12 @@
 #ifndef _OCULUS_RIFT_H_
 #define _OCULUS_RIFT_H_
 
-#include "types.h"
+#include <ovr/Include/OVR.h>
+
+using namespace OVR;
+using namespace OVR::Util::Render;
+
+#include "pv/types.h"
 
 class OculusRift
 {

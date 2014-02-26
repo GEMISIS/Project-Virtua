@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "windowSystem.h"
-#include "OculusRift.h"
+#include "pv/windowSystem.h"
+#include "pv/OculusRift.h"
 
-#include "OpenGL.h"
+#include "pv/OpenGL.h"
 
 bool done = false;
 

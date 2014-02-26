@@ -1,15 +1,11 @@
-﻿Build started 2/25/2014 9:32:53 PM.
+﻿Build started 2/26/2014 11:30:42 AM.
      1>Project "C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Project Virtua\Project Virtua.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\Project Virtua.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt OculusRift.cpp windowSystem.cpp
-         windowSystem.cpp
-         OculusRift.cpp
-         Generating Code...
+         All outputs are up-to-date.
        Lib:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Project Virtua.lib" opengl32.lib /NOLOGO Debug\OculusRift.obj
-         Debug\windowSystem.obj
+         All outputs are up-to-date.
          Project Virtua.vcxproj -> C:\Users\GEMISIS\Documents\GitHub\Project-Virtua\Debug\Project Virtua.lib
        FinalizeBuildStatus:
          Deleting file "Debug\Project Virtua.unsuccessfulbuild".
@@ -18,4 +14,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.81
+Time Elapsed 00:00:00.10
