@@ -2,8 +2,7 @@
 #include "windowSystem.h"
 #include "OculusRift.h"
 
-#include <GL/GL.h>
-#include <GL/GLU.h>
+#include "OpenGL.h"
 
 bool done = false;
 
@@ -70,7 +69,11 @@ int main()
 	onResize(640, 480);
 	glEnable(GL_DEPTH_TEST);
 
-	printf("Rift Connected: %s", (rift.isConnected()) ? "Yes" : "No");
+	printf("Rift Connected: %s\n", (rift.isConnected()) ? "Yes" : "No");
+	int version[] = {0, 0};
+	glGetIntegerv(GL_MAJOR_VERSION, &version[0]);
+	glGetIntegerv(GL_MINOR_VERSION, &version[1]);
+	printf("Version: %d.%d\n", version[0], version[1]);
 
 	MSG msg;
 	while(!done)

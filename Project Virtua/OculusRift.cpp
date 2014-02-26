@@ -182,6 +182,10 @@ void OculusRift::Update()
 	}
 }
 
+void ShiftEye(RiftEye eye)
+{
+}
+
 /**
  * Get the rotation values for where the user is looking.
  *

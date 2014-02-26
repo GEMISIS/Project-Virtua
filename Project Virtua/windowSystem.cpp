@@ -78,7 +78,7 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 		MessageBox(NULL, (LPCWSTR)L"Error registering class!", (LPCWSTR)L"CREATE WINDOW ERROR", MB_OK | MB_ICONERROR);
 #else
 		// If not debugging, then display a clean error to the user so they can report the issue.
-		MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WC" REGISTER_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WC" + REGISTER_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 		// Finally, return that there was an error registering the window.
 		return REGISTER_ERROR;

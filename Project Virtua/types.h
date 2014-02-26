@@ -128,6 +128,14 @@ struct orientation_quart_t
 	float angle;
 };
 
+/**
+ * The eyes available for the Oculus Rift.
+ */
+enum RiftEye
+{
+	Left = 0,
+	Right = 1
+};
 
 
 #endif
