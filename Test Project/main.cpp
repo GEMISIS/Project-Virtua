@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "pv/windowSystem.h"
 #include "pv/OculusRift.h"
-
 #include "pv/OpenGL.h"
 
 bool done = false;
