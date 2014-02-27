@@ -6,7 +6,7 @@
 using namespace OVR;
 using namespace OVR::Util::Render;
 
-#include "types.h"
+#include "pv/types.h"
 
 class OculusRift
 {
@@ -53,6 +53,23 @@ public:
 	void Update();
 
 	/**
+	 * Shifts the view for a specific eye.
+	 *
+	 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and will
+	 * make sure to use the best methods for the supported version of OpenGL.
+	 */
+	void ShiftView(RiftEye eye);
+
+	/**
+	 * Shifts the view for a specific eye.
+	 *
+	 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and allows
+	 * you to specify which version of OpenGL to render with. (Shaders for > 2.0, deprecated methods for
+	 * less than 2.0.
+	 */
+	void ShiftView(RiftEye eye, int majorVersion, int minorVersion);
+
+	/**
 	 * Get the rotation values for where the user is looking.
 	 *
 	 * Get the rotation values for the angle of rotation for where the user is looking.
@@ -68,7 +85,7 @@ public:
 	 * cleanup all resources associated with the Oculus Rift device.
 	 */
 	~OculusRift();
-private:
+protected:
 	/**
 	  * Manages the USB devices connected to the computer.
 	  */
@@ -166,6 +183,15 @@ private:
 	 * The rotation data for where the user is looking.
 	 */
 	rotation_t Rotation;
+
+	/**
+	 * Renders the view for the Oculus Rift with OpenGL using methods compatible with < Version 2.0.
+	 *
+	 * Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
+	 * to be used on OpenGL versions less than 2.0.
+	 * @param eye The eye to render for.
+	 */
+	void renderGLBelow2(RiftEye eye);
 };
 
 #endif

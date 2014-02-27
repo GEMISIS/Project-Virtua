@@ -1,7 +1,6 @@
 #include "pv/OculusRift.h"
 #include "pv/OpenGL.h"
 
-
 /**
  * This is the constructor used to create a new Oculus Rift device.
  *
@@ -184,24 +183,44 @@ void OculusRift::Update()
 	}
 }
 
-void ShiftView(RiftEye eye)
+void OculusRift::renderGLBelow2(RiftEye eye)
+{
+	gluPerspective(this->FieldOfView, this->AspectRatio, 0.001f, 10000.0f);
+	if(eye == Left)
+	{
+		glViewport(this->LeftEye.VP.x, this->LeftEye.VP.y, this->LeftEye.VP.w, this->LeftEye.VP.h);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glTranslatef(this->ProjectionCenterOffset, 0.0f, 0.0f);
+		glTranslatef(this->HalfIPD * this->ViewCenter, 0.0f, 0.0f);
+	}
+	else if(eye == Right)
+	{
+		glViewport(this->RightEye.VP.x, this->RightEye.VP.y, this->RightEye.VP.w, this->RightEye.VP.h);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glTranslatef(-this->ProjectionCenterOffset, 0.0f, 0.0f);
+		glTranslatef(-this->HalfIPD * this->ViewCenter, 0.0f, 0.0f);
+	}
+}
+
+void OculusRift::ShiftView(RiftEye eye)
 {
 	int openGlVersion[] = {0, 0};
 	glGetIntegerv(GL_MAJOR_VERSION, &openGlVersion[0]);
 	glGetIntegerv(GL_MINOR_VERSION, &openGlVersion[1]);
 
-	switch(openGlVersion[0])
+	this->ShiftView(eye, openGlVersion[0], openGlVersion[1]);
+}
+
+void OculusRift::ShiftView(RiftEye eye, int majorVersion, int minorVersion)
+{
+	switch(majorVersion)
 	{
 	case 2:
-		switch(openGlVersion[1])
-		{
-		case 1:
-		default:
-			break;
-		}
-		break;
 	case 1:
 	default:
+		this->renderGLBelow2(eye);
 		break;
 	}
 }

@@ -11,9 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OculusRift.h" />
-    <ClInclude Include="OpenGL.h" />
-    <ClInclude Include="types.h" />
+    <ClInclude Include="pv\oculusrift.h" />
+    <ClInclude Include="pv\opengl.h" />
+    <ClInclude Include="pv\types.h" />
+    <ClInclude Include="pv\windowsystem.h" />
     <ClInclude Include="windowSystem.h" />
   </ItemGroup>
   <ItemGroup>

@@ -18,13 +18,16 @@
     <ClInclude Include="windowSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OculusRift.h">
+    <ClInclude Include="pv\oculusrift.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="types.h">
+    <ClInclude Include="pv\opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OpenGL.h">
+    <ClInclude Include="pv\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pv\windowsystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

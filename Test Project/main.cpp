@@ -28,13 +28,8 @@ LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam,
 	return DefWindowProc(winHandle, message, windowParam, messageParam);
 }
 
-int drawGLScene(OculusRift rift)
+void drawScene()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
-	glRotatef(rift.getRotation().y, 0.0f, 1.0f, 0.0f);
-
 	glTranslatef(-1.5f, 0.0f, -6.0f);
 	glBegin(GL_TRIANGLES);
 	{
@@ -53,6 +48,35 @@ int drawGLScene(OculusRift rift)
 		glVertex3f(-1.0f, -1.0f, 0.0f);
 	}
 	glEnd();
+}
+
+int drawGLScene(OculusRift rift)
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+	if(rift.isConnected())
+	{
+		rift.ShiftView(Left);
+		{
+			glPushMatrix();
+			glRotatef(rift.getRotation().y, 0.0f, 1.0f, 0.0f);
+			drawScene();
+			glPopMatrix();
+		}
+		rift.ShiftView(Right);
+		{
+			glPushMatrix();
+			glRotatef(rift.getRotation().y, 0.0f, 1.0f, 0.0f);
+			drawScene();
+			glPopMatrix();
+		}
+	}
+	else
+	{
+		drawScene();
+	}
+
 	return 1;
 }
 
@@ -61,11 +85,18 @@ int main()
 	OculusRift rift;
 
 	Window testWindow;
-	testWindow.create(L"testing", 640, 480, false, windowProcess);
+	testWindow.create(L"testing", 1280, 800, false, windowProcess);
 	testWindow.setWindowDrawingStateGL();
 	testWindow.setVisible(true);
 
-	onResize(640, 480);
+	if(rift.isConnected())
+	{
+		onResize(1280 / 2, 800);
+	}
+	else
+	{
+		onResize(1280, 800);
+	}
 	glEnable(GL_DEPTH_TEST);
 
 	printf("Rift Connected: %s\n", (rift.isConnected()) ? "Yes" : "No");
@@ -92,6 +123,7 @@ int main()
 
 		rift.Update();
 		testWindow.MakeCurrentGLContext();
+
 		drawGLScene(rift);
 
 		testWindow.Update();
