@@ -1,1 +1,0 @@
-Please visit http://www.projectvirtua.com for the documentation and installation tutorials!
