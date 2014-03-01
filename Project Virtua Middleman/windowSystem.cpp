@@ -85,78 +85,11 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 		return REGISTER_ERROR;
 	}
 
-	// Check if the window should be full screen.
-	if(fullscreen)
-	{
-		// If so, create a devmode variable for the screen's settings.
-		DEVMODE deviceModeScreenSettings;
-		// Use memset to initialize the memory for the window to 0.
-		memset(&deviceModeScreenSettings, 0, sizeof(deviceModeScreenSettings));
-		// Set the size of the settings variable.
-		deviceModeScreenSettings.dmSize = sizeof(deviceModeScreenSettings);
-
-		// Check if the display settings could not be gotten properly.
-		if(!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &deviceModeScreenSettings))
-		{
-			// If so, set the bits per pixel manually.
-			deviceModeScreenSettings.dmBitsPerPel = this->bitsPerPixel;
-			// Set the width of the device surface.
-			deviceModeScreenSettings.dmPelsWidth = width;
-			// Set the height of the device surface.
-			deviceModeScreenSettings.dmPelsHeight = height;
-			// Set the fields that have been initialized.
-			deviceModeScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-		}
-
-		// Next try to change the display settings to the screen settings retrived and see if it
-		// was unsuccessful.
-		if(ChangeDisplaySettings(&deviceModeScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-		{
-			// If it was unsuccessful, try to change the display settings based on a NULL value and see
-			// if that is unsuccessful.
-			if(ChangeDisplaySettings(NULL, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-			{
-				// If so, prompt the user that fullscreen mode is not available and ask if windowed mode is ok.
-				if(MessageBox(NULL, (LPCWSTR)L"The requested fullscreen mode is not supported by\nyour video card. Use windowed mode instead?", (LPCWSTR)L"Warning", MB_YESNO | MB_ICONWARNING) == IDYES)
-				{
-					// If they answer yes, set the fullscreen mode boolean to false.
-					this->isFullscreen = false;
-				}
-				else
-				{
-#ifdef _DEBUG
-					// Otherwise, if debugging the application, indicate where in the code the error has occured.
-					MessageBox(NULL, (LPCWSTR)L"Error going fullscreen!", (LPCWSTR)L"CREATE WINDOW ERROR", MB_OK | MB_ICONERROR);
-#else
-					// Otherwise, display a nice clean error to the end user.
-					MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WC" + FULLSCREEN_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
-#endif
-					return FULLSCREEN_ERROR;
-				}
-			}
-		}
-		// Otherwise, if everything was successful, set the fullscreen boolean to true.
-		this->isFullscreen = true;
-	}
-	
-	// Check if the window was successfully made full screen.
-	if(this->isFullscreen)
-	{
-		// If so, set the extended window style to be an application window.
-		windowExtendedStyle = WS_EX_APPWINDOW;
-		// Then set the normal window style to be an overlapped window.
-		windowStyle = WS_OVERLAPPEDWINDOW;
-		// Finally, hide the cursor.
-		ShowCursor(false);
-	}
-	else
-	{
-		// If the window is not fullscreen, set the extended style to still be an application
-		// window, and also set the window to have edges.
-		windowExtendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-		// Finally, set the normal window style to be an overlapped window still.
-		windowStyle = WS_OVERLAPPEDWINDOW;
-	}
+	// If the window is not fullscreen, set the extended style to still be an application
+	// window, and also set the window to have edges.
+	windowExtendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+	// Finally, set the normal window style to be an overlapped window still.
+	windowStyle = WS_OVERLAPPEDWINDOW;
 
 	// Next, the window needs to have it's rectangle adjusted.
 	AdjustWindowRectEx(&windowRectangle, windowStyle, false, windowExtendedStyle);
@@ -177,15 +110,10 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 		return CREATION_ERROR;
 	}
 
-	// Check if the window is full screen.
-	if(isFullscreen)
-	{
-		// If it is, set the window's styling to get rid of the frame.
-		SetWindowLong(windowHandle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
-	}
-
 	// Show the window.
 	ShowWindow(windowHandle, SW_SHOW);
+
+	this->SetFullscreen(fullscreen);
 
 	// Return that everythign went okay.
 	return OK;
@@ -457,7 +385,7 @@ const bool Window::IsFullscreen()
 	return this->isFullscreen;
 }
 
-WINDOW_ERRORS Window::SetFullscreen(bool fullscreen)
+void Window::SetFullscreen(bool fullscreen)
 {
 	this->setVisible(false);
 
@@ -484,8 +412,6 @@ WINDOW_ERRORS Window::SetFullscreen(bool fullscreen)
 	}
 
 	this->setVisible(true);
-
-	return OK;
 }
 	
 /**

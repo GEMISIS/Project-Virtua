@@ -121,7 +121,16 @@ public:
 	 * @return Returns true if the window is fullscreen, false otherwise.
 	 */
 	const bool IsFullscreen();
-	WINDOW_ERRORS SetFullscreen(bool fullscreen);
+	/**
+	 * Sets the window to be fullscreen or in a window.
+	 *
+	 * Sets the window to be fullscreen when the fullscreen variable is true.  It will set it
+	 * to be in a window otherwise.  When switching between a window and fullscreen, it will
+	 * save the previous settings for windowed if that is what it started with.  Otherwise it
+	 * will use the fullscreen as the window size.
+	 * @param fullscreen Set to true to make the window fullscreen, false otherwise.
+	 */
+	void SetFullscreen(bool fullscreen);
 	/**
 	 * Gets bits per pixel for the window.
 	 *
