@@ -85,7 +85,7 @@ int main()
 	OculusRift rift;
 
 	Window testWindow;
-	testWindow.create(L"testing", 1280, 800, false, windowProcess);
+	testWindow.create(L"testing", 640, 480, false, windowProcess);
 	testWindow.setWindowDrawingStateGL();
 	testWindow.setVisible(true);
 
@@ -119,6 +119,12 @@ int main()
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
+		}
+
+		if(GetAsyncKeyState(VK_SPACE) & 0x8000)
+		{
+			Sleep(100);
+			testWindow.SetFullscreen(!testWindow.IsFullscreen());
 		}
 
 		rift.Update();

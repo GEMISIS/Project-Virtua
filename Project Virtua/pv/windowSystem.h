@@ -1,7 +1,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 
-#include "types.h"
+#include "pv/types.h"
 
 /**
  * The default bits per pixel to use for an OpenGL context.
@@ -121,6 +121,7 @@ public:
 	 * @return Returns true if the window is fullscreen, false otherwise.
 	 */
 	const bool IsFullscreen();
+	WINDOW_ERRORS SetFullscreen(bool fullscreen);
 	/**
 	 * Gets bits per pixel for the window.
 	 *
@@ -147,6 +148,10 @@ public:
 	 */
 	void destroyGLSystem();
 private:
+	unsigned int width;
+	unsigned int height;
+	RECT windowRectangle;
+
 	/**
 	 * The rendering context for where to draw stuff to.
 	 */

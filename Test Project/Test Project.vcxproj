@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glu32.lib;pvd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pvd.lib;pvmmd.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -69,13 +69,16 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pv.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pv.lib;pvmm.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Project Virtua Middleman\Project Virtua Middleman.vcxproj">
+      <Project>{b64331d7-cffa-492f-bb78-337d6d1b0212}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Project Virtua\Project Virtua.vcxproj">
       <Project>{6d54c652-b539-4d1e-a4f1-4961ab50e54e}</Project>
     </ProjectReference>

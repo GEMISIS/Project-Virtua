@@ -15,19 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pv\oculusrift.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pv\types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pv\opengl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="OculusRift.cpp">
+    <ClCompile Include="windowSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Project Virtua\pv\opengl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Project Virtua\pv\windowSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

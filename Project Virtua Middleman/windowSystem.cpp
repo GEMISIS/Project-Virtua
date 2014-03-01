@@ -17,6 +17,9 @@
  */
 WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, int bitsPerPixel)
 {
+	this->width = width;
+	this->height = height;
+
 	// Set the window as not active.
 	this->active = false;
 
@@ -31,8 +34,6 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 	// Set the bits per pixel for this window.
 	this->bitsPerPixel = bitsPerPixel;
 	
-	// Create a rectangle variable for the size of the window.
-	RECT windowRectangle;
 	// Set the left side of the window.
 	windowRectangle.left = 0;
 	// Set the right side of the window.
@@ -46,7 +47,7 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
 	// false by default.  This will be changed later on if it is successfully
 	// made full screen.
 	this->isFullscreen = false;
-
+	
 	// Get a handle to the instance of the application.
 	appInstance = GetModuleHandle(NULL);
 	// Set the style to redraw vertically and horizantally, as well as to own it's own device context.
@@ -455,6 +456,37 @@ const bool Window::IsFullscreen()
 {
 	return this->isFullscreen;
 }
+
+WINDOW_ERRORS Window::SetFullscreen(bool fullscreen)
+{
+	this->setVisible(false);
+
+	this->isFullscreen = fullscreen;
+
+	ChangeDisplaySettings(NULL, CDS_FULLSCREEN);
+	if(this->isFullscreen)
+	{
+		windowRectangle.right = GetSystemMetrics(SM_CXSCREEN);
+		windowRectangle.bottom = GetSystemMetrics(SM_CYSCREEN);
+		AdjustWindowRectEx(&windowRectangle, WS_OVERLAPPEDWINDOW, false, 0);
+		SetWindowPos(this->windowHandle, HWND_TOPMOST, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_DEFERERASE);
+		SetWindowLong(this->windowHandle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
+		ShowCursor(false);
+	}
+	else
+	{
+		windowRectangle.right = width;
+		windowRectangle.bottom = height;
+		AdjustWindowRectEx(&windowRectangle, WS_OVERLAPPEDWINDOW, false, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
+		SetWindowPos(this->windowHandle, HWND_TOPMOST, 0, 0, this->width, this->height, SWP_DEFERERASE);
+		SetWindowLong(this->windowHandle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW);
+		ShowCursor(true);
+	}
+
+	this->setVisible(true);
+
+	return OK;
+}
 	
 /**
  * Gets bits per pixel for the window.
@@ -504,45 +536,45 @@ void Window::destroy()
 		// Set the fullscreen boolean to false.
 		this->isFullscreen = false;
 
-		// Check if there is a device context and attempt to release it.
-		if(deviceContext && !deviceContext->unused && !ReleaseDC(windowHandle, deviceContext))
-		{
-#ifdef _DEBUG
-			// If debugging, display an error indicating that the device context couldn't be released.
-			MessageBox(NULL, (LPCWSTR)L"Error releasing device context!", (LPCWSTR)L"Window Destroy ERROR", MB_OK | MB_ICONERROR);
-#else
-			// Display a nice error for the user if not debugging.
-			MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WD" + DC_RELEASE_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
-#endif
-			// Set the device context to NULL.
-			deviceContext = NULL;
-		}
-		// Check if there is a window handle and attempt to destroy the window associated with it.
-		if(windowHandle && !windowHandle->unused && !DestroyWindow(windowHandle))
-		{
-#ifdef _DEBUG
-			// If debugging, display an error indicating that the window handle couldn't be destroyed.
-			MessageBox(NULL, (LPCWSTR)L"Error destroying window handle!", (LPCWSTR)L"Window Destroy ERROR", MB_OK | MB_ICONERROR);
-#else
-			// Dispaly a nice error to the user if not debugging.
-			MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WD" + WH_DESTROY_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
-#endif
-			// Set the window handle to NULL.
-			windowHandle = NULL;
-		}
-		// Attempt to unregister the title associated with the window.
-		if(!UnregisterClass(this->title, appInstance))
-		{
-#ifdef _DEBUG
-			// If debugging, display  an error indicating that the window class could not be unregistered.
-			MessageBox(NULL, (LPCWSTR)L"Error unregistering class!", (LPCWSTR)L"Window Destroy ERROR", MB_OK | MB_ICONERROR);
-#else
-			// Display a nice error to the user if not debugging.
-			MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WD" + WC_UNREGISTER_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
-#endif
-			// Set the applications instance handle to NULL.
-			appInstance = NULL;
-		}
+//		// Check if there is a device context and attempt to release it.
+//		if(deviceContext && !deviceContext->unused && !ReleaseDC(windowHandle, deviceContext))
+//		{
+//#ifdef _DEBUG
+//			// If debugging, display an error indicating that the device context couldn't be released.
+//			MessageBox(NULL, (LPCWSTR)L"Error releasing device context!", (LPCWSTR)L"Window Destroy ERROR", MB_OK | MB_ICONERROR);
+//#else
+//			// Display a nice error for the user if not debugging.
+//			MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WD" + DC_RELEASE_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
+//#endif
+//			// Set the device context to NULL.
+//			deviceContext = NULL;
+//		}
+//		// Check if there is a window handle and attempt to destroy the window associated with it.
+//		if(windowHandle && !windowHandle->unused && !DestroyWindow(windowHandle))
+//		{
+//#ifdef _DEBUG
+//			// If debugging, display an error indicating that the window handle couldn't be destroyed.
+//			MessageBox(NULL, (LPCWSTR)L"Error destroying window handle!", (LPCWSTR)L"Window Destroy ERROR", MB_OK | MB_ICONERROR);
+//#else
+//			// Dispaly a nice error to the user if not debugging.
+//			MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WD" + WH_DESTROY_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
+//#endif
+//			// Set the window handle to NULL.
+//			windowHandle = NULL;
+//		}
+//		// Attempt to unregister the title associated with the window.
+//		if(!UnregisterClass(this->title, appInstance))
+//		{
+//#ifdef _DEBUG
+//			// If debugging, display  an error indicating that the window class could not be unregistered.
+//			MessageBox(NULL, (LPCWSTR)L"Error unregistering class!", (LPCWSTR)L"Window Destroy ERROR", MB_OK | MB_ICONERROR);
+//#else
+//			// Display a nice error to the user if not debugging.
+//			MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WD" + WC_UNREGISTER_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
+//#endif
+//			// Set the applications instance handle to NULL.
+//			appInstance = NULL;
+//		}
 	}
 }
 
