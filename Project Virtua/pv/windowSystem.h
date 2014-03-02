@@ -20,22 +20,6 @@ class Window
 {
 public:
 	/**
-	 * This method creates a window using the given information and returns its status.
-	 *
-	 * This method creates a window using the given information.  If an error occurs, it is returned.
-	 * @param title The title to be displayed in the window.
-	 * @param width An unsigned integer for the width of the window.
-	 * @param height An unsigned integer for the height of the window.
-	 * @param fullscreen If true, the window will be made full screen, with the width and height determining the
-	 * screen resolution.  If false, it will simply create the window with the selected width and height as its
-	 * size.
-	 * @param bitsPerPixel The bits per pixel to use for the window.
-	 * @return On success, this method will return 1.
-	 * On fail, it will return an error code.
-	 */
-	WINDOW_ERRORS create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, int bitsPerPixel);
-
-	/**
 	 * This method creates a window using the given information and then returns its status.
 	 *
 	 * This method creates a window using the given information.  If an error occurs, it is returned.
@@ -211,6 +195,27 @@ private:
 	 * The window's title.
 	 */
 	LPCWSTR title;
+
+	/**
+	 * This method creates a window using the given information and returns its status.
+	 *
+	 * This method creates a window using the given information.  If an error occurs, it is returned.
+	 * @param title The title to be displayed in the window.
+	 * @param width An unsigned integer for the width of the window.
+	 * @param height An unsigned integer for the height of the window.
+	 * @param fullscreen If true, the window will be made full screen, with the width and height determining the
+	 * screen resolution.  If false, it will simply create the window with the selected width and height as its
+	 * size.
+	 * @param bitsPerPixel The bits per pixel to use for the window.
+	 * @return On success, this method will return 1.
+	 * On fail, it will return an error code.
+	 */
+	WINDOW_ERRORS create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, int bitsPerPixel);
+
+	/**
+	 * The default process method for the window.
+	 */
+	LRESULT CALLBACK process(HWND winHandle, UINT message, WPARAM windowParam, LPARAM messageParam);
 };
 
 #elif __APPLE__

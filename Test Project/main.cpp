@@ -85,17 +85,18 @@ int main()
 	OculusRift rift;
 
 	Window testWindow;
-	testWindow.create(L"testing", 640, 480, true, windowProcess);
+	testWindow.create(L"testing", 640, 480, false, windowProcess);
 	testWindow.setWindowDrawingStateGL();
 	testWindow.setVisible(true);
 
 	if(rift.isConnected())
 	{
+		testWindow.SetFullscreen(true);
 		onResize(1280 / 2, 800);
 	}
 	else
 	{
-		onResize(1280, 800);
+		onResize(640, 480);
 	}
 	glEnable(GL_DEPTH_TEST);
 
@@ -110,7 +111,7 @@ int main()
 	{
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if(msg.message == WM_QUIT || msg.message == WM_NCLBUTTONUP)
+			if(msg.message == WM_QUIT)
 			{
 				done = true;
 			}

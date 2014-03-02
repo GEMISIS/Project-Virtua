@@ -133,8 +133,15 @@ WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int hei
  */
 WINDOW_ERRORS Window::create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, windowProcessCallback callback)
 {
-	// Set the window process callback.
-	this->setWindowProcessCallback(callback);
+	// Check that a callback was given.
+	if(callback != NULL)
+	{
+		this->setWindowProcessCallback(callback);
+	}
+	else
+	{
+		this->setWindowProcessCallback(this->process);
+	}
 	// Create the window returning any errors that come up.
 	return this->create(title, width, height, fullscreen, DEFAULT_BITS_PER_PIXEL);
 }
