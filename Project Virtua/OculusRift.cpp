@@ -1,5 +1,5 @@
 #include "pv/OculusRift.h"
-#include "pv/OpenGL.h"
+#include "pv/MinOpenGL.h"
 
 /**
  * This is the constructor used to create a new Oculus Rift device.

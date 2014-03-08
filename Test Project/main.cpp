@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "pv/windowSystem.h"
 #include "pv/OculusRift.h"
-#include "pv/OpenGL.h"
+#include "pv/MidOpenGL.h"
 
 bool done = false;
 
@@ -105,6 +105,9 @@ int main()
 	glGetIntegerv(GL_MAJOR_VERSION, &version[0]);
 	glGetIntegerv(GL_MINOR_VERSION, &version[1]);
 	printf("Version: %d.%d\n", version[0], version[1]);
+
+	initializeBaseOpenGL();
+	wglSwapIntervalEXT(1);
 
 	MSG msg;
 	while(!done)

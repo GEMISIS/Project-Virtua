@@ -11,12 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pv\oculusrift.h" />
-    <ClInclude Include="pv\opengl.h" />
-    <ClInclude Include="pv\types.h" />
+    <ClCompile Include="OculusRift.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OculusRift.cpp" />
+    <ClInclude Include="..\include\pv\MinOpenGL.h" />
+    <ClInclude Include="..\include\pv\OculusRift.h" />
+    <ClInclude Include="..\include\pv\types.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6D54C652-B539-4D1E-A4F1-4961AB50E54E}</ProjectGuid>
@@ -47,9 +47,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>pvd</TargetName>
+    <OutDir>..\lib</OutDir>
+    <IncludePath>../include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>pv</TargetName>
+    <OutDir>..\lib</OutDir>
+    <IncludePath>../include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -18,12 +18,15 @@
     <ClCompile Include="windowSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MidOpenGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Project Virtua\pv\opengl.h">
+    <ClInclude Include="..\include\pv\MidOpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Project Virtua\pv\windowSystem.h">
+    <ClInclude Include="..\include\pv\WindowSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
