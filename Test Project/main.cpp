@@ -85,7 +85,11 @@ int main()
 	OculusRift rift;
 
 	Window testWindow;
-	testWindow.create(L"testing", 640, 480, false, windowProcess);
+#ifdef _DEBUG
+	testWindow.create(L"testing - debug", 640, 480, false, windowProcess);
+#else
+	testWindow.create(L"testing - release", 640, 480, false, windowProcess);
+#endif
 	testWindow.setWindowDrawingStateGL();
 	testWindow.setVisible(true);
 
