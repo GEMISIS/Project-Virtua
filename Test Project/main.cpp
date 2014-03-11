@@ -106,8 +106,8 @@ int main()
 
 	printf("Rift Connected: %s\n", (rift.isConnected()) ? "Yes" : "No");
 	int version[] = {0, 0};
-	glGetIntegerv(GL_MAJOR_VERSION, &version[0]);
-	glGetIntegerv(GL_MINOR_VERSION, &version[1]);
+	glGetIntegerv(__GL_MAJOR_VERSION, &version[0]);
+	glGetIntegerv(__GL_MINOR_VERSION, &version[1]);
 	printf("Version: %d.%d\n", version[0], version[1]);
 
 	initializeBaseOpenGL();

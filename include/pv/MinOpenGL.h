@@ -4,7 +4,17 @@
 #include <GL/GL.h>
 #include <GL/GLU.h>
 
-#define GL_MAJOR_VERSION 0x821B
-#define GL_MINOR_VERSION 0x821C
+/**
+ * The define for getting the major version (X.0) in OpenGL.
+ */
+#define __GL_MAJOR_VERSION 0x821B
+/**
+ * The define for getting the minor version (0.X) in OpenGL.
+ */
+#define __GL_MINOR_VERSION 0x821C
+
+typedef GLuint (WINAPI* _glCreateShaderFunction) (GLenum shaderType);
+
+extern _glCreateShaderFunction glCreateShader;
 
 #endif

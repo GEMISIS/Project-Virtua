@@ -10,7 +10,7 @@
  */
 OculusRift::OculusRift()
 {
-	// Setup the initial values.
+	// Setup the initial values for all of the rotations.
 	this->Rotation.x = 0.0f;
 	this->Rotation.y = 0.0f;
 	this->Rotation.z = 0.0f;
@@ -34,8 +34,6 @@ OculusRift::OculusRift()
 	this->OldOrientation_quart.axis.y = 0.0f;
 	this->OldOrientation_quart.axis.z = 0.0f;
 
-	// Set the viewport to the max of the Oculus Rift currently (1280x800).
-	this->viewport = Viewport(0, 0, 1280, 800);
 	// Initialize the Oculus Rift.
 	this->Initialize();
 
@@ -43,6 +41,8 @@ OculusRift::OculusRift()
 	{
 		// Setup the user's data for the Oculus Rift.
 		this->Setup();
+
+		this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
 	}
 }
 
@@ -207,8 +207,8 @@ void OculusRift::renderGLBelow2(RiftEye eye)
 void OculusRift::ShiftView(RiftEye eye)
 {
 	int openGlVersion[] = {0, 0};
-	glGetIntegerv(GL_MAJOR_VERSION, &openGlVersion[0]);
-	glGetIntegerv(GL_MINOR_VERSION, &openGlVersion[1]);
+	glGetIntegerv(__GL_MAJOR_VERSION, &openGlVersion[0]);
+	glGetIntegerv(__GL_MINOR_VERSION, &openGlVersion[1]);
 
 	this->ShiftView(eye, openGlVersion[0], openGlVersion[1]);
 }

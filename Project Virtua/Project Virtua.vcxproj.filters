@@ -18,6 +18,15 @@
     <ClCompile Include="OculusRift.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MinOpenGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Kinect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\pv\MinOpenGL.h">
@@ -27,6 +36,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\pv\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pv\FileIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pv\Kinect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
