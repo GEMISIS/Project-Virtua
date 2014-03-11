@@ -1,5 +1,6 @@
 #include "pv/Kinect.h"
 
+#ifndef EXCLUDE_KINECT
 Kinect::Kinect()
 {
 	this->InitializeSensor(0);
@@ -30,4 +31,6 @@ void Kinect::InitializeSensor(int index)
 }
 
 
+
+#endif
 

@@ -1,6 +1,7 @@
 #ifndef _KINECT_H_
 #define _KINECT_H_
 
+#ifndef EXCLUDE_KINECT
 #include <Windows.h>
 #include <NuiApi.h>
 #include <NuiImageCamera.h>
@@ -28,5 +29,7 @@ protected:
 
 	void InitializeSensor(int index);
 };
+#endif
 
 #endif
+
