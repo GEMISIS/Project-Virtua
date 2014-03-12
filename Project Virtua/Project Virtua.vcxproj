@@ -12,13 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="Kinect.cpp" />
+    <ClCompile Include="Kinect1.cpp" />
     <ClCompile Include="MinOpenGL.cpp" />
     <ClCompile Include="OculusRift.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\pv\FileIO.h" />
-    <ClInclude Include="..\include\pv\Kinect.h" />
+    <ClInclude Include="..\include\pv\Kinect1.h" />
     <ClInclude Include="..\include\pv\MinOpenGL.h" />
     <ClInclude Include="..\include\pv\OculusRift.h" />
     <ClInclude Include="..\include\pv\types.h" />

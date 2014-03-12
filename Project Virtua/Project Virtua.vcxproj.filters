@@ -24,7 +24,7 @@
     <ClCompile Include="FileIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Kinect.cpp">
+    <ClCompile Include="Kinect1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="..\include\pv\FileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\pv\Kinect.h">
+    <ClInclude Include="..\include\pv\Kinect1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

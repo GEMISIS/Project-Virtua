@@ -207,8 +207,8 @@ void OculusRift::renderGLBelow2(RiftEye eye)
 void OculusRift::ShiftView(RiftEye eye)
 {
 	int openGlVersion[] = {0, 0};
-	glGetIntegerv(__GL_MAJOR_VERSION, &openGlVersion[0]);
-	glGetIntegerv(__GL_MINOR_VERSION, &openGlVersion[1]);
+	glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion[0]);
+	glGetIntegerv(PV_GL_MINOR_VERSION, &openGlVersion[1]);
 
 	this->ShiftView(eye, openGlVersion[0], openGlVersion[1]);
 }

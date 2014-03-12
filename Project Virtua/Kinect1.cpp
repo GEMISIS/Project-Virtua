@@ -1,17 +1,17 @@
-#include "pv/Kinect.h"
+#include "pv/Kinect1.h"
 
-#ifndef EXCLUDE_KINECT
-Kinect::Kinect()
+#ifndef EXCLUDE_KINECT1
+Kinect1::Kinect1()
 {
 	this->InitializeSensor(0);
 }
 
-Kinect::Kinect(int index)
+Kinect1::Kinect1(int index)
 {
 	this->InitializeSensor(index);
 }
 
-void Kinect::InitializeSensor(int index)
+void Kinect1::InitializeSensor(int index)
 {
 	int totalSensors = 0;
 	this->status = NotDetected;

@@ -1,7 +1,7 @@
-#ifndef _KINECT_H_
-#define _KINECT_H_
+#ifndef _KINECT1_H_
+#define _KINECT1_H_
 
-#ifndef EXCLUDE_KINECT
+#ifndef EXCLUDE_KINECT1
 #include <Windows.h>
 #include <NuiApi.h>
 #include <NuiImageCamera.h>
@@ -14,15 +14,15 @@ typedef enum
 	Ready = 1
 }KinectStatus;
 
-class Kinect
+class Kinect1
 {
 public:
-	Kinect();
-	Kinect(int index);
+	Kinect1();
+	Kinect1(int index);
 
 	const KinectStatus Status() const;
 
-	~Kinect();
+	~Kinect1();
 protected:
 	INuiSensor* sensor;
 	KinectStatus status;
