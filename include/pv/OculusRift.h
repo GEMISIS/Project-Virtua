@@ -8,36 +8,33 @@ using namespace OVR::Util::Render;
 
 #include "pv/types.h"
 
+/**
+ * A class for managing any Oculus Rift devices connected to the computer.  This structure can be used
+ * to get various properties of the Oculus Rift, such as the head rotation, as well as to warp the output
+ * to be displayed in OpenGL.  DirectX support is still under construction as of now.
+ */
 class OculusRift
 {
 public:
 	/**
-	 * This is the constructor used to create a new Oculus Rift device.
-	 *
 	 * This constructor will automatically attempt to initialize and setup an
 	 * Oculus Rift device that is connected to the computer.  Use the IsConnected
 	 * method to see if the device was successfully setup.
 	 */
 	OculusRift();
 	/**
-	 * This method will initialize the Oculus Rift headset.
-	 *
 	 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
 	 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
 	 * from the Oculus Rift.
 	 */
 	void Initialize();
 	/**
-	 * This method will setup the Oculus Rift headset.
-	 *
 	 * This method goes through and sets up the user's data for the Oculus Rift headset.
 	 * This data includes things such as the interpupillary distance, field of view, and more.
 	 */
 	void Setup();
 
 	/**
-	 * Returns a boolean indicating whether the Oculus Rift is connected.
-	 *
 	 * This method checks to see if the Oculus Rift is connected and returns
 	 * a boolean indicating whether it is or not.
 	 * @return Returns true if the Oculus Rift is connected, false otherwise.
@@ -45,24 +42,18 @@ public:
 	const bool isConnected();
 
 	/**
-	 * This method updates the data from the Oculus Rift headset.
-	 *
 	 * This method updates data recieved from the Oculus Rift.  It currently pulls the change in
 	 * orientation and updates the rotation of where the user is looking.
 	 */
 	void Update();
 
 	/**
-	 * Shifts the view for a specific eye.
-	 *
 	 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and will
 	 * make sure to use the best methods for the supported version of OpenGL.
 	 */
 	void ShiftView(RiftEye eye);
 
 	/**
-	 * Shifts the view for a specific eye.
-	 *
 	 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and allows
 	 * you to specify which version of OpenGL to render with. (Shaders for > 2.0, deprecated methods for
 	 * less than 2.0.
@@ -70,8 +61,6 @@ public:
 	void ShiftView(RiftEye eye, int majorVersion, int minorVersion);
 
 	/**
-	 * Get the rotation values for where the user is looking.
-	 *
 	 * Get the rotation values for the angle of rotation for where the user is looking.
 	 * This is in Euler angles.
 	 * @return The rotation on the X, Y, and Z axis in Euler angles.
@@ -79,8 +68,6 @@ public:
 	const rotation_t getRotation();
 
 	/**
-	 * This is the deconstructor for the Oculus Rift device.
-	 *
 	 * This is the deconstructor for he Oculus Rift device.  This method will automatically
 	 * cleanup all resources associated with the Oculus Rift device.
 	 */
@@ -125,15 +112,11 @@ protected:
 	  */
 	orientation_quart_t Orientation_quart;
 	/**
-	  * The previous orientation of the oculus rift. (yaw, pitch, roll)
-	  *
 	  * The previous orientation of the oculus rift. (yaw, pitch, roll) This is used to
 	  * update the orientation data properly.
 	  */
 	orientation_t OldOrientation;
 	/**
-	  * The previous orientation of the oculus rift. (Quaternion)
-	  *
 	  * The previous orientation of the oculus rift. (Quaternion) This is used to
 	  * update the orientation data properly.
 	  */
@@ -185,8 +168,6 @@ protected:
 	rotation_t Rotation;
 
 	/**
-	 * Renders the view for the Oculus Rift with OpenGL using methods compatible with < Version 2.0.
-	 *
 	 * Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
 	 * to be used on OpenGL versions less than 2.0.
 	 * @param eye The eye to render for.

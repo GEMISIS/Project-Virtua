@@ -3,31 +3,38 @@
 #ifndef EXCLUDE_KINECT1
 Kinect1::Kinect1()
 {
+	this->status = NotDetected;
 	this->InitializeSensor(0);
 }
 
 Kinect1::Kinect1(int index)
 {
+	this->status = NotDetected;
 	this->InitializeSensor(index);
 }
 
-void Kinect1::InitializeSensor(int index)
+KinectStatus Kinect1::InitializeSensor(int index)
 {
-	int totalSensors = 0;
-	this->status = NotDetected;
-
-	if(NuiGetSensorCount(&totalSensors) > -1 || totalSensors > index)
+	if(this->status != Ready)
 	{
-		if(NuiCreateSensorByIndex(index, &this->sensor) > -1)
+		int totalSensors = 0;
+		KinectStatus status = this->status = NotDetected;
+
+		if(NuiGetSensorCount(&totalSensors) > -1 || totalSensors > index)
 		{
-			this->sensor->NuiInitialize(NUI_INITIALIZE_FLAG_USES_SKELETON);
-			this->status = Ready;
+			if(NuiCreateSensorByIndex(index, &this->sensor) > -1)
+			{
+				this->sensor->NuiInitialize(NUI_INITIALIZE_FLAG_USES_SKELETON);
+				status = this->status = Ready;
+			}
+			else if(this->sensor == NULL)
+			{
+				status = this->status = NotEnoughBandwidth;
+			}
 		}
-		else if(this->sensor == NULL)
-		{
-			this->status = NotEnoughBandwidth;
-		}
+		return status;
 	}
+	return Ready;
 }
 
 

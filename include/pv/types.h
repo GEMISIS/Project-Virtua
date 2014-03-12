@@ -74,8 +74,6 @@ enum WINDOW_ERRORS
 };
 
 /**
- * This is a structure used for storing rotation data.
- *
  * This is a structure used for storing rotation data as Eular angles.
  * It has an X, Y, Z, and W property.
  */
@@ -88,8 +86,6 @@ struct rotation_t
 };
 
 /**
- * This is a structure used for orientation data.
- *
  * This is a structure used for orientation data.  The
  * angles are stored as Eular angles.
  */
@@ -110,8 +106,6 @@ struct orientation_t
 };
 
 /**
- * This is a structure used for orientation data.
- *
  * This is a structure used for orientation data.  The
  * angles are stored as Quartonian angles.
  */
