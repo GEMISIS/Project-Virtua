@@ -1,5 +1,5 @@
 #include <Windows.h>
-#include "pv/MidOpenGL.h"
+#include "pvmm/MidOpenGL.h"
 
 PFGNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 

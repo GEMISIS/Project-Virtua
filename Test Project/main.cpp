@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "pv/windowSystem.h"
+#include "pvmm/windowSystem.h"
 #include "pv/OculusRift.h"
-#include "pv/MidOpenGL.h"
+#include "pvmm/MidOpenGL.h"
 
 bool done = false;
 

@@ -11,12 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MidOpenGL.cpp" />
-    <ClCompile Include="windowSystem.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\include\pv\MidOpenGL.h" />
     <ClInclude Include="..\include\pv\WindowSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\pvmm\MidOpenGL.cpp" />
+    <ClCompile Include="..\source\pvmm\windowSystem.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B64331D7-CFFA-492F-BB78-337D6D1B0212}</ProjectGuid>
