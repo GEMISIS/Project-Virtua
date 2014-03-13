@@ -1,11 +1,12 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-#include <ovr/Include/OVR.h>
+#include <OVR.h>
 
 using namespace OVR;
 using namespace OVR::Util::Render;
 
+#ifdef _WIN32
 /**
  * A list of potential errors when creating and destroy a window and it's parts.
  */
@@ -72,6 +73,7 @@ enum WINDOW_ERRORS
 	 */
 	WCGL_SET_CONTEXT_ERROR = -13
 };
+#endif
 
 /**
  * This is a structure used for storing rotation data as Eular angles.

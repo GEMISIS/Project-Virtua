@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #ifndef _KINECT1_H_
 #define _KINECT1_H_
 
@@ -80,3 +81,4 @@ protected:
 
 #endif
 
+#endif

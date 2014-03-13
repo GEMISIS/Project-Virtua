@@ -49,12 +49,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>pvmm</TargetName>
-    <IncludePath>../include;$(IncludePath)</IncludePath>
+    <IncludePath>../include;C:\Users\GEMISIS\Documents\OculusSdk\Include;$(IncludePath)</IncludePath>
     <OutDir>..\lib</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>pvmmd</TargetName>
-    <IncludePath>../include;$(IncludePath)</IncludePath>
+    <IncludePath>../include;C:\Users\GEMISIS\Documents\OculusSdk\Include;$(IncludePath)</IncludePath>
     <OutDir>..\lib</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

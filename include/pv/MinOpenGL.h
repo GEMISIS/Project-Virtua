@@ -1,7 +1,34 @@
 #ifndef _MIN_OPEN_GL_H_
 #define _MIN_OPEN_GL_H_
 
+#ifdef _WIN32
 #include <Windows.h>
+#define glXGetProcAddress wglGetProcAddress;
+#elif __APPLE__
+#define __stdcall
+inline WINAPI* glXGetProcAddress(const char* name)
+{
+	NSSymbol symbol = NULL;
+	char* symbolName;
+	symbolName = malloc(strlen(name) + 2);
+	strcpy(symbolName + 1, name);
+	symbolName[0] = '_';
+
+	if (NSIsSymbolNameDefined(symbolName))
+	{
+		symbol = NSLookupAndBindSymbol(symbolName);
+	}
+	free(symbolName);
+	return symbol ? NSAddressOfSymbol(symbol) : NULL;
+}
+#elif __linux
+#define __stdcall
+#elif __unix
+#define __stdcall
+#elif __posix
+#define __stdcall
+#endif
+
 #include <GL/GL.h>
 #include <GL/GLU.h>
 
@@ -26,31 +53,31 @@
 /**
  * A function pointer for the glCreateShader function.
  */
-typedef GLuint (WINAPI* pv_glCreateShaderFunction) (GLenum shaderType);
+typedef GLuint(__stdcall* pv_glCreateShaderFunction) (GLenum shaderType);
 /**
  * A function pointer for the glShaderSource function.
  */
-typedef void (WINAPI* pv_glShaderSourceFunction) (GLuint shader, GLsizei count, const char* const* string, const GLint* length);
+typedef void(__stdcall* pv_glShaderSourceFunction) (GLuint shader, GLsizei count, const char* const* string, const GLint* length);
 /**
  * A function pointer for the glCompileShader function.
  */
-typedef void (WINAPI* pv_glCompileShaderFunction) (GLuint shader);
+typedef void(__stdcall* pv_glCompileShaderFunction) (GLuint shader);
 /**
  * A function pointer for the glDeleteShader function.
  */
-typedef void (WINAPI* pv_glDeleteShaderFunction) (GLuint shader);
+typedef void (__stdcall* pv_glDeleteShaderFunction) (GLuint shader);
 /**
  * A function pointer for the glCreateProgram function.
  */
-typedef GLuint (WINAPI* pv_glCreateProgramFunction) (void);
+typedef GLuint(__stdcall* pv_glCreateProgramFunction) (void);
 /**
  * A function pointer for the glAttachShader function.
  */
-typedef void (WINAPI* pv_glAttachShaderFunction) (GLuint program, GLuint shader);
+typedef void(__stdcall* pv_glAttachShaderFunction) (GLuint program, GLuint shader);
 /**
  * A function pointer for the glLinkProgram function.
  */
-typedef void (WINAPI* pv_glLinkProgramFunction) (GLuint program);
+typedef void(__stdcall* pv_glLinkProgramFunction) (GLuint program);
 
 /**
  * The OpenGL method "glCreateShader", to be grabbed as an OpenGL extension.

@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "pv/Kinect1.h"
 
 #ifndef EXCLUDE_KINECT1
@@ -37,7 +38,7 @@ KinectStatus Kinect1::InitializeSensor(int index)
 	return Ready;
 }
 
-
+#endif
 
 #endif
 
