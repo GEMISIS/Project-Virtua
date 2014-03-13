@@ -6,5 +6,5 @@ PFGNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 void initMidGL()
 {
 	initMinGL();
-	wglSwapIntervalEXT = (PFGNWGLSWAPINTERVALEXTPROC)glXGetProcAddress("wglSwapIntervalEXT");
+	wglSwapIntervalEXT = (PFGNWGLSWAPINTERVALEXTPROC)glGetProcAddress("wglSwapIntervalEXT");
 }
