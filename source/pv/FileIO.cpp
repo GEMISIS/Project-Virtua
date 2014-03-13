@@ -7,7 +7,7 @@ File::File(std::string fileName, bool loadData)
 	this->fileLength = 0;
 
 	this->fileStream.open(fileName.c_str(), std::ios::in);
-	// test message
+
 	if(this->fileStream)
 	{
 		if(this->fileStream.good())
