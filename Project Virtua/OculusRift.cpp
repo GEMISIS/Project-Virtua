@@ -226,15 +226,22 @@ void OculusRift::ShiftView(RiftEye eye, int majorVersion, int minorVersion)
 }
 
 /**
- * Get the rotation values for where the user is looking.
- *
  * Get the rotation values for the angle of rotation for where the user is looking.
  * This is in Euler angles.
  * @return The rotation on the X, Y, and Z axis in Euler angles.
  */
-const rotation_t OculusRift::getRotation()
+const rotation_t OculusRift::GetRotation() const
 {
-	return (const rotation_t)this->Rotation;
+	return this->Rotation;
+}
+
+/**
+ * Get viewport for the Oculus Rift.  This should be split in half for each eye.
+ * @return The viewport of what the Oculus Rift can see.
+ */
+const Viewport OculusRift::GetViewport() const
+{
+	return this->viewport;
 }
 
 

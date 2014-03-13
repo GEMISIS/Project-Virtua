@@ -60,14 +60,14 @@ int drawGLScene(OculusRift rift)
 		rift.ShiftView(Left);
 		{
 			glPushMatrix();
-			glRotatef(rift.getRotation().y, 0.0f, 1.0f, 0.0f);
+			glRotatef(rift.GetRotation().y, 0.0f, 1.0f, 0.0f);
 			drawScene();
 			glPopMatrix();
 		}
 		rift.ShiftView(Right);
 		{
 			glPushMatrix();
-			glRotatef(rift.getRotation().y, 0.0f, 1.0f, 0.0f);
+			glRotatef(rift.GetRotation().y, 0.0f, 1.0f, 0.0f);
 			drawScene();
 			glPopMatrix();
 		}

@@ -32,17 +32,15 @@ void File::LoadData()
 		free(this->data);
 		this->data = NULL;
 	}
-	this->data = (char*)malloc(this->fileLength * sizeof(char));
-
-	if(this->data != NULL)
+	if(this->fileLength > 0)
 	{
-		while(!this->fileStream.eof())
-		{
-			this->data += this->fileStream.get();
-		}
-		this->data -= this->fileLength;
+		this->data = (char*)malloc(this->fileLength * sizeof(char));
 
-		this->dataLoaded = true;
+		if(this->data != NULL)
+		{
+			this->fileStream.read(this->data, this->fileLength);
+			this->dataLoaded = true;
+		}
 	}
 }
 

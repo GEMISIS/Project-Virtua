@@ -1,6 +1,7 @@
 #ifndef _MIN_OPEN_GL_H_
 #define _MIN_OPEN_GL_H_
 
+#include <Windows.h>
 #include <GL/GL.h>
 #include <GL/GLU.h>
 

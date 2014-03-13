@@ -65,7 +65,13 @@ public:
 	 * This is in Euler angles.
 	 * @return The rotation on the X, Y, and Z axis in Euler angles.
 	 */
-	const rotation_t getRotation();
+	const rotation_t GetRotation() const;
+
+	/**
+	 * Get viewport for the Oculus Rift.  This should be split in half for each eye.
+	 * @return The viewport of what the Oculus Rift can see.
+	 */
+	const Viewport GetViewport() const;
 
 	/**
 	 * This is the deconstructor for he Oculus Rift device.  This method will automatically
