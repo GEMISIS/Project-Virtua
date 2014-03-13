@@ -110,7 +110,7 @@ int main()
 	glGetIntegerv(PV_GL_MINOR_VERSION, &version[1]);
 	printf("Version: %d.%d\n", version[0], version[1]);
 
-	initializeBaseOpenGL();
+	initMidGL();
 	wglSwapIntervalEXT(1);
 
 	MSG msg;

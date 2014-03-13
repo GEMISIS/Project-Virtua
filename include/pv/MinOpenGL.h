@@ -6,7 +6,7 @@
 #define glXGetProcAddress wglGetProcAddress;
 #elif __APPLE__
 #define __stdcall
-inline WINAPI* glXGetProcAddress(const char* name)
+inline void* glXGetProcAddress(const char* name)
 {
 	NSSymbol symbol = NULL;
 	char* symbolName;
@@ -265,5 +265,12 @@ extern pv_glAttachShaderFunction pv_glAttachShader;
  * @param program Specifies the handle of the program object to be linked.
  */
 extern pv_glLinkProgramFunction pv_glLinkProgram;
+
+/**
+ * Initializes the minimum required OpenGL functions for use with Project Virtua.  All of these methods are prefixed with pv_ in order
+ * to prevent compiler issues with OpenGL extension libraries.  These methods are included so that only the necessary OpenGL methods
+ * are added for smaller file sizes and such.
+ */
+void initMinGL();
 
 #endif
