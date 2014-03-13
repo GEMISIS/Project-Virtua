@@ -2,11 +2,18 @@
 #define _MIN_OPEN_GL_H_
 
 #ifdef _WIN32
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif
+
 #include <Windows.h>
-#define glXGetProcAddress wglGetProcAddress;
+#define glGetProcAddress(funcname) wglGetProcAddress(funcname)
+
 #elif __APPLE__
+#include <GL/glx.h>
 #define __stdcall
-inline void* glXGetProcAddress(const char* name)
+inline void* glGetProcAddress(const char* name)
 {
 	NSSymbol symbol = NULL;
 	char* symbolName;
@@ -21,12 +28,22 @@ inline void* glXGetProcAddress(const char* name)
 	free(symbolName);
 	return symbol ? NSAddressOfSymbol(symbol) : NULL;
 }
+
 #elif __linux
 #define __stdcall
+#include <GL/glx.h>
+#define glGetProcAddress(funcname) glXGetProcAddress((const GLubyte*)funcname)
+
 #elif __unix
 #define __stdcall
+
 #elif __posix
 #define __stdcall
+
+#else
+#define __stdcall
+#include <GL/glx.h>
+#define glGetProcAddress(funcname) glXGetProcAddress((const GLubyte*)funcname)
 #endif
 
 #include <GL/GL.h>

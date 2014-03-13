@@ -10,11 +10,11 @@ pv_glLinkProgramFunction pv_glLinkProgram = NULL;
 
 void initMinGL()
 {
-	pv_glCreateShader = (pv_glCreateShaderFunction)glXGetProcAddress("glCreateShader");
-	pv_glShaderSource = (pv_glShaderSourceFunction)glXGetProcAddress("glShaderSource");
-	pv_glCompileShader = (pv_glCompileShaderFunction)glXGetProcAddress("glCompileShader");
-	pv_glDeleteShader = (pv_glDeleteShaderFunction)glXGetProcAddress("glDeleteShader");
-	pv_glCreateProgram = (pv_glCreateProgramFunction)glXGetProcAddress("glCreateProgram");
-	pv_glAttachShader = (pv_glAttachShaderFunction)glXGetProcAddress("glAttachShader");
-	pv_glLinkProgram = (pv_glLinkProgramFunction)glXGetProcAddress("glLinkProgram");
+	pv_glCreateShader = (pv_glCreateShaderFunction)glGetProcAddress("glCreateShader");
+	pv_glShaderSource = (pv_glShaderSourceFunction)glGetProcAddress("glShaderSource");
+	pv_glCompileShader = (pv_glCompileShaderFunction)glGetProcAddress("glCompileShader");
+	pv_glDeleteShader = (pv_glDeleteShaderFunction)glGetProcAddress("glDeleteShader");
+	pv_glCreateProgram = (pv_glCreateProgramFunction)glGetProcAddress("glCreateProgram");
+	pv_glAttachShader = (pv_glAttachShaderFunction)glGetProcAddress("glAttachShader");
+	pv_glLinkProgram = (pv_glLinkProgramFunction)glGetProcAddress("glLinkProgram");
 }
