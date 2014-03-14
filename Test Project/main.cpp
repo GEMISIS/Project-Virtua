@@ -3,6 +3,8 @@
 #include "pv/OculusRift.h"
 #include "pvmm/MidOpenGL.h"
 
+using namespace PV;
+
 bool done = false;
 
 void onResize(int width, int height)
