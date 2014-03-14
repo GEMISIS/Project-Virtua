@@ -1,4 +1,6 @@
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include "pvmm/MidOpenGL.h"
 
 namespace PV

@@ -8,11 +8,17 @@
 #endif
 
 #include <Windows.h>
+#include <GL/GL.h>
+#include <GL/GLU.h>
 #define glGetProcAddress(funcname) wglGetProcAddress(funcname)
 
 #elif __APPLE__
-#include <GL/glx.h>
 #define __stdcall
+#include <mach-o/dyld.h>
+#include <string.h>
+#include <stdlib.h>
+#include <OpenGL/GL.h>
+#include <OpenGL/GLU.h>
 inline void* glGetProcAddress(const char* name)
 {
 	NSSymbol symbol = NULL;
@@ -21,9 +27,9 @@ inline void* glGetProcAddress(const char* name)
 	strcpy(symbolName + 1, name);
 	symbolName[0] = '_';
 
-	if (NSIsSymbolNameDefined(symbolName))
+	if (NSLookupSymbolInImage(symbolName))
 	{
-		symbol = NSLookupAndBindSymbol(symbolName);
+		symbol = NSLookupSymbolInImage(symbolName);
 	}
 	free(symbolName);
 	return symbol ? NSAddressOfSymbol(symbol) : NULL;
@@ -45,9 +51,6 @@ inline void* glGetProcAddress(const char* name)
 #include <GL/glx.h>
 #define glGetProcAddress(funcname) glXGetProcAddress((const GLubyte*)funcname)
 #endif
-
-#include <GL/GL.h>
-#include <GL/GLU.h>
 
 namespace PV
 {
