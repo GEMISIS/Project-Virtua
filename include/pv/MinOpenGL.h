@@ -97,6 +97,10 @@ namespace PV
 	 * A function pointer for the glLinkProgram function.
 	 */
 	typedef void(__stdcall* pv_glLinkProgramFunction) (GLuint program);
+	/**
+	 * A function pointer for the glGetUniformLocationType function.
+	 */
+	typedef GLint(__stdcall* pv_glGetUniformLocationType) (GLuint program, const char* name);
 
 	/**
 	 * The OpenGL method "glCreateShader", to be grabbed as an OpenGL extension.
@@ -222,68 +226,100 @@ namespace PV
 	extern pv_glAttachShaderFunction pv_glAttachShader;
 
 	/**
-	 * The OpenGL method "glAttachShader", to be grabbed as an OpenGL extension.
-	 *
-	 * Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glLinkProgram.xml):
-	 *
-	 * glLinkProgram links the program object specified by program. Shader objects of type GL_VERTEX_SHADER attached to program
-	 * are used to create an executable that will run on the programmable vertex processor. Shader objects of type GL_FRAGMENT_SHADER
-	 * attached to program are used to create an executable that will run on the programmable fragment processor.
-	 *
-	 * The status of the link operation will be stored as part of the program object's state. This value will be set to GL_TRUE if
-	 * the program object was linked without errors and is ready for use, and GL_FALSE otherwise. It can be queried by calling glGetProgramiv
-	 * with arguments program and GL_LINK_STATUS.
-	 *
-	 * As a result of a successful link operation, all active user-defined uniform variables belonging to program will be initialized to 0,
-	 * and each of the program object's active uniform variables will be assigned a location that can be queried by calling
-	 * glGetUniformLocation. Also, any active user-defined attribute variables that have not been bound to a generic vertex attribute
-	 * index will be bound to one at this time.
-	 *
-	 * Linking of a program object can fail for a number of reasons as specified in the OpenGL ES Shading Language Specification. The
-	 * following lists some of the conditions that will cause a link error.
-	 *
-	 * *A vertex shader and a fragment shader are not both present in the program object.
-	 *
-	 * *The number of active attribute variables supported by the implementation has been exceeded.
-	 *
-	 * The storage limit for uniform variables has been exceeded.
-	 *
-	 * *The number of active uniform variables supported by the implementation has been exceeded.
-	 *
-	 * *The main function is missing for the vertex shader or the fragment shader.
-	 *
-	 * *A varying variable actually used in the fragment shader is not declared in the same way (or is not declared at all) in the vertex
-	 * shader.
-	 *
-	 * *A reference to a function or variable name is unresolved.
-	 *
-	 * *A shared global is declared with two different types or two different initial values.
-	 *
-	 * *One or more of the attached shader objects has not been successfully compiled (via glCompileShader) or loaded with a pre-compiled
-	 * shader binary (via glShaderBinary).
-	 *
-	 * *Binding a generic attribute matrix caused some rows of the matrix to fall outside the allowed maximum of GL_MAX_VERTEX_ATTRIBS.
-	 *
-	 * *Not enough contiguous vertex attribute slots could be found to bind attribute matrices.
-	 *
-	 * When a program object has been successfully linked, the program object can be made part of current state by calling
-	 * glUseProgram. Whether or not the link operation was successful, the program object's information log will be overwritten. The
-	 * information log can be retrieved by calling glGetProgramInfoLog.
-	 *
-	 * glLinkProgram will also install the generated executables as part of the current rendering state if the link operation was
-	 * successful and the specified program object is already currently in use as a result of a previous call to glUseProgram. If
-	 * the program object currently in use is relinked unsuccessfully, its link status will be set to GL_FALSE , but the executables
-	 * and associated state will remain part of the current state until a subsequent call to glUseProgram removes it from use. After
-	 * it is removed from use, it cannot be made part of current state until it has been successfully relinked.
-	 *
-	 * The program object's information log is updated and the program is generated at the time of the link operation. After the link
-	 * operation, applications are free to modify attached shader objects, compile attached shader objects, detach shader objects,
-	 * delete shader objects, and attach additional shader objects. None of these operations affects the information log or the program
-	 * that is part of the program object.
-	 *
-	 * @param program Specifies the handle of the program object to be linked.
-	 */
+	* The OpenGL method "glAttachShader", to be grabbed as an OpenGL extension.
+	*
+	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glLinkProgram.xml):
+	*
+	* glLinkProgram links the program object specified by program. Shader objects of type GL_VERTEX_SHADER attached to program
+	* are used to create an executable that will run on the programmable vertex processor. Shader objects of type GL_FRAGMENT_SHADER
+	* attached to program are used to create an executable that will run on the programmable fragment processor.
+	*
+	* The status of the link operation will be stored as part of the program object's state. This value will be set to GL_TRUE if
+	* the program object was linked without errors and is ready for use, and GL_FALSE otherwise. It can be queried by calling glGetProgramiv
+	* with arguments program and GL_LINK_STATUS.
+	*
+	* As a result of a successful link operation, all active user-defined uniform variables belonging to program will be initialized to 0,
+	* and each of the program object's active uniform variables will be assigned a location that can be queried by calling
+	* glGetUniformLocation. Also, any active user-defined attribute variables that have not been bound to a generic vertex attribute
+	* index will be bound to one at this time.
+	*
+	* Linking of a program object can fail for a number of reasons as specified in the OpenGL ES Shading Language Specification. The
+	* following lists some of the conditions that will cause a link error.
+	*
+	* *A vertex shader and a fragment shader are not both present in the program object.
+	*
+	* *The number of active attribute variables supported by the implementation has been exceeded.
+	*
+	* The storage limit for uniform variables has been exceeded.
+	*
+	* *The number of active uniform variables supported by the implementation has been exceeded.
+	*
+	* *The main function is missing for the vertex shader or the fragment shader.
+	*
+	* *A varying variable actually used in the fragment shader is not declared in the same way (or is not declared at all) in the vertex
+	* shader.
+	*
+	* *A reference to a function or variable name is unresolved.
+	*
+	* *A shared global is declared with two different types or two different initial values.
+	*
+	* *One or more of the attached shader objects has not been successfully compiled (via glCompileShader) or loaded with a pre-compiled
+	* shader binary (via glShaderBinary).
+	*
+	* *Binding a generic attribute matrix caused some rows of the matrix to fall outside the allowed maximum of GL_MAX_VERTEX_ATTRIBS.
+	*
+	* *Not enough contiguous vertex attribute slots could be found to bind attribute matrices.
+	*
+	* When a program object has been successfully linked, the program object can be made part of current state by calling
+	* glUseProgram. Whether or not the link operation was successful, the program object's information log will be overwritten. The
+	* information log can be retrieved by calling glGetProgramInfoLog.
+	*
+	* glLinkProgram will also install the generated executables as part of the current rendering state if the link operation was
+	* successful and the specified program object is already currently in use as a result of a previous call to glUseProgram. If
+	* the program object currently in use is relinked unsuccessfully, its link status will be set to GL_FALSE , but the executables
+	* and associated state will remain part of the current state until a subsequent call to glUseProgram removes it from use. After
+	* it is removed from use, it cannot be made part of current state until it has been successfully relinked.
+	*
+	* The program object's information log is updated and the program is generated at the time of the link operation. After the link
+	* operation, applications are free to modify attached shader objects, compile attached shader objects, detach shader objects,
+	* delete shader objects, and attach additional shader objects. None of these operations affects the information log or the program
+	* that is part of the program object.
+	*
+	* @param program Specifies the handle of the program object to be linked.
+	*/
 	extern pv_glLinkProgramFunction pv_glLinkProgram;
+
+	/**
+	* The OpenGL method "glGetUniformLocation", to be grabbed as an OpenGL extension.
+	*
+	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glLinkProgram.xml):
+	*
+	* glGetUniformLocation returns an integer that represents the location of a specific uniform variable within a program object. 
+	* name must be a null terminated string that contains no white space. name must be an active uniform variable name in program 
+	* that is not a structure, an array of structures, or a subcomponent of a vector or a matrix. This function returns -1 if name 
+	* does not correspond to an active uniform variable in program or if name starts with the reserved prefix "gl_".
+	*
+	* Uniform variables that are structures or arrays of structures may be queried by calling glGetUniformLocation for each field 
+	* within the structure. The array element operator "[]" and the structure field operator "." may be used in name in order to 
+	* select elements within an array or fields within a structure. The result of using these operators is not allowed to be another 
+	* structure, an array of structures, or a subcomponent of a vector or a matrix. Except if the last part of name indicates a 
+	* uniform variable array, the location of the first element of an array can be retrieved by using the name of the array, or by 
+	* using the name appended by "[0]".
+	*
+	* The actual locations assigned to uniform variables are not known until the program object is linked successfully. After linking 
+	* has occurred, the command glGetUniformLocation can be used to obtain the location of a uniform variable. This location value can 
+	* then be passed to glUniform to set the value of the uniform variable or to glGetUniform in order to query the current value of 
+	* the uniform variable. After a program object has been linked successfully, the index values for uniform variables remain fixed 
+	* until the next link command occurs. Uniform variable locations and values can only be queried after a link if the link was 
+	* successful.
+	*
+	* @param program Specifies the program object to be queried.
+	* @param name Points to a null terminated string containing the name of the uniform variable whose location is to be queried.
+	* @return GL_INVALID_VALUE is generated if program is not a value generated by OpenGL.
+	* GL_INVALID_OPERATION is generated if program is not a program object.
+	* GL_INVALID_OPERATION is generated if program has not been successfully linked.
+	*/
+	extern pv_glGetUniformLocationType pv_glGetUniformLocation;
 
 	/**
 	 * Initializes the minimum required OpenGL functions for use with Project Virtua.  All of these methods are prefixed with pv_ in order
