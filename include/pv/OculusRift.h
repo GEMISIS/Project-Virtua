@@ -20,7 +20,10 @@ namespace PV
 		/**
 		 * This constructor will automatically attempt to initialize and setup an
 		 * Oculus Rift device that is connected to the computer.  Use the IsConnected
-		 * method to see if the device was successfully setup.
+		 * method to see if the device was successfully setup.  You can also specify to create
+		 * a virtual Oculus Rift device if the hardware is not found.  This is useful for testing the output
+		 * from the device.
+		 * @param useDemoRift This will tell the class to create a virtual Oculus Rift when true.
 		 */
 		OculusRift(bool useDemoRift);
 		/**
