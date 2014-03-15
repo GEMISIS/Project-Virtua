@@ -22,7 +22,7 @@ namespace PV
 		 * Oculus Rift device that is connected to the computer.  Use the IsConnected
 		 * method to see if the device was successfully setup.
 		 */
-		OculusRift();
+		OculusRift(bool useDemoRift);
 		/**
 		 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
 		 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
@@ -40,7 +40,7 @@ namespace PV
 		 * a boolean indicating whether it is or not.
 		 * @return Returns true if the Oculus Rift is connected, false otherwise.
 		 */
-		const bool isConnected();
+		const bool isConnected() const;
 
 		/**
 		 * This method updates data recieved from the Oculus Rift.  It currently pulls the change in
@@ -49,15 +49,26 @@ namespace PV
 		void Update();
 
 		/**
-		 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and will
-		 * make sure to use the best methods for the supported version of OpenGL.
-		 */
+		* Shifts the view for a specific eye.  This will use OpenGL specifically right now, and will
+		* make sure to use the best methods for the supported version of OpenGL.
+		* @param eye The eye to shift the view for (Left or Right).
+		*/
 		void ShiftView(RiftEye eye);
+
+		/**
+		* Shifts the view for a specific eye by modifying an array of 16 floats.
+		* @param eye The eye to shift the view for (Left or Right).
+		* @param matrix The matrix to modify for the view.
+		*/
+		void ShiftView(RiftEye eye, float matrix[16]);
 
 		/**
 		 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and allows
 		 * you to specify which version of OpenGL to render with. (Shaders for > 2.0, deprecated methods for
 		 * less than 2.0.
+		 * @param eye The eye to shift the view for (Left or Right).
+		 * @param majorVersion The major version of OpenGL to use (IE: 1, 2, 3, or 4).
+		 * @param minorVersion The minor version of OpenGL to use (IE: 0.1, 0.2, 0.3, etc).
 		 */
 		void ShiftView(RiftEye eye, int majorVersion, int minorVersion);
 
@@ -109,6 +120,11 @@ namespace PV
 		  * A boolean indicating whether an oculus rift is connected or not.
 		  */
 		bool connected;
+
+		/**
+		* A boolean indicating whether the connected Rift is a virtual one or not. (IE: Hardware or emulated)
+		*/
+		bool virtuallyConnected;
 
 		/**
 		  * The orientation of the oculus rift. (yaw, pitch, roll)

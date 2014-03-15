@@ -10,7 +10,7 @@ namespace PV
  * Oculus Rift device that is connected to the computer.  Use the IsConnected
  * method to see if the device was successfully setup.
  */
-	OculusRift::OculusRift()
+	OculusRift::OculusRift(bool useDemoRift)
 	{
 		// Setup the initial values for all of the rotations.
 		this->Rotation.x = 0.0f;
@@ -36,6 +36,8 @@ namespace PV
 		this->OldOrientation_quart.axis.y = 0.0f;
 		this->OldOrientation_quart.axis.z = 0.0f;
 
+		this->virtuallyConnected = false;
+
 		// Initialize the Oculus Rift.
 		this->Initialize();
 
@@ -45,6 +47,24 @@ namespace PV
 			this->Setup();
 
 			this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
+		}
+		else if (useDemoRift)
+		{
+			this->HMD.HResolution = 1280;
+			this->HMD.VResolution = 800;
+			this->HMD.HScreenSize = 0.14976f;
+			this->HMD.VScreenSize = 0.0936f;
+			this->HMD.VScreenCenter = this->HMD.VScreenSize / 2;
+			this->HMD.EyeToScreenDistance = 0.041f;
+			this->HMD.LensSeparationDistance = 0.0635f;
+			this->HMD.InterpupillaryDistance = 0.064f;
+
+			this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
+
+			this->Setup();
+
+			this->connected = true;
+			this->virtuallyConnected = true;
 		}
 	}
 
@@ -146,7 +166,7 @@ namespace PV
 	 * a boolean indicating whether it is or not.
 	 * @return Returns true if the Oculus Rift is connected, false otherwise.
 	 */
-	const bool OculusRift::isConnected()
+	const bool OculusRift::isConnected() const
 	{
 		return (const bool)this->connected;
 	}
@@ -159,7 +179,7 @@ namespace PV
 	 */
 	void OculusRift::Update()
 	{
-		if (this->connected)
+		if (this->connected && !this->virtuallyConnected)
 		{
 			this->OldOrientation.yaw = this->Orientation.yaw;
 			this->OldOrientation.pitch = this->Orientation.pitch;
@@ -213,6 +233,22 @@ namespace PV
 		glGetIntegerv(PV_GL_MINOR_VERSION, &openGlVersion[1]);
 
 		this->ShiftView(eye, openGlVersion[0], openGlVersion[1]);
+	}
+
+	void OculusRift::ShiftView(RiftEye eye, float matrix[16])
+	{
+		if (eye == Left)
+		{
+			glViewport(this->LeftEye.VP.x, this->LeftEye.VP.y, this->LeftEye.VP.w, this->LeftEye.VP.h);
+			matrix[0] = matrix[5] = matrix[10] = matrix[15] = 1;
+			matrix[3] = this->ProjectionCenterOffset + (this->HalfIPD * this->ViewCenter);
+		}
+		else if (eye == Right)
+		{
+			glViewport(this->RightEye.VP.x, this->RightEye.VP.y, this->RightEye.VP.w, this->RightEye.VP.h);
+			matrix[0] = matrix[5] = matrix[10] = matrix[15] = 1;
+			matrix[3] = -this->ProjectionCenterOffset + (-this->HalfIPD * this->ViewCenter);
+		}
 	}
 
 	void OculusRift::ShiftView(RiftEye eye, int majorVersion, int minorVersion)

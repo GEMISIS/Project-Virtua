@@ -84,7 +84,7 @@ int drawGLScene(OculusRift rift)
 
 int main()
 {
-	OculusRift rift;
+	OculusRift rift(true);
 
 	Window testWindow;
 #ifdef _DEBUG
@@ -135,6 +135,7 @@ int main()
 		{
 			Sleep(100);
 			testWindow.SetFullscreen(!testWindow.IsFullscreen());
+			onResize(1280 / 2, 800);
 		}
 
 		rift.Update();
