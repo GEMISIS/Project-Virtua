@@ -63,6 +63,9 @@ namespace PV
 	 */
 #define PV_GL_MINOR_VERSION 0x821C
 
+#define PV_GL_COMPILE_STATUS 0x8B81
+#define PV_GL_INFO_LOG_LENGTH 0x8B84
+
 	/**
 	 * Specifies to the glCreateShader function to create a fragment shader.
 	 */
@@ -85,6 +88,14 @@ namespace PV
 	 */
 	typedef void(__stdcall* pv_glCompileShaderFunction) (GLuint shader);
 	/**
+	 * A function pointer for the glGetShaderiv function.
+	 */
+	typedef void(__stdcall* pv_glGetShaderivFunction) (GLuint shader, GLenum pname, GLint* params);
+	/**
+	* A function pointer for the glGetShaderInfoLog function.
+	*/
+	typedef void(__stdcall* pv_glGetShaderInfoLogFunction) (GLuint shader, GLsizei maxLength, GLsizei* length, char* infoLog);
+	/**
 	 * A function pointer for the glDeleteShader function.
 	 */
 	typedef void(__stdcall* pv_glDeleteShaderFunction) (GLuint shader);
@@ -101,9 +112,30 @@ namespace PV
 	 */
 	typedef void(__stdcall* pv_glLinkProgramFunction) (GLuint program);
 	/**
-	 * A function pointer for the glGetUniformLocationType function.
+	 * A function pointer for the glGetUniformLocation function.
 	 */
-	typedef GLint(__stdcall* pv_glGetUniformLocationType) (GLuint program, const char* name);
+	typedef GLint(__stdcall* pv_glGetUniformLocationFunction) (GLuint program, const char* name);
+	/**
+	 * A function pointer for the glUniform1f function.
+	 */
+	typedef void(__stdcall* pv_glUniform1fFunction) (GLint location, GLfloat v0);
+	/**
+	 * A function pointer for the glUniform2f function.
+	 */
+	typedef void(__stdcall* pv_glUniform2fFunction) (GLint location, GLfloat v0, GLfloat v1);
+	/**
+	 * A function pointer for the glUniform3f function.
+	 */
+	typedef void(__stdcall* pv_glUniform3fFunction) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+	/**
+	 * A function pointer for the glUniform4f function.
+	 */
+	typedef void(__stdcall* pv_glUniform4fFunction) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+	/**
+	 * A function pointer for the glUniformMatrix4fv function.
+	 */
+	typedef void(__stdcall* pv_glUniformMatrix4fvFunction) (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
+
 
 	/**
 	 * The OpenGL method "glCreateShader", to be grabbed as an OpenGL extension.
@@ -183,6 +215,64 @@ namespace PV
 	 * @param shader Specifies the shader object to be compiled.
 	 */
 	extern pv_glDeleteShaderFunction pv_glDeleteShader;
+
+	/**
+	* The OpenGL method "glGetShaderiv", to be grabbed as an OpenGL extension.
+	*
+	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glGetShaderiv.xml):
+	*
+	* glGetShaderiv returns in params the value of a parameter for a specific shader object. The following parameters are defined:
+	*
+	* 	GL_SHADER_TYPE
+	* params returns GL_VERTEX_SHADER if shader is a vertex shader object, and GL_FRAGMENT_SHADER if shader is a fragment shader object.
+	*
+	* GL_DELETE_STATUS
+	* params returns GL_TRUE if shader is currently flagged for deletion, and GL_FALSE otherwise.
+	*
+	* GL_COMPILE_STATUS
+	* For implementations that support a shader compiler, params returns GL_TRUE if the last compile operation on shader was successful, 
+	* and GL_FALSE otherwise.
+	*
+	* GL_INFO_LOG_LENGTH
+	* For implementations that support a shader compiler, params returns the number of characters in the information log for shader 
+	* including the null termination character (i.e., the size of the character buffer required to store the information log). If 
+	* shader has no information log, a value of 0 is returned.
+	*
+	* GL_SHADER_SOURCE_LENGTH
+	* For implementations that support a shader compiler, params returns the length of the concatenation of the source strings that 
+	* make up the shader source for the shader, including the null termination character. (i.e., the size of the character buffer 
+	* required to store the shader source). If no source code exists, 0 is returned.
+	*
+	* @param shader Specifies the shader object to be queried.
+	* @param pname Specifies the object parameter. Accepted symbolic names are GL_SHADER_TYPE, GL_DELETE_STATUS, GL_COMPILE_STATUS, 
+	* GL_INFO_LOG_LENGTH, GL_SHADER_SOURCE_LENGTH.
+	* @param params Returns the requested object parameter.
+	*/
+	extern pv_glGetShaderivFunction pv_glGetShaderiv;
+
+	/**
+	* The OpenGL method "glGetShaderInfoLog", to be grabbed as an OpenGL extension.
+	*
+	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glGetShaderInfoLog.xml):
+	*
+	* glGetShaderInfoLog returns the information log for the specified shader object. The information log for a shader object is
+	* modified when the shader is compiled. The string that is returned will be null terminated.
+	*
+	* glGetShaderInfoLog returns in infoLog as much of the information log as it can, up to a maximum of maxLength characters. 
+	* The number of characters actually returned, excluding the null termination character, is specified by length. If the length 
+	* of the returned string is not required, a value of NULL can be passed in the length argument. The size of the buffer required 
+	* to store the returned information log can be obtained by calling glGetShaderiv with the value GL_INFO_LOG_LENGTH.
+	*
+	* The information log for a shader object is a string that may contain diagnostic messages, warning messages, 
+	* and other information about the last compile operation. When a shader object is created, its information log will be a string 
+	* of length 0.
+	*
+	* @param shader Specifies the shader object whose information log is to be queried.
+	* @param maxLength Specifies the size of the character buffer for storing the returned information log.
+	* @param length Returns the length of the string returned in infoLog (excluding the null terminator).
+	* @param infoLog Specifies an array of characters that is used to return the information log.
+	*/
+	extern pv_glGetShaderInfoLogFunction pv_glGetShaderInfoLog;
 
 	/**
 	 * The OpenGL method "glCreateProgram", to be grabbed as an OpenGL extension.
@@ -295,7 +385,7 @@ namespace PV
 	/**
 	* The OpenGL method "glGetUniformLocation", to be grabbed as an OpenGL extension.
 	*
-	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glLinkProgram.xml):
+	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glGetUniformLocation.xml):
 	*
 	* glGetUniformLocation returns an integer that represents the location of a specific uniform variable within a program object. 
 	* name must be a null terminated string that contains no white space. name must be an active uniform variable name in program 
@@ -322,7 +412,17 @@ namespace PV
 	* GL_INVALID_OPERATION is generated if program is not a program object.
 	* GL_INVALID_OPERATION is generated if program has not been successfully linked.
 	*/
-	extern pv_glGetUniformLocationType pv_glGetUniformLocation;
+	extern pv_glGetUniformLocationFunction pv_glGetUniformLocation;
+
+	extern pv_glUniform1fFunction pv_glUniform1f;
+
+	extern pv_glUniform2fFunction pv_glUniform2f;
+
+	extern pv_glUniform3fFunction pv_glUniform3f;
+
+	extern pv_glUniform4fFunction pv_glUniform4f;
+
+	extern pv_glUniformMatrix4fvFunction pv_glUniformMatrix4fv;
 
 	/**
 	 * Initializes the minimum required OpenGL functions for use with Project Virtua.  All of these methods are prefixed with pv_ in order

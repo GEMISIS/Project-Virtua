@@ -76,6 +76,37 @@ namespace PV
 		void ShiftView(RiftEye eye, int majorVersion, int minorVersion);
 
 		/**
+		 * Updates the uniforms for the shaders for the specified eye.  This can be usedto create custom shaders that
+		 * warp the view for the Oculus Rift, though we recommend that you check that you are doing so correctly, as
+		 * this can affect the user's experience if done improperly.
+		 * @param eye The eye to setup the shaders for (Left or Right).
+		 * @param program The program that the shader is attached to.
+		 */
+		void UpdateUniforms(RiftEye eye, unsigned int program);
+
+		/**
+		* This function sets up the vertex and fragment shaders for the barrel distortion on the Oculus Rift.
+		* It will create a program object and compile and link predefined shaders to it.  This can then be used
+		* for rendering the scene with an Oculus Rift.
+		* @param program Stores the program's ID.
+		* @param fragment Stores the fragment shader's ID.
+		* @param vertex Stores the vertex shader's ID.
+		*/
+		void SetupShaders(int &program, int &fragment, int &vertex);
+
+		/**
+		* This function sets up the vertex and fragment shaders for the barrel distortion on the Oculus Rift.
+		* It will create a program object and compile and link the chosen shaders to it.  This can then be used
+		* for rendering the scene with an Oculus Rift.
+		* @param fragmentShader The name of the fragment shader file to load.
+		* @param vertexShader The name of the vertex shader file to load.
+		* @param program Stores the program's ID.
+		* @param fragment Stores the fragment shader's ID.
+		* @param vertex Stores the vertex shader's ID.
+		*/
+		void SetupShaders(const char* fragmentShader, const char* vertexShader, int &program, int &fragment, int &vertex);
+
+		/**
 		 * Get the rotation values for the angle of rotation for where the user is looking.
 		 * This is in Euler angles.
 		 * @return The rotation on the X, Y, and Z axis in Euler angles.
@@ -199,6 +230,12 @@ namespace PV
 		 * @param eye The eye to render for.
 		 */
 		void renderGLBelow2(RiftEye eye);
+		/**
+		* Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
+		* to be used on OpenGL versions greater than or equal to 2.0.
+		* @param eye The eye to render for.
+		*/
+		void renderGLAbove2(RiftEye eye);
 	};
 };
 #endif
