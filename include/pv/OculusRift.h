@@ -118,7 +118,7 @@ namespace PV
 		 */
 		const Viewport GetViewport() const;
 
-		void ComposeFinalImage(int outputTexture);
+		void ComposeFinalImage(unsigned int outputTexture);
 
 		/**
 		 * This is the deconstructor for he Oculus Rift device.  This method will automatically

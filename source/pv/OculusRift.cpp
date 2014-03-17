@@ -90,12 +90,6 @@ namespace PV
 			1.0f, 0.0f,
 			1.0f, 1.0f
 		};
-		float quadColor[quadColor_size * 3] = {
-			1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 0.0f
-		};
 		float quadTexture[quadTex_size * 2] = {
 			0.0, 0.0,
 			0.0f, 1.0f,
@@ -114,17 +108,11 @@ namespace PV
 		pv_glEnableVertexAttribArray(0);
 		pv_glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-		pv_glGenBuffers(1, &colorsBufferHandle);
-		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, colorsBufferHandle);
-		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadColor), quadColor, PV_GL_STATIC_DRAW);
-		pv_glEnableVertexAttribArray(1);
-		pv_glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
 		pv_glGenBuffers(1, &texCoordsBufferHandle);
 		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, texCoordsBufferHandle);
 		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadTexture), quadTexture, PV_GL_STATIC_DRAW);
-		pv_glEnableVertexAttribArray(2);
-		pv_glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		pv_glEnableVertexAttribArray(1);
+		pv_glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		pv_glBindVertexArray(0);
 	}
 
@@ -514,12 +502,13 @@ namespace PV
 		return this->viewport;
 	}
 
-	void OculusRift::ComposeFinalImage(int outputTexture)
+	void OculusRift::ComposeFinalImage(unsigned int outputTexture)
 	{
 		pv_glActiveTexture(PV_GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, outputTexture);
 		pv_glBindVertexArray(this->quadVBOHandle);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		pv_glBindVertexArray(0);
 	}
 
 

@@ -7,7 +7,6 @@ uniform vec4 u_distortion;
 uniform float u_aspect;
 uniform float u_fillScale;
 
-in vec4 fragColor;
 in vec2 fragTexCoords;
 
 out vec4 color;
@@ -78,10 +77,9 @@ void main(){
     vec2 clamped = clamp(actualTextureCoords, vec2(0, 0), u_texRange);
 
     if (!all(equal(clamped, actualTextureCoords))) {
-        color = fragColor;
+        color = vec4(1, 1, 0, 1);
     } else {
-        color = fragColor;
-//        outputColor = texture2D(sampler0, actualTextureCoords );
+        color = texture2D(sampler0, actualTextureCoords );
     }
 //    gl_FragColor = vec4(actualTextureCoords, 1, 1);
 }
