@@ -66,6 +66,9 @@ namespace PV
 #define PV_GL_COMPILE_STATUS 0x8B81
 #define PV_GL_INFO_LOG_LENGTH 0x8B84
 
+#define PV_GL_ARRAY_BUFFER 0x8892
+#define PV_GL_STATIC_DRAW 0x88E4
+
 	/**
 	 * Specifies to the glCreateShader function to create a fragment shader.
 	 */
@@ -74,6 +77,8 @@ namespace PV
 	 * Specifies to the glCreateShader function to create a vertex shader.
 	 */
 #define PV_GL_VERTEX_SHADER 0x8B31
+
+#define PV_GL_TEXTURE0                       0x84C0
 
 	/**
 	 * A function pointer for the glCreateShader function.
@@ -108,9 +113,13 @@ namespace PV
 	 */
 	typedef void(__stdcall* pv_glAttachShaderFunction) (GLuint program, GLuint shader);
 	/**
-	 * A function pointer for the glLinkProgram function.
-	 */
+	* A function pointer for the glLinkProgram function.
+	*/
 	typedef void(__stdcall* pv_glLinkProgramFunction) (GLuint program);
+	/**
+	* A function pointer for the glUseProgram function.
+	*/
+	typedef void(__stdcall* pv_glUseProgramFunction) (GLuint program);
 	/**
 	 * A function pointer for the glGetUniformLocation function.
 	 */
@@ -136,6 +145,40 @@ namespace PV
 	 */
 	typedef void(__stdcall* pv_glUniformMatrix4fvFunction) (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 
+	/**
+	* A function pointer for the glGenVertexArrays function.
+	*/
+	typedef void(__stdcall* pv_glGenVertexArraysFunction) (GLsizei n, GLuint* arrays);
+	/**
+	* A function pointer for the glBindVertexArray function.
+	*/
+	typedef void(__stdcall* pv_glBindVertexArrayFunction) (GLuint array);
+	/**
+	* A function pointer for the glGenBuffers function.
+	*/
+	typedef void(__stdcall* pv_glGenBuffersFunction) (GLsizei n, GLuint * buffers);
+	/**
+	* A function pointer for the glBindBuffer function.
+	*/
+	typedef void(__stdcall* pv_glBindBufferFunction) (GLenum target, GLuint buffer);
+	/**
+	* A function pointer for the glBufferData function.
+	*/
+#ifdef _WIN64
+	typedef void(__stdcall* pv_glBufferDataFunction) (GLenum target, signed long long int size, const GLvoid * data, GLenum usage);
+#else
+	typedef void(__stdcall* pv_glBufferDataFunction) (GLenum target, signed long int size, const GLvoid * data, GLenum usage);
+#endif
+	/**
+	* A function pointer for the glEnableVertexAttribArray function.
+	*/
+	typedef void(__stdcall* pv_glEnableVertexAttribArrayFunction) (GLuint index);
+	/**
+	* A function pointer for the glVertexAttribPointer function.
+	*/
+	typedef void(__stdcall* pv_glVertexAttribPointerFunction) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
+
+	typedef void(__stdcall* pv_glActiveTextureFunction) (GLenum texture);
 
 	/**
 	 * The OpenGL method "glCreateShader", to be grabbed as an OpenGL extension.
@@ -387,6 +430,34 @@ namespace PV
 	*
 	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glGetUniformLocation.xml):
 	*
+	* glUseProgram installs the program object specified by program as part of current rendering state. One or more executables 
+	* are created in a program object by successfully attaching shader objects to it with glAttachShader, successfully compiling
+	* the shader objects with glCompileShader, and successfully linking the program object with glLinkProgram.
+	*
+	* A program object will contain executables that will run on the vertex and fragment processors if it contains one or more shader 
+	* objects of type GL_VERTEX_SHADER and one or more shader objects of type GL_FRAGMENT_SHADER that have all been successfully 
+	* compiled and linked.
+	*
+	* While a program object is in use, applications are free to modify attached shader objects, compile attached shader objects, attach 
+	* additional shader objects, and detach or delete shader objects. None of these operations will affect the executables that are 
+	* part of the current state. However, relinking the program object that is currently in use will install the program object as 
+	* part of the current rendering state if the link operation was successful (see glLinkProgram ). If the program object currently 
+	* in use is relinked unsuccessfully, its link status will be set to GL_FALSE, but the executables and associated state will remain 
+	* part of the current state until a subsequent call to glUseProgram removes it from use. After it is removed from use, it cannot 
+	* be made part of current state until it has been successfully relinked.
+	*
+	* If program is 0, then the current rendering state refers to an invalid program object, and the results of vertex and fragment 
+	* shader execution due to any glDrawArrays or glDrawElements commands are undefined.
+	*
+	* @param program Specifies the handle of the program object whose executables are to be used as part of current rendering state.
+	*/
+	extern pv_glUseProgramFunction pv_glUseProgram;
+
+	/**
+	* The OpenGL method "glGetUniformLocation", to be grabbed as an OpenGL extension.
+	*
+	* Definition from http://www.khronos.org/ (http://www.khronos.org/opengles/sdk/docs/man/xhtml/glGetUniformLocation.xml):
+	*
 	* glGetUniformLocation returns an integer that represents the location of a specific uniform variable within a program object. 
 	* name must be a null terminated string that contains no white space. name must be an active uniform variable name in program 
 	* that is not a structure, an array of structures, or a subcomponent of a vector or a matrix. This function returns -1 if name 
@@ -423,6 +494,15 @@ namespace PV
 	extern pv_glUniform4fFunction pv_glUniform4f;
 
 	extern pv_glUniformMatrix4fvFunction pv_glUniformMatrix4fv;
+
+	extern pv_glGenVertexArraysFunction pv_glGenVertexArrays;
+	extern pv_glBindVertexArrayFunction pv_glBindVertexArray;
+	extern pv_glGenBuffersFunction pv_glGenBuffers;
+	extern pv_glBindBufferFunction pv_glBindBuffer;
+	extern pv_glBufferDataFunction pv_glBufferData;
+	extern pv_glEnableVertexAttribArrayFunction pv_glEnableVertexAttribArray;
+	extern pv_glVertexAttribPointerFunction pv_glVertexAttribPointer;
+	extern pv_glActiveTextureFunction pv_glActiveTexture;
 
 	/**
 	 * Initializes the minimum required OpenGL functions for use with Project Virtua.  All of these methods are prefixed with pv_ in order

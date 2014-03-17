@@ -1,23 +1,21 @@
 #include "pv/FileIO.h"
+#include <iostream>
 
 namespace PV
 {
-	File::File(std::string fileName, bool loadData)
+	File::File(const char* fileName, bool loadData)
 	{
 		this->dataLoaded = false;
 		this->data = NULL;
 		this->fileLength = 0;
 
-		this->fileStream.open(fileName.c_str(), std::ios::in);
+		this->file = fopen(fileName, "rb");
 
-		if (this->fileStream)
+		if (this->file)
 		{
-			if (this->fileStream.good())
+			if (loadData)
 			{
-				if (loadData)
-				{
-					this->LoadData();
-				}
+				this->LoadData();
 			}
 		}
 	}
@@ -25,9 +23,9 @@ namespace PV
 	void File::LoadData()
 	{
 		this->dataLoaded = false;
-		this->fileStream.seekg(0, std::ios::end);
-		this->fileLength = this->fileStream.tellg();
-		this->fileStream.seekg(0, std::ios::beg);
+		fseek(this->file, 0, SEEK_END);
+		this->fileLength = ftell(this->file);
+		fseek(this->file, 0, SEEK_SET);
 
 		if (this->data != NULL)
 		{
@@ -40,7 +38,7 @@ namespace PV
 
 			if (this->data != NULL)
 			{
-				this->fileStream.read(this->data, this->fileLength);
+				fread(this->data, sizeof(char), this->fileLength, this->file);
 				this->dataLoaded = true;
 			}
 		}
@@ -73,12 +71,9 @@ namespace PV
 
 	void File::Close()
 	{
-		if (this->fileStream)
+		if (this->file)
 		{
-			if (this->fileStream.good())
-			{
-				this->fileStream.close();
-			}
+			fclose(this->file);
 		}
 	}
 

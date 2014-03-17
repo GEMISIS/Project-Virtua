@@ -1,7 +1,6 @@
 #ifndef _OCULUS_RIFT_H_
 #define _OCULUS_RIFT_H_
 
-#include <OVR.h>
 #include "pv/types.h"
 
 namespace PV
@@ -119,6 +118,8 @@ namespace PV
 		 */
 		const Viewport GetViewport() const;
 
+		void ComposeFinalImage(int outputTexture);
+
 		/**
 		 * This is the deconstructor for he Oculus Rift device.  This method will automatically
 		 * cleanup all resources associated with the Oculus Rift device.
@@ -219,10 +220,19 @@ namespace PV
 		 */
 		Viewport viewport;
 
+		int defaultProgram, fragmentShader, vertexShader;
+
 		/**
 		 * The rotation data for where the user is looking.
 		 */
 		rotation_t Rotation;
+
+		unsigned int quadVBOHandle;
+		unsigned int verticesBufferHandle;
+		unsigned int colorsBufferHandle;
+		unsigned int texCoordsBufferHandle;
+
+		void InitializeRenderQuad();
 
 		/**
 		 * Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
