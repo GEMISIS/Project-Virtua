@@ -178,11 +178,11 @@ int main()
 		rift.Update();
 		
 		testWindow.MakeCurrentGLContext();
-		glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, 1280, 800);
 		drawGLScene(rift);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
 
 		gluOrtho2D(0.0f, 1.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
