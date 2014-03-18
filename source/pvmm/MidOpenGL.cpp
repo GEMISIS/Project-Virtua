@@ -1,10 +1,15 @@
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include "pvmm/MidOpenGL.h"
 
-PFGNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
-
-void initMidGL()
+namespace PV
 {
-	initMinGL();
-	wglSwapIntervalEXT = (PFGNWGLSWAPINTERVALEXTPROC)glGetProcAddress("wglSwapIntervalEXT");
-}
+	PFGNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
+
+	void initMidGL()
+	{
+		initMinGL();
+		wglSwapIntervalEXT = (PFGNWGLSWAPINTERVALEXTPROC)glGetProcAddress("wglSwapIntervalEXT");
+	}
+};

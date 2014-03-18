@@ -1,7 +1,15 @@
+#ifndef _MID_OPEN_GL_H_
+#define _MID_OPEN_GL_H_
+
 #include "pv/MinOpenGL.h"
 
-typedef bool(__stdcall* PFGNWGLSWAPINTERVALEXTPROC)(int interval);
+namespace PV
+{
+	typedef bool(__stdcall* PFGNWGLSWAPINTERVALEXTPROC)(int interval);
 
-extern PFGNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
+	extern PFGNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 
-void initMidGL();
+	void initMidGL();
+};
+
+#endif
