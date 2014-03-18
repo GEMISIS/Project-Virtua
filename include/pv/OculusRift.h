@@ -96,14 +96,15 @@ namespace PV
 		/**
 		* This function sets up the vertex and fragment shaders for the barrel distortion on the Oculus Rift.
 		* It will create a program object and compile and link the chosen shaders to it.  This can then be used
-		* for rendering the scene with an Oculus Rift.
-		* @param fragmentShader The name of the fragment shader file to load.
+		* for rendering the scene with an Oculus Rift.  If NULL is passed to either the vertex shader or fragment
+		* shader name, then it will use the default shader that is provided with Project Virtua (default.vs and default.fs).
 		* @param vertexShader The name of the vertex shader file to load.
+		* @param fragmentShader The name of the fragment shader file to load.
 		* @param program Stores the program's ID.
 		* @param fragment Stores the fragment shader's ID.
 		* @param vertex Stores the vertex shader's ID.
 		*/
-		void SetupShaders(const char* fragmentShader, const char* vertexShader, int &program, int &fragment, int &vertex);
+		void SetupShaders(const char* vertexShader, const char* fragmentShader, int &program, int &fragment, int &vertex);
 
 		/**
 		 * Get the rotation values for the angle of rotation for where the user is looking.
@@ -118,7 +119,35 @@ namespace PV
 		 */
 		const Viewport GetViewport() const;
 
-		void ComposeFinalImage(unsigned int outputTexture);
+		/**
+		 * Compose the final rendered image that the Rift should see per eye using a texture.  This is done so that
+		 * the scene does not need to be full rendered twice, which will save processing time.
+		 * @param eye The eye that is being rendered to.
+		 * @param outputTexture The texture handle to be used for rendering.
+		 */
+		void ComposeFinalImage(RiftEye eye, unsigned int outputTexture);
+
+		/**
+		* The center viewing point.
+		*/
+		float ViewCenter;
+		/**
+		* The offset for the projection view due to the eyes and screen size.
+		*/
+		float ProjectionCenterOffset;
+		/**
+		* This is half of the interpupillary distance (IE: Distance between the eyes).
+		*/
+		float HalfIPD;
+
+		/**
+		* The field of view on the Y-axis that can be seen by the camera.
+		*/
+		float FieldOfView;
+		/**
+		* The aspect ration to display with the camera.
+		*/
+		float AspectRatio;
 
 		/**
 		 * This is the deconstructor for he Oculus Rift device.  This method will automatically
@@ -194,44 +223,52 @@ namespace PV
 		  */
 		StereoEyeParams RightEye;
 		/**
-		  * The center viewing point.
-		  */
-		float ViewCenter;
-		/**
-		  * The offset for the projection view due to the eyes and screen size.
-		  */
-		float ProjectionCenterOffset;
-		/**
-		  * This is half of the interpupillary distance (IE: Distance between the eyes).
-		  */
-		float HalfIPD;
-
-		/**
-		  * The field of view on the Y-axis that can be seen by the camera.
-		  */
-		float FieldOfView;
-		/**
-		  * The aspect ration to display with the camera.
-		  */
-		float AspectRatio;
-
-		/**
 		 * The viewport for what the user's eyes can see.
 		 */
 		Viewport viewport;
 
-		int defaultProgram, fragmentShader, vertexShader;
+		/**
+		* This is the program handle that is used for the shaders associated with the left eye.
+		*/
+		int leftEyeProgram;
+		/**
+		* This is the program handle that is used for the shaders associated with the right eye.
+		*/
+		int rightEyeProgram;
+		/**
+		* This is the shader handle for the vertex shader.
+		*/
+		int vertexShader;
+		/**
+		 * This is the shader handle for the fragment shader.
+		 */
+		int fragmentShader;
 
 		/**
 		 * The rotation data for where the user is looking.
 		 */
 		rotation_t Rotation;
 
+		/**
+		 * This is the vertex array object handle used to render the quad.
+		 */
+		unsigned int quadVAOHandle;
+		/**
+		* This is the vertex buffer object handle used to render the quad.
+		*/
 		unsigned int quadVBOHandle;
-		unsigned int verticesBufferHandle;
-		unsigned int colorsBufferHandle;
-		unsigned int texCoordsBufferHandle;
+		/**
+		* This is the color buffer object handle used to render the quad.
+		*/
+		unsigned int quadCBOHandle;
+		/**
+		* This is the texture coordinates buffer object handle used to render the quad.
+		*/
+		unsigned int quadTCBOHandle;
 
+		/**
+		 * This function initializes the quad that is used for rendering the final scene to the eyes of the Oculus Rift.
+		 */
 		void InitializeRenderQuad();
 
 		/**

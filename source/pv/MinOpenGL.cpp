@@ -12,6 +12,8 @@ namespace PV
 	pv_glAttachShaderFunction pv_glAttachShader = NULL;
 	pv_glLinkProgramFunction pv_glLinkProgram = NULL;
 	pv_glUseProgramFunction pv_glUseProgram = NULL;
+	pv_glGetProgramivFunction pv_glGetProgramiv = NULL;
+	pv_glGetProgramInfoLogFunction pv_glGetProgramInfoLog = NULL;
 	pv_glGetUniformLocationFunction pv_glGetUniformLocation = NULL;
 	pv_glUniform1fFunction pv_glUniform1f = NULL;
 	pv_glUniform2fFunction pv_glUniform2f = NULL;
@@ -27,6 +29,8 @@ namespace PV
 	pv_glEnableVertexAttribArrayFunction pv_glEnableVertexAttribArray = NULL;
 	pv_glVertexAttribPointerFunction pv_glVertexAttribPointer = NULL;
 	pv_glActiveTextureFunction pv_glActiveTexture = NULL;
+	pv_glBindAttribLocationFunction pv_glBindAttribLocation = NULL;
+	pv_glBindFragDataLocationFunction pv_glBindFragDataLocation = NULL;
 
 	void initMinGL()
 	{
@@ -40,6 +44,8 @@ namespace PV
 		pv_glAttachShader = (pv_glAttachShaderFunction)glGetProcAddress("glAttachShader");
 		pv_glLinkProgram = (pv_glLinkProgramFunction)glGetProcAddress("glLinkProgram");
 		pv_glUseProgram = (pv_glUseProgramFunction)glGetProcAddress("glUseProgram");
+		pv_glGetProgramiv = (pv_glGetProgramivFunction)glGetProcAddress("glGetProgramiv");
+		pv_glGetProgramInfoLog = (pv_glGetProgramInfoLogFunction)glGetProcAddress("glGetProgramInfoLog");
 		pv_glGetUniformLocation = (pv_glGetUniformLocationFunction)glGetProcAddress("glGetUniformLocation");
 		pv_glUniform1f = (pv_glUniform1fFunction)glGetProcAddress("glUniform1f");
 		pv_glUniform2f = (pv_glUniform2fFunction)glGetProcAddress("glUniform2f");
@@ -52,10 +58,13 @@ namespace PV
 		pv_glGenBuffers = (pv_glGenBuffersFunction)glGetProcAddress("glGenBuffers");
 		pv_glBindBuffer = (pv_glBindBufferFunction)glGetProcAddress("glBindBuffer");
 		pv_glBufferData = (pv_glBufferDataFunction)glGetProcAddress("glBufferData");
-		pv_glEnableVertexAttribArray = (pv_glEnableVertexAttribArrayFunction)glGetProcAddress("glDisableVertexAttribArray");
+		pv_glEnableVertexAttribArray = (pv_glEnableVertexAttribArrayFunction)glGetProcAddress("glEnableVertexAttribArray");
 		pv_glVertexAttribPointer = (pv_glVertexAttribPointerFunction)glGetProcAddress("glVertexAttribPointer");
 
 		pv_glActiveTexture = (pv_glActiveTextureFunction)glGetProcAddress("glActiveTexture");
+
+		pv_glBindAttribLocation = (pv_glBindAttribLocationFunction)glGetProcAddress("glBindAttribLocation");
+		pv_glBindFragDataLocation = (pv_glBindFragDataLocationFunction)glGetProcAddress("glBindFragDataLocation");
 	}
 };
 

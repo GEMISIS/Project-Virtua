@@ -8,7 +8,7 @@ using namespace PV;
 
 bool done = false;
 
-#define quadVertices 2
+#define quadVertices 3
 
 #define quadVetex_size 4
 #define quadColor_size 4
@@ -24,16 +24,16 @@ unsigned int verticesArrayHandle;
 void initQuad()
 {
 	float quadVerts[quadVetex_size * quadVertices] = {
-		0.25f, 0.25f,
-		0.25f, 0.75f,
-		0.75f, 0.25f,
-		0.75f, 0.75f
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f
 	};
 	float quadColor[quadColor_size * 3] = {
-		1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f
 	};
 	float quadTexture[quadTex_size * 2] = {
 		0.0, 0.0,
@@ -51,7 +51,7 @@ void initQuad()
 	glBindBuffer(GL_ARRAY_BUFFER, verticesBufferHandle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glGenBuffers(1, &colorsBufferHandle);
 	glBindBuffer(GL_ARRAY_BUFFER, colorsBufferHandle);
@@ -81,10 +81,6 @@ void initQuad()
 void onResize(int width, int height)
 {
   glViewport(0, 0, width, height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(60, float(width) / height, 0.1f, 100);
-  glMatrixMode(GL_MODELVIEW);
 }
 
 LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam, LPARAM messageParam)
@@ -103,12 +99,19 @@ LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam,
 
 int drawGLScene(OculusRift rift)
 {
-	glDisable(GL_DEPTH_TEST);
+	glUseProgram(0);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(rift.FieldOfView, rift.AspectRatio, 0.1f, 10000);
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glDepthMask(GL_FALSE);
-	glMatrixMode(GL_PROJECTION);
-	gluOrtho2D(0.0f, 1.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glRotatef(rift.GetRotation().x, 1, 0, 0);
+	glRotatef(rift.GetRotation().y, 0, 1, 0);
+
 	glBindVertexArray(verticesArrayHandle);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -132,6 +135,7 @@ int main()
 	}
 
 	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
 
 	initMidGL();
 	wglSwapIntervalEXT(1);
@@ -175,14 +179,18 @@ int main()
 		
 		testWindow.MakeCurrentGLContext();
 		glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
+		glViewport(0, 0, 1280, 800);
 		drawGLScene(rift);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		gluOrtho2D(0.0f, 1.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		rift.ShiftView(Left);
-		rift.ComposeFinalImage(_VRTexture);
+		rift.ComposeFinalImage(Left, _VRTexture);
 		rift.ShiftView(Right);
-		rift.ComposeFinalImage(_VRTexture);
+		rift.ComposeFinalImage(Right, _VRTexture);
 
 		testWindow.Update();
 	}

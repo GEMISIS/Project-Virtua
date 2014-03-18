@@ -44,16 +44,21 @@ namespace PV
 
 		if (this->connected)
 		{
+			this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
+
 			// Setup the user's data for the Oculus Rift.
 			this->Setup();
 
-			this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
-			this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
+			// Setup the shaders for the Oculus rift.
+			this->SetupShaders(this->leftEyeProgram, this->fragmentShader, this->vertexShader);
+			this->SetupShaders(this->rightEyeProgram, this->fragmentShader, this->vertexShader);
 
+			// Setup the rendering quad for the Oculus rift.
 			this->InitializeRenderQuad();
 		}
 		else if (useDemoRift)
 		{
+			// If using a demo Oculus Rift, setup the virtual data.
 			this->HMD.HResolution = 1280;
 			this->HMD.VResolution = 800;
 			this->HMD.HScreenSize = 0.14976f;
@@ -62,35 +67,39 @@ namespace PV
 			this->HMD.EyeToScreenDistance = 0.041f;
 			this->HMD.LensSeparationDistance = 0.0635f;
 			this->HMD.InterpupillaryDistance = 0.064f;
-
 			this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
 
-			this->Setup();
-
+			// Say that it is connected, but virtually.
 			this->connected = true;
 			this->virtuallyConnected = true;
-			this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
 
+			// Setup the user's data for the Oculus Rift.
+			this->Setup();
+
+			// Setup the shaders for the Oculus rift.
+			this->SetupShaders(this->leftEyeProgram, this->fragmentShader, this->vertexShader);
+			this->SetupShaders(this->rightEyeProgram, this->fragmentShader, this->vertexShader);
+
+			// Setup the rendering quad for the Oculus rift.
 			this->InitializeRenderQuad();
 		}
-
 	}
-#define quadVertices 2
-
-#define quadVetex_size 4
-#define quadColor_size 4
-#define quadTex_size 4
-
 
 	void OculusRift::InitializeRenderQuad()
 	{
-		float quadVerts[quadVetex_size * quadVertices] = {
-			0.0f, 0.0f,
-			0.0f, 1.0f,
-			1.0f, 0.0f,
+		float quadVerts[] = {
+			-1.0f, -1.0f,
+			-1.0f, 1.0f,
+			1.0f, -1.0f,
 			1.0f, 1.0f
 		};
-		float quadTexture[quadTex_size * 2] = {
+		float quadColor[] = {
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f
+		};
+		float quadTexture[] = {
 			0.0, 0.0,
 			0.0f, 1.0f,
 			1.0f, 0.0f,
@@ -98,21 +107,28 @@ namespace PV
 		};
 
 		// Create the vertex array handle.
-		pv_glGenVertexArrays(1, &this->quadVBOHandle);
-		pv_glBindVertexArray(this->quadVBOHandle);
+		pv_glGenVertexArrays(1, &this->quadVAOHandle);
+		pv_glBindVertexArray(this->quadVAOHandle);
 
 		// Create the vertices buffer.
-		pv_glGenBuffers(1, &verticesBufferHandle);
-		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, verticesBufferHandle);
+		pv_glGenBuffers(1, &this->quadVBOHandle);
+		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, this->quadVBOHandle);
 		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, PV_GL_STATIC_DRAW);
 		pv_glEnableVertexAttribArray(0);
 		pv_glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-		pv_glGenBuffers(1, &texCoordsBufferHandle);
-		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, texCoordsBufferHandle);
-		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadTexture), quadTexture, PV_GL_STATIC_DRAW);
+		pv_glGenBuffers(1, &this->quadCBOHandle);
+		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, this->quadCBOHandle);
+		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadColor), quadColor, PV_GL_STATIC_DRAW);
 		pv_glEnableVertexAttribArray(1);
-		pv_glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		pv_glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		pv_glGenBuffers(1, &this->quadTCBOHandle);
+		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, this->quadTCBOHandle);
+		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadTexture), quadTexture, PV_GL_STATIC_DRAW);
+		pv_glEnableVertexAttribArray(2);
+		pv_glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
 		pv_glBindVertexArray(0);
 	}
 
@@ -275,8 +291,10 @@ namespace PV
 	}
 	void OculusRift::renderGLAbove2(RiftEye eye)
 	{
-		//gluPerspective(this->FieldOfView, this->AspectRatio, 0.001f, 10000.0f);
-		this->UpdateUniforms(eye, this->defaultProgram);
+		if (eye == Left || eye == Right)
+		{
+			this->UpdateUniforms(eye, (eye == Left) ? this->leftEyeProgram : this->rightEyeProgram);
+		}
 	}
 
 	void OculusRift::ShiftView(RiftEye eye)
@@ -285,7 +303,6 @@ namespace PV
 		glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion[0]);
 		glGetIntegerv(PV_GL_MINOR_VERSION, &openGlVersion[1]);
 
-		pv_glUseProgram(this->defaultProgram);
 		this->ShiftView(eye, openGlVersion[0], openGlVersion[1]);
 	}
 
@@ -294,7 +311,7 @@ namespace PV
 		float translationMatrix[16] = {
 			1, 0, 0, 0,
 			0, 1, 0, 0,
-			0, 0, 1, 0,
+			0, 0, -1, 0,
 			0, 0, 0, 1 };
 		if (eye == Left)
 		{
@@ -327,6 +344,8 @@ namespace PV
 
 	void OculusRift::UpdateUniforms(RiftEye eye, GLuint program)
 	{
+		pv_glUseProgram(program);
+
 		int translation = pv_glGetUniformLocation(program, "translation");
 		int textureRange = pv_glGetUniformLocation(program, "u_texRange");
 		int lensCenterOffset = pv_glGetUniformLocation(program, "u_lensCenterOffset");
@@ -353,7 +372,7 @@ namespace PV
 		}
 		pv_glUniform4f(distortion, this->HMD.DistortionK[0], this->HMD.DistortionK[1], this->HMD.DistortionK[2], this->HMD.DistortionK[3]);
 		pv_glUniform1f(aspectRatio, this->AspectRatio);
-		pv_glUniform1f(fillScale, 1.0f);
+		pv_glUniform1f(fillScale, this->StereoConfiguration.GetDistortionScale());
 	}
 
 	void OculusRift::SetupShaders(int &program, int &fragment, int &vertex)
@@ -361,119 +380,125 @@ namespace PV
 		this->SetupShaders(NULL, NULL, program, fragment, vertex);
 	}
 
-	void OculusRift::SetupShaders(const char* fragmentShader, const char* vertexShader, int &program, int &fragment, int &vertex)
+	void OculusRift::SetupShaders(const char* vertexShader, const char* fragmentShader, int &program, int &fragment, int &vertex)
 	{
 		program = pv_glCreateProgram();
-		fragment = pv_glCreateShader(PV_GL_FRAGMENT_SHADER);
-		vertex = pv_glCreateShader(PV_GL_VERTEX_SHADER);
-
-		if (fragmentShader == NULL)
+		if (fragment < 1)
 		{
-			File* fragFile = new File("default.fs", true);
-			if (fragFile->DataLoaded())
-			{
-				int length = fragFile->Size();
-				char* data = (char*)malloc(length * sizeof(char)+1);
-				strcpy(data, fragFile->Data());
-				data[length] = '\0';
-				pv_glShaderSource(fragment, 1, &data, &length);
-				pv_glCompileShader(fragment);
+			fragment = pv_glCreateShader(PV_GL_FRAGMENT_SHADER);
 
-				int result = false;
-				int logLength = 0;
-				pv_glGetShaderiv(fragment, PV_GL_COMPILE_STATUS, &result);
-				if (result == GL_FALSE)
-				{
-					pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
-					char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-					pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
-					fprintf(stdout, "%s\nFrag shader failed!\n", FragmentShaderErrorMessage);
-					free(FragmentShaderErrorMessage);
-				}
-			}
-		}
-		else
-		{
-			File* fragFile = new File(fragmentShader, true);
-			if (fragFile->DataLoaded())
+			if (fragmentShader == NULL)
 			{
-				int length = fragFile->Size();
-				char* data = (char*)malloc(length * sizeof(char)+1);
-				strcpy(data, fragFile->Data());
-				data[length] = '\0';
-				pv_glShaderSource(fragment, 1, &data, &length);
-				pv_glCompileShader(fragment);
-
-				int result = false;
-				int logLength = 0;
-				pv_glGetShaderiv(fragment, PV_GL_COMPILE_STATUS, &result);
-				if (result == GL_FALSE)
+				File* fragFile = new File("default.fs", true);
+				if (fragFile->DataLoaded())
 				{
-					pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
-					char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-					pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
-					fprintf(stdout, "%s\nFrag shader failed!\n", FragmentShaderErrorMessage);
-					free(FragmentShaderErrorMessage);
+					int length = fragFile->Size();
+					char* data = (char*)malloc(length * sizeof(char)+1);
+					strcpy(data, fragFile->Data());
+					data[length] = '\0';
+					pv_glShaderSource(fragment, 1, &data, &length);
+					pv_glCompileShader(fragment);
+
+					int result = false;
+					int logLength = 0;
+					pv_glGetShaderiv(fragment, PV_GL_COMPILE_STATUS, &result);
+					if (result == GL_FALSE)
+					{
+						pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
+						char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
+						pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
+						fprintf(stdout, "%s\nFrag shader failed!\n", FragmentShaderErrorMessage);
+						free(FragmentShaderErrorMessage);
+					}
 				}
 			}
 			else
 			{
-				fprintf(stdout, "Could not find fragment shader file %s!\n", fragmentShader);
-			}
-		}
-
-		if (vertexShader == NULL)
-		{
-			File* vertFile = new File("default.vs", true);
-			if (vertFile->DataLoaded())
-			{
-				int length = vertFile->Size();
-				char* data = (char*)malloc(length * sizeof(char)+1);
-				strcpy(data, vertFile->Data());
-				data[length] = '\0';
-				pv_glShaderSource(vertex, 1, &data, &length);
-				pv_glCompileShader(vertex);
-
-				int result = false;
-				int logLength = 0;
-				pv_glGetShaderiv(vertex, PV_GL_COMPILE_STATUS, &result);
-				if (result == GL_FALSE)
+				File* fragFile = new File(fragmentShader, true);
+				if (fragFile->DataLoaded())
 				{
-					pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
-					char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-					pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
-					fprintf(stdout, "%s\nVert shader failed!\n", VertexShaderErrorMessage);
-					free(VertexShaderErrorMessage);
+					int length = fragFile->Size();
+					char* data = (char*)malloc(length * sizeof(char)+1);
+					strcpy(data, fragFile->Data());
+					data[length] = '\0';
+					pv_glShaderSource(fragment, 1, &data, &length);
+					pv_glCompileShader(fragment);
+
+					int result = false;
+					int logLength = 0;
+					pv_glGetShaderiv(fragment, PV_GL_COMPILE_STATUS, &result);
+					if (result == GL_FALSE)
+					{
+						pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
+						char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
+						pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
+						fprintf(stdout, "%s\nFrag shader failed!\n", FragmentShaderErrorMessage);
+						free(FragmentShaderErrorMessage);
+					}
+				}
+				else
+				{
+					fprintf(stdout, "Could not find fragment shader file %s!\n", fragmentShader);
 				}
 			}
 		}
-		else
+		if (vertex < 1)
 		{
-			File* vertFile = new File(vertexShader, true);
-			if (vertFile->DataLoaded())
-			{
-				int length = vertFile->Size();
-				char* data = (char*)malloc(length * sizeof(char)+1);
-				strcpy(data, vertFile->Data());
-				data[length] = '\0';
-				pv_glShaderSource(vertex, 1, &data, &length);
-				pv_glCompileShader(vertex);
+			vertex = pv_glCreateShader(PV_GL_VERTEX_SHADER);
 
-				int result = false;
-				int logLength = 0;
-				pv_glGetShaderiv(vertex, PV_GL_COMPILE_STATUS, &result);
-				if (result == GL_FALSE)
+			if (vertexShader == NULL)
+			{
+				File* vertFile = new File("default.vs", true);
+				if (vertFile->DataLoaded())
 				{
-					pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
-					char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-					pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
-					fprintf(stdout, "%s\nVert shader failed!\n", VertexShaderErrorMessage);
-					free(VertexShaderErrorMessage);
+					int length = vertFile->Size();
+					char* data = (char*)malloc(length * sizeof(char)+1);
+					strcpy(data, vertFile->Data());
+					data[length] = '\0';
+					pv_glShaderSource(vertex, 1, &data, &length);
+					pv_glCompileShader(vertex);
+
+					int result = false;
+					int logLength = 0;
+					pv_glGetShaderiv(vertex, PV_GL_COMPILE_STATUS, &result);
+					if (result == GL_FALSE)
+					{
+						pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
+						char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
+						pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
+						fprintf(stdout, "%s\nVert shader failed!\n", VertexShaderErrorMessage);
+						free(VertexShaderErrorMessage);
+					}
 				}
 			}
 			else
 			{
-				fprintf(stdout, "Could not find fragment shader file %s!\n", vertexShader);
+				File* vertFile = new File(vertexShader, true);
+				if (vertFile->DataLoaded())
+				{
+					int length = vertFile->Size();
+					char* data = (char*)malloc(length * sizeof(char)+1);
+					strcpy(data, vertFile->Data());
+					data[length] = '\0';
+					pv_glShaderSource(vertex, 1, &data, &length);
+					pv_glCompileShader(vertex);
+
+					int result = false;
+					int logLength = 0;
+					pv_glGetShaderiv(vertex, PV_GL_COMPILE_STATUS, &result);
+					if (result == GL_FALSE)
+					{
+						pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
+						char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
+						pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
+						fprintf(stdout, "%s\nVert shader failed!\n", VertexShaderErrorMessage);
+						free(VertexShaderErrorMessage);
+					}
+				}
+				else
+				{
+					fprintf(stdout, "Could not find fragment shader file %s!\n", vertexShader);
+				}
 			}
 		}
 
@@ -481,6 +506,18 @@ namespace PV
 		pv_glAttachShader(program, vertex);
 
 		pv_glLinkProgram(program);
+
+		int Presult = false;
+		int PlogLength = 0;
+		pv_glGetProgramiv(program, PV_GL_LINK_STATUS, &Presult);
+		if (Presult == GL_FALSE)
+		{
+			pv_glGetProgramiv(program, PV_GL_INFO_LOG_LENGTH, &PlogLength);
+			char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* PlogLength);
+			pv_glGetProgramInfoLog(program, PlogLength, NULL, VertexShaderErrorMessage);
+			fprintf(stdout, "%s\nprogram link failed!\n", VertexShaderErrorMessage);
+			free(VertexShaderErrorMessage);
+		}
 	}
 
 	/**
@@ -502,8 +539,17 @@ namespace PV
 		return this->viewport;
 	}
 
-	void OculusRift::ComposeFinalImage(unsigned int outputTexture)
+	void OculusRift::ComposeFinalImage(RiftEye eye, unsigned int outputTexture)
 	{
+		switch (eye)
+		{
+		case Left:
+			pv_glUseProgram(this->leftEyeProgram);
+			break;
+		case Right:
+			pv_glUseProgram(this->rightEyeProgram);
+			break;
+		}
 		pv_glActiveTexture(PV_GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, outputTexture);
 		pv_glBindVertexArray(this->quadVBOHandle);

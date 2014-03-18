@@ -64,9 +64,11 @@ namespace PV
 #define PV_GL_MINOR_VERSION 0x821C
 
 #define PV_GL_COMPILE_STATUS 0x8B81
+#define PV_GL_LINK_STATUS 0x8B82
 #define PV_GL_INFO_LOG_LENGTH 0x8B84
 
 #define PV_GL_ARRAY_BUFFER 0x8892
+#define PV_GL_ELEMENT_ARRAY_BUFFER 0x8893
 #define PV_GL_STATIC_DRAW 0x88E4
 
 	/**
@@ -120,6 +122,8 @@ namespace PV
 	* A function pointer for the glUseProgram function.
 	*/
 	typedef void(__stdcall* pv_glUseProgramFunction) (GLuint program);
+	typedef void(__stdcall* pv_glGetProgramivFunction) (GLuint program, GLenum pname, GLint* pararms);
+	typedef void(__stdcall* pv_glGetProgramInfoLogFunction) (GLuint program, GLsizei maxLength, GLsizei *length, char *infoLog);
 	/**
 	 * A function pointer for the glGetUniformLocation function.
 	 */
@@ -179,6 +183,10 @@ namespace PV
 	typedef void(__stdcall* pv_glVertexAttribPointerFunction) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
 
 	typedef void(__stdcall* pv_glActiveTextureFunction) (GLenum texture);
+
+	typedef void(__stdcall* pv_glBindAttribLocationFunction) (GLuint program, GLuint index, const char* name);
+
+	typedef void(__stdcall* pv_glBindFragDataLocationFunction) (GLuint program, GLuint colorNumber, const char* name);
 
 	/**
 	 * The OpenGL method "glCreateShader", to be grabbed as an OpenGL extension.
@@ -485,6 +493,9 @@ namespace PV
 	*/
 	extern pv_glGetUniformLocationFunction pv_glGetUniformLocation;
 
+	extern pv_glGetProgramivFunction pv_glGetProgramiv;
+	extern pv_glGetProgramInfoLogFunction pv_glGetProgramInfoLog;
+
 	extern pv_glUniform1fFunction pv_glUniform1f;
 
 	extern pv_glUniform2fFunction pv_glUniform2f;
@@ -503,6 +514,9 @@ namespace PV
 	extern pv_glEnableVertexAttribArrayFunction pv_glEnableVertexAttribArray;
 	extern pv_glVertexAttribPointerFunction pv_glVertexAttribPointer;
 	extern pv_glActiveTextureFunction pv_glActiveTexture;
+
+	extern pv_glBindAttribLocationFunction pv_glBindAttribLocation;
+	extern pv_glBindFragDataLocationFunction pv_glBindFragDataLocation;
 
 	/**
 	 * Initializes the minimum required OpenGL functions for use with Project Virtua.  All of these methods are prefixed with pv_ in order
