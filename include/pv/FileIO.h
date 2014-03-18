@@ -1,7 +1,6 @@
 #ifndef _FILE_IO_H_
 #define _FILE_IO_H_
 
-#include <iostream>
 #include <fstream>
 
 namespace PV
@@ -19,7 +18,7 @@ namespace PV
 		 * @param fileName The name of the file to load.
 		 * @param loadData True if the file's data should be loaded into memory now, false if it will be loaded manually later.
 		 */
-		File(std::string fileName, bool loadData);
+		File(const char* fileName, bool loadData);
 		/**
 		 * A method to load the data from the file into memory.
 		 */
@@ -43,6 +42,10 @@ namespace PV
 		 */
 		const unsigned long Size() const;
 		/**
+		* A pointer to the file's data in memory.
+		*/
+		char* data;
+		/**
 		 * Free's the file's data from memory.  The file can than be reloaded with the LoadData method later.
 		 */
 		void FreeData();
@@ -54,15 +57,11 @@ namespace PV
 		/**
 		 * The file's input stream for retrieving its data.
 		 */
-		std::ifstream fileStream;
+		FILE* file;
 		/**
 		 * A boolean indicating whether the file is loaded or not.
 		 */
 		bool dataLoaded;
-		/**
-		 * A pointer to the file's data in memory.
-		 */
-		char* data;
 		/**
 		 * The size of the file's data in memory.
 		 */

@@ -1,7 +1,6 @@
 #ifndef _OCULUS_RIFT_H_
 #define _OCULUS_RIFT_H_
 
-#include <OVR.h>
 #include "pv/types.h"
 
 namespace PV
@@ -20,9 +19,12 @@ namespace PV
 		/**
 		 * This constructor will automatically attempt to initialize and setup an
 		 * Oculus Rift device that is connected to the computer.  Use the IsConnected
-		 * method to see if the device was successfully setup.
+		 * method to see if the device was successfully setup.  You can also specify to create
+		 * a virtual Oculus Rift device if the hardware is not found.  This is useful for testing the output
+		 * from the device.
+		 * @param useDemoRift This will tell the class to create a virtual Oculus Rift when true.
 		 */
-		OculusRift();
+		OculusRift(bool useDemoRift);
 		/**
 		 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
 		 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
@@ -40,7 +42,7 @@ namespace PV
 		 * a boolean indicating whether it is or not.
 		 * @return Returns true if the Oculus Rift is connected, false otherwise.
 		 */
-		const bool isConnected();
+		const bool isConnected() const;
 
 		/**
 		 * This method updates data recieved from the Oculus Rift.  It currently pulls the change in
@@ -49,17 +51,60 @@ namespace PV
 		void Update();
 
 		/**
-		 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and will
-		 * make sure to use the best methods for the supported version of OpenGL.
-		 */
+		* Shifts the view for a specific eye.  This will use OpenGL specifically right now, and will
+		* make sure to use the best methods for the supported version of OpenGL.
+		* @param eye The eye to shift the view for (Left or Right).
+		*/
 		void ShiftView(RiftEye eye);
+
+		/**
+		* Shifts the view for a specific eye by modifying an array of 16 floats.
+		* @param eye The eye to shift the view for (Left or Right).
+		* @param matrix The matrix to modify for the view.
+		*/
+		void ShiftView(RiftEye eye, float matrix[16]);
 
 		/**
 		 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and allows
 		 * you to specify which version of OpenGL to render with. (Shaders for > 2.0, deprecated methods for
 		 * less than 2.0.
+		 * @param eye The eye to shift the view for (Left or Right).
+		 * @param majorVersion The major version of OpenGL to use (IE: 1, 2, 3, or 4).
+		 * @param minorVersion The minor version of OpenGL to use (IE: 0.1, 0.2, 0.3, etc).
 		 */
 		void ShiftView(RiftEye eye, int majorVersion, int minorVersion);
+
+		/**
+		 * Updates the uniforms for the shaders for the specified eye.  This can be usedto create custom shaders that
+		 * warp the view for the Oculus Rift, though we recommend that you check that you are doing so correctly, as
+		 * this can affect the user's experience if done improperly.
+		 * @param eye The eye to setup the shaders for (Left or Right).
+		 * @param program The program that the shader is attached to.
+		 */
+		void UpdateUniforms(RiftEye eye, unsigned int program);
+
+		/**
+		* This function sets up the vertex and fragment shaders for the barrel distortion on the Oculus Rift.
+		* It will create a program object and compile and link predefined shaders to it.  This can then be used
+		* for rendering the scene with an Oculus Rift.
+		* @param program Stores the program's ID.
+		* @param fragment Stores the fragment shader's ID.
+		* @param vertex Stores the vertex shader's ID.
+		*/
+		void SetupShaders(int &program, int &fragment, int &vertex);
+
+		/**
+		* This function sets up the vertex and fragment shaders for the barrel distortion on the Oculus Rift.
+		* It will create a program object and compile and link the chosen shaders to it.  This can then be used
+		* for rendering the scene with an Oculus Rift.  If NULL is passed to either the vertex shader or fragment
+		* shader name, then it will use the default shader that is provided with Project Virtua (default.vs and default.fs).
+		* @param vertexShader The name of the vertex shader file to load.
+		* @param fragmentShader The name of the fragment shader file to load.
+		* @param program Stores the program's ID.
+		* @param fragment Stores the fragment shader's ID.
+		* @param vertex Stores the vertex shader's ID.
+		*/
+		void SetupShaders(const char* vertexShader, const char* fragmentShader, int &program, int &fragment, int &vertex);
 
 		/**
 		 * Get the rotation values for the angle of rotation for where the user is looking.
@@ -73,6 +118,36 @@ namespace PV
 		 * @return The viewport of what the Oculus Rift can see.
 		 */
 		const Viewport GetViewport() const;
+
+		/**
+		 * Compose the final rendered image that the Rift should see per eye using a texture.  This is done so that
+		 * the scene does not need to be full rendered twice, which will save processing time.
+		 * @param eye The eye that is being rendered to.
+		 * @param outputTexture The texture handle to be used for rendering.
+		 */
+		void ComposeFinalImage(RiftEye eye, unsigned int outputTexture);
+
+		/**
+		* The center viewing point.
+		*/
+		float ViewCenter;
+		/**
+		* The offset for the projection view due to the eyes and screen size.
+		*/
+		float ProjectionCenterOffset;
+		/**
+		* This is half of the interpupillary distance (IE: Distance between the eyes).
+		*/
+		float HalfIPD;
+
+		/**
+		* The field of view on the Y-axis that can be seen by the camera.
+		*/
+		float FieldOfView;
+		/**
+		* The aspect ration to display with the camera.
+		*/
+		float AspectRatio;
 
 		/**
 		 * This is the deconstructor for he Oculus Rift device.  This method will automatically
@@ -111,6 +186,11 @@ namespace PV
 		bool connected;
 
 		/**
+		* A boolean indicating whether the connected Rift is a virtual one or not. (IE: Hardware or emulated)
+		*/
+		bool virtuallyConnected;
+
+		/**
 		  * The orientation of the oculus rift. (yaw, pitch, roll)
 		  */
 		orientation_t Orientation;
@@ -143,31 +223,26 @@ namespace PV
 		  */
 		StereoEyeParams RightEye;
 		/**
-		  * The center viewing point.
-		  */
-		float ViewCenter;
-		/**
-		  * The offset for the projection view due to the eyes and screen size.
-		  */
-		float ProjectionCenterOffset;
-		/**
-		  * This is half of the interpupillary distance (IE: Distance between the eyes).
-		  */
-		float HalfIPD;
-
-		/**
-		  * The field of view on the Y-axis that can be seen by the camera.
-		  */
-		float FieldOfView;
-		/**
-		  * The aspect ration to display with the camera.
-		  */
-		float AspectRatio;
-
-		/**
 		 * The viewport for what the user's eyes can see.
 		 */
 		Viewport viewport;
+
+		/**
+		* This is the program handle that is used for the shaders associated with the left eye.
+		*/
+		int leftEyeProgram;
+		/**
+		* This is the program handle that is used for the shaders associated with the right eye.
+		*/
+		int rightEyeProgram;
+		/**
+		* This is the shader handle for the vertex shader.
+		*/
+		int vertexShader;
+		/**
+		 * This is the shader handle for the fragment shader.
+		 */
+		int fragmentShader;
 
 		/**
 		 * The rotation data for where the user is looking.
@@ -175,11 +250,39 @@ namespace PV
 		rotation_t Rotation;
 
 		/**
+		 * This is the vertex array object handle used to render the quad.
+		 */
+		unsigned int quadVAOHandle;
+		/**
+		* This is the vertex buffer object handle used to render the quad.
+		*/
+		unsigned int quadVBOHandle;
+		/**
+		* This is the color buffer object handle used to render the quad.
+		*/
+		unsigned int quadCBOHandle;
+		/**
+		* This is the texture coordinates buffer object handle used to render the quad.
+		*/
+		unsigned int quadTCBOHandle;
+
+		/**
+		 * This function initializes the quad that is used for rendering the final scene to the eyes of the Oculus Rift.
+		 */
+		void InitializeRenderQuad();
+
+		/**
 		 * Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
 		 * to be used on OpenGL versions less than 2.0.
 		 * @param eye The eye to render for.
 		 */
 		void renderGLBelow2(RiftEye eye);
+		/**
+		* Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
+		* to be used on OpenGL versions greater than or equal to 2.0.
+		* @param eye The eye to render for.
+		*/
+		void renderGLAbove2(RiftEye eye);
 	};
 };
 #endif
