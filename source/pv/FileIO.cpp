@@ -1,87 +1,85 @@
 #include "pv/FileIO.h"
+#include <iostream>
 
-File::File(std::string fileName, bool loadData)
+namespace PV
 {
-	this->dataLoaded = false;
-	this->data = NULL;
-	this->fileLength = 0;
-
-	this->fileStream.open(fileName.c_str(), std::ios::in);
-	
-	if(this->fileStream)
+	File::File(const char* fileName, bool loadData)
 	{
-		if(this->fileStream.good())
+		this->dataLoaded = false;
+		this->data = NULL;
+		this->fileLength = 0;
+
+		this->file = fopen(fileName, "rb");
+
+		if (this->file)
 		{
-			if(loadData)
+			if (loadData)
 			{
 				this->LoadData();
 			}
 		}
 	}
-}
 
-void File::LoadData()
-{
-	this->dataLoaded = false;
-	this->fileStream.seekg(0, std::ios::end);
-	this->fileLength = this->fileStream.tellg();
-	this->fileStream.seekg(0, std::ios::beg);
-
-	if(this->data != NULL)
+	void File::LoadData()
 	{
-		free(this->data);
-		this->data = NULL;
-	}
-	if(this->fileLength > 0)
-	{
-		this->data = (char*)malloc(this->fileLength * sizeof(char));
+		this->dataLoaded = false;
+		fseek(this->file, 0, SEEK_END);
+		this->fileLength = ftell(this->file);
+		fseek(this->file, 0, SEEK_SET);
 
-		if(this->data != NULL)
+		if (this->data != NULL)
 		{
-			this->fileStream.read(this->data, this->fileLength);
-			this->dataLoaded = true;
+			free(this->data);
+			this->data = NULL;
+		}
+		if (this->fileLength > 0)
+		{
+			this->data = (char*)malloc(this->fileLength * sizeof(char));
+
+			if (this->data != NULL)
+			{
+				fread(this->data, sizeof(char), this->fileLength, this->file);
+				this->dataLoaded = true;
+			}
 		}
 	}
-}
 
-const bool File::DataLoaded() const
-{
-	return this->dataLoaded;
-}
-const char* File::Data() const
-{
-	return this->data;
-}
-const unsigned long File::Size() const
-{
-	return this->fileLength;
-}
-
-void File::FreeData()
-{
-	if(this->data != NULL)
+	const bool File::DataLoaded() const
 	{
-		free(this->data);
-		this->data = NULL;
+		return this->dataLoaded;
+	}
+	const char* File::Data() const
+	{
+		return this->data;
+	}
+	const unsigned long File::Size() const
+	{
+		return this->fileLength;
 	}
 
-	this->fileLength = 0;
-	this->dataLoaded = false;
-}
-
-void File::Close()
-{
-	if(this->fileStream)
+	void File::FreeData()
 	{
-		if(this->fileStream.good())
+		if (this->data != NULL)
 		{
-			this->fileStream.close();
+			free(this->data);
+			this->data = NULL;
+		}
+
+		this->fileLength = 0;
+		this->dataLoaded = false;
+	}
+
+	void File::Close()
+	{
+		if (this->file)
+		{
+			fclose(this->file);
 		}
 	}
-}
 
-File::~File()
-{
-	this->FreeData();
-	this->Close();
-}
+	File::~File()
+	{
+		this->FreeData();
+		this->Close();
+	}
+};
