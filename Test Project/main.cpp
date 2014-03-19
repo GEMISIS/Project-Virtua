@@ -189,6 +189,7 @@ int main()
 		rift.Update();
 
 		testWindow.MakeCurrentGLContext();
+<<<<<<< HEAD
 		int translation = 0;
 		if (rift.isConnected())
 		{
@@ -213,6 +214,13 @@ int main()
 			drawGLScene(rift, offsetMatrix);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+=======
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, 1280, 800);
+		drawGLScene(rift);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
+>>>>>>> 7cf7af7b0262bf27c858bd38ddc27eea3c59fc62
 
 			gluOrtho2D(0.0f, 1.0f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
