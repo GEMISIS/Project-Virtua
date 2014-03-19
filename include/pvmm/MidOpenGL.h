@@ -10,6 +10,7 @@ namespace PV
 	extern PFGNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 
 	void initMidGL();
+	unsigned int createShaders(const char* vertexShader, const char* fragmentShader);
 };
 
 #endif

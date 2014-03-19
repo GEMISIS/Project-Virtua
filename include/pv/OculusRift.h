@@ -51,28 +51,11 @@ namespace PV
 		void Update();
 
 		/**
-		* Shifts the view for a specific eye.  This will use OpenGL specifically right now, and will
-		* make sure to use the best methods for the supported version of OpenGL.
-		* @param eye The eye to shift the view for (Left or Right).
-		*/
-		void ShiftView(RiftEye eye);
-
-		/**
-		* Shifts the view for a specific eye by modifying an array of 16 floats.
+		* Store the view's shifted values in a 4x4 matrix of floats.
 		* @param eye The eye to shift the view for (Left or Right).
 		* @param matrix The matrix to modify for the view.
 		*/
 		void ShiftView(RiftEye eye, float matrix[16]);
-
-		/**
-		 * Shifts the view for a specific eye.  This will use OpenGL specifically right now, and allows
-		 * you to specify which version of OpenGL to render with. (Shaders for > 2.0, deprecated methods for
-		 * less than 2.0.
-		 * @param eye The eye to shift the view for (Left or Right).
-		 * @param majorVersion The major version of OpenGL to use (IE: 1, 2, 3, or 4).
-		 * @param minorVersion The minor version of OpenGL to use (IE: 0.1, 0.2, 0.3, etc).
-		 */
-		void ShiftView(RiftEye eye, int majorVersion, int minorVersion);
 
 		/**
 		 * Updates the uniforms for the shaders for the specified eye.  This can be usedto create custom shaders that
@@ -120,12 +103,11 @@ namespace PV
 		const Viewport GetViewport() const;
 
 		/**
-		 * Compose the final rendered image that the Rift should see per eye using a texture.  This is done so that
-		 * the scene does not need to be full rendered twice, which will save processing time.
-		 * @param eye The eye that is being rendered to.
-		 * @param outputTexture The texture handle to be used for rendering.
+		 * Compose the final rendered image that the Rift should see per eye using textured quads.
+		 * @param leftEyeTexture The image that the left eye should see.
+		 * @param rightEyeTexture The image that the right eye should see.
 		 */
-		void ComposeFinalImage(RiftEye eye, unsigned int outputTexture);
+		void ComposeFinalImage(unsigned int leftEyeTexture, unsigned int rightEyeTexture);
 
 		/**
 		* The center viewing point.
@@ -228,13 +210,9 @@ namespace PV
 		Viewport viewport;
 
 		/**
-		* This is the program handle that is used for the shaders associated with the left eye.
+		* This is the program handle that is used for the shaders associated with each eye.
 		*/
-		int leftEyeProgram;
-		/**
-		* This is the program handle that is used for the shaders associated with the right eye.
-		*/
-		int rightEyeProgram;
+		int defaultProgram;
 		/**
 		* This is the shader handle for the vertex shader.
 		*/
@@ -277,12 +255,6 @@ namespace PV
 		 * @param eye The eye to render for.
 		 */
 		void renderGLBelow2(RiftEye eye);
-		/**
-		* Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
-		* to be used on OpenGL versions greater than or equal to 2.0.
-		* @param eye The eye to render for.
-		*/
-		void renderGLAbove2(RiftEye eye);
 	};
 };
 #endif

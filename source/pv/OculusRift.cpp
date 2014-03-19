@@ -49,9 +49,14 @@ namespace PV
 			// Setup the user's data for the Oculus Rift.
 			this->Setup();
 
-			// Setup the shaders for the Oculus rift.
-			this->SetupShaders(this->leftEyeProgram, this->fragmentShader, this->vertexShader);
-			this->SetupShaders(this->rightEyeProgram, this->fragmentShader, this->vertexShader);
+			int openGlVersion = 0;
+			glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
+			if (openGlVersion > 3)
+			{
+				// Setup the shaders for the Oculus rift.
+				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
+				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
+			}
 
 			// Setup the rendering quad for the Oculus rift.
 			this->InitializeRenderQuad();
@@ -76,10 +81,14 @@ namespace PV
 			// Setup the user's data for the Oculus Rift.
 			this->Setup();
 
-			// Setup the shaders for the Oculus rift.
-			this->SetupShaders(this->leftEyeProgram, this->fragmentShader, this->vertexShader);
-			this->SetupShaders(this->rightEyeProgram, this->fragmentShader, this->vertexShader);
-
+			int openGlVersion = 0;
+			glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
+			if (openGlVersion > 3)
+			{
+				// Setup the shaders for the Oculus rift.
+				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
+				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
+			}
 			// Setup the rendering quad for the Oculus rift.
 			this->InitializeRenderQuad();
 		}
@@ -289,56 +298,36 @@ namespace PV
 			glTranslatef(-this->HalfIPD * this->ViewCenter, 0.0f, 0.0f);
 		}
 	}
-	void OculusRift::renderGLAbove2(RiftEye eye)
-	{
-		if (eye == Left || eye == Right)
-		{
-			this->UpdateUniforms(eye, (eye == Left) ? this->leftEyeProgram : this->rightEyeProgram);
-		}
-	}
-
-	void OculusRift::ShiftView(RiftEye eye)
-	{
-		int openGlVersion[] = { 0, 0 };
-		glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion[0]);
-		glGetIntegerv(PV_GL_MINOR_VERSION, &openGlVersion[1]);
-
-		this->ShiftView(eye, openGlVersion[0], openGlVersion[1]);
-	}
 
 	void OculusRift::ShiftView(RiftEye eye, float matrix[16])
 	{
-		float translationMatrix[16] = {
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, -1, 0,
-			0, 0, 0, 1 };
-		if (eye == Left)
+		int glVersion[] = { 0, 0 };
+		glGetIntegerv(PV_GL_MAJOR_VERSION, &glVersion[0]);
+		glGetIntegerv(PV_GL_MINOR_VERSION, &glVersion[1]);
+		if (glVersion[0] < 3)
 		{
-			glViewport(this->LeftEye.VP.x, this->LeftEye.VP.y, this->LeftEye.VP.w, this->LeftEye.VP.h);
-			translationMatrix[3] = this->ProjectionCenterOffset + (this->HalfIPD * this->ViewCenter);
-		}
-		else if (eye == Right)
-		{
-			glViewport(this->RightEye.VP.x, this->RightEye.VP.y, this->RightEye.VP.w, this->RightEye.VP.h);
-			translationMatrix[3] = -this->ProjectionCenterOffset + (-this->HalfIPD * this->ViewCenter);
-		}
-		for (int i = 0; i < 16; i += 1)
-		{
-			matrix[i] = translationMatrix[i];
-		}
-	}
-
-	void OculusRift::ShiftView(RiftEye eye, int majorVersion, int minorVersion)
-	{
-		switch (majorVersion)
-		{
-		case 1:
 			this->renderGLBelow2(eye);
-			break;
-		default:
-			this->renderGLAbove2(eye);
-			break;
+		}
+		else
+		{
+			float translationMatrix[16] = {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				0, 0, 0, 1 
+			};
+			if (eye == Left)
+			{
+				translationMatrix[3] = this->ProjectionCenterOffset + (this->HalfIPD * this->ViewCenter);
+			}
+			else if (eye == Right)
+			{
+				translationMatrix[3] = -this->ProjectionCenterOffset + (-this->HalfIPD * this->ViewCenter);
+			}
+			for (int i = 0; i < 16; i += 1)
+			{
+				matrix[i] = translationMatrix[i];
+			}
 		}
 	}
 
@@ -346,20 +335,11 @@ namespace PV
 	{
 		pv_glUseProgram(program);
 
-		int translation = pv_glGetUniformLocation(program, "translation");
 		int textureRange = pv_glGetUniformLocation(program, "u_texRange");
 		int lensCenterOffset = pv_glGetUniformLocation(program, "u_lensCenterOffset");
 		int distortion = pv_glGetUniformLocation(program, "u_distortion");
 		int aspectRatio = pv_glGetUniformLocation(program, "u_aspect");
 		int fillScale = pv_glGetUniformLocation(program, "u_fillScale");
-
-		float translationMatrix[16] = { 
-			1, 0, 0, 0, 
-			0, 1, 0, 0, 
-			0, 0, 1, 0, 
-			0, 0, 0, 1 };
-		this->ShiftView(eye, translationMatrix);
-		pv_glUniformMatrix4fv(translation, 1, GL_FALSE, &translationMatrix[0]);
 
 		pv_glUniform2f(textureRange, 1.0f, 1.0f);
 		if (eye == Left)
@@ -407,9 +387,13 @@ namespace PV
 						pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
 						char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
 						pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
-						fprintf(stdout, "%s\nFrag shader failed!\n", FragmentShaderErrorMessage);
+						fprintf(stdout, "%s\nFragment shader failed!\n", FragmentShaderErrorMessage);
 						free(FragmentShaderErrorMessage);
 					}
+				}
+				else
+				{
+					fprintf(stdout, "Could not find fragment shader file %s!\n", fragmentShader);
 				}
 			}
 			else
@@ -432,7 +416,7 @@ namespace PV
 						pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
 						char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
 						pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
-						fprintf(stdout, "%s\nFrag shader failed!\n", FragmentShaderErrorMessage);
+						fprintf(stdout, "%s\nFragment shader failed!\n", FragmentShaderErrorMessage);
 						free(FragmentShaderErrorMessage);
 					}
 				}
@@ -466,9 +450,13 @@ namespace PV
 						pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
 						char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
 						pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
-						fprintf(stdout, "%s\nVert shader failed!\n", VertexShaderErrorMessage);
+						fprintf(stdout, "%s\nVertex shader failed!\n", VertexShaderErrorMessage);
 						free(VertexShaderErrorMessage);
 					}
+				}
+				else
+				{
+					fprintf(stdout, "Could not find fragment shader file %s!\n", fragmentShader);
 				}
 			}
 			else
@@ -491,13 +479,13 @@ namespace PV
 						pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
 						char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
 						pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
-						fprintf(stdout, "%s\nVert shader failed!\n", VertexShaderErrorMessage);
+						fprintf(stdout, "%s\nVertex shader failed!\n", VertexShaderErrorMessage);
 						free(VertexShaderErrorMessage);
 					}
 				}
 				else
 				{
-					fprintf(stdout, "Could not find fragment shader file %s!\n", vertexShader);
+					fprintf(stdout, "Could not find vertex shader file %s!\n", vertexShader);
 				}
 			}
 		}
@@ -515,7 +503,7 @@ namespace PV
 			pv_glGetProgramiv(program, PV_GL_INFO_LOG_LENGTH, &PlogLength);
 			char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* PlogLength);
 			pv_glGetProgramInfoLog(program, PlogLength, NULL, VertexShaderErrorMessage);
-			fprintf(stdout, "%s\nprogram link failed!\n", VertexShaderErrorMessage);
+			fprintf(stdout, "%s\nProgram link failed!\n", VertexShaderErrorMessage);
 			free(VertexShaderErrorMessage);
 		}
 	}
@@ -539,21 +527,30 @@ namespace PV
 		return this->viewport;
 	}
 
-	void OculusRift::ComposeFinalImage(RiftEye eye, unsigned int outputTexture)
+	void OculusRift::ComposeFinalImage(unsigned int leftEyeTexture, unsigned int rightEyeTexture)
 	{
-		switch (eye)
+		int openGlVersion = 0;
+		glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
+		if (openGlVersion >= 3)
 		{
-		case Left:
-			pv_glUseProgram(this->leftEyeProgram);
-			break;
-		case Right:
-			pv_glUseProgram(this->rightEyeProgram);
-			break;
+			pv_glUseProgram(this->defaultProgram);
 		}
-		pv_glActiveTexture(PV_GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, outputTexture);
+		pv_glUseProgram(0);
+
 		pv_glBindVertexArray(this->quadVBOHandle);
+		pv_glActiveTexture(PV_GL_TEXTURE0);
+
+		this->UpdateUniforms(Left, this->defaultProgram);
+		glViewport(this->LeftEye.VP.x, this->LeftEye.VP.y, this->LeftEye.VP.w, this->LeftEye.VP.h);
+		glBindTexture(GL_TEXTURE_2D, leftEyeTexture);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		this->UpdateUniforms(Right, this->defaultProgram);
+		glViewport(this->RightEye.VP.x, this->RightEye.VP.y, this->RightEye.VP.w, this->RightEye.VP.h);
+		glBindTexture(GL_TEXTURE_2D, rightEyeTexture);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
 		pv_glBindVertexArray(0);
 	}
 
