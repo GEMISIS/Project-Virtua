@@ -15,7 +15,7 @@ void main()
     vec4 v = vec4(vertexPosition, 1);
     gl_Position = translation * v;
 
-	fragColor = vec4(1,0,0, 1);
+	fragColor = vec4(vertexColor, 1);
 	fragTexCoords = texCoords;
 }
 

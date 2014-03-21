@@ -27,9 +27,9 @@ void initQuad()
 {
 	float quadVerts[quadVetex_size * quadVertices] = {
 		-1.0f, -1.0f, -1.0f,
-		-1.0f, 0.75f, -1.0f,
-		0.75f, -1.0f, -1.0f,
-		0.75f, 0.75f, -1.0f
+		-1.0f, 1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, 1.0f, -1.0f
 	};
 	float quadColor[quadColor_size * 3] = {
 		1.0f, 0.0f, 1.0f,
@@ -87,7 +87,7 @@ void initQuad()
 
 	glGenFramebuffers(1, &_VRFBO2);
 	glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _VRTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _VRTexture2, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 }
 
@@ -101,7 +101,7 @@ LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam,
 	switch(message)
 	{
 	case WM_SIZE:
-		onResize(LOWORD(messageParam),HIWORD(messageParam));
+		//onResize(LOWORD(messageParam),HIWORD(messageParam));
 		return 0;
 	case WM_CLOSE:
 		PostQuitMessage(0);
@@ -113,6 +113,9 @@ LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam,
 int drawGLScene(OculusRift rift, float offsetMatrix[16])
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glRotatef(rift.GetRotation().x, 1, 0, 0);
+	glRotatef(rift.GetRotation().y, 0, 1, 0);
 
 	glBindVertexArray(verticesArrayHandle);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -146,7 +149,7 @@ int main()
 	if (rift.isConnected())
 	{
 		testWindow.SetFullscreen(false);
-		onResize(1280, 800);
+		onResize(1280 / 2, 800);
 	}
 	else
 	{
@@ -189,44 +192,31 @@ int main()
 		rift.Update();
 
 		testWindow.MakeCurrentGLContext();
-<<<<<<< HEAD
 		int translation = 0;
 		if (rift.isConnected())
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
-			if (rift.isConnected())
-			{
-				rift.ShiftView(Left, offsetMatrix);
-			}
+			glViewport(0, 0, 640, 800);
+			rift.ShiftView(Left, offsetMatrix);
 			glUseProgram(program);
 			translation = pv_glGetUniformLocation(program, "translation");
 			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
 			drawGLScene(rift, offsetMatrix);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
-			if (rift.isConnected())
-			{
-				rift.ShiftView(Right, offsetMatrix);
-			}
+			glViewport(0, 0, 640, 800);
+			rift.ShiftView(Right, offsetMatrix);
 			glUseProgram(program);
 			translation = pv_glGetUniformLocation(program, "translation");
 			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
 			drawGLScene(rift, offsetMatrix);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-=======
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, 1280, 800);
-		drawGLScene(rift);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
->>>>>>> 7cf7af7b0262bf27c858bd38ddc27eea3c59fc62
-
+			glViewport(0, 0, 1280, 800);
 			gluOrtho2D(0.0f, 1.0f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			rift.ComposeFinalImage(Left, _VRTexture);
-			rift.ComposeFinalImage(Right, _VRTexture2);
+			rift.ComposeFinalImage(_VRTexture, _VRTexture2);
 		}
 		else
 		{

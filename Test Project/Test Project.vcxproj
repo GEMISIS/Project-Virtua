@@ -102,11 +102,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-<<<<<<< HEAD
-      <AdditionalDependencies>pvd.lib;pvmmd.lib;glu32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-=======
       <AdditionalDependencies>pv.lib;pvmm.lib;glu32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
->>>>>>> 7cf7af7b0262bf27c858bd38ddc27eea3c59fc62
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

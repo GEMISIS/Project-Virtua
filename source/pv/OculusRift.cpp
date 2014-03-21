@@ -299,7 +299,7 @@ namespace PV
 		}
 	}
 
-	void OculusRift::ShiftView(RiftEye eye, float matrix[16])
+	void OculusRift::ShiftView(RiftEye eye, float projectionMatrix[16], float modelMatrix[16])
 	{
 		int glVersion[] = { 0, 0 };
 		glGetIntegerv(PV_GL_MAJOR_VERSION, &glVersion[0]);
@@ -310,31 +310,33 @@ namespace PV
 		}
 		else
 		{
-			float translationMatrix[16] = {
-				1, 0, 0, 0,
+			float projectionMatrixTranslation[16] = {
+				1, 0, 0, this->ProjectionCenterOffset,
 				0, 1, 0, 0,
 				0, 0, 1, 0,
-				0, 0, 0, 1 
+				0, 0, 0, 1
 			};
-			if (eye == Left)
+			float modelMatrixTranslation[16] = {
+				1, 0, 0, (this->HalfIPD * this->ViewCenter),
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				0, 0, 0, 1
+			};
+			if (eye == Right)
 			{
-				translationMatrix[3] = this->ProjectionCenterOffset + (this->HalfIPD * this->ViewCenter);
-			}
-			else if (eye == Right)
-			{
-				translationMatrix[3] = -this->ProjectionCenterOffset + (-this->HalfIPD * this->ViewCenter);
+				projectionMatrixTranslation[3] *= -1;
+				modelMatrixTranslation[3] *= -1;
 			}
 			for (int i = 0; i < 16; i += 1)
 			{
-				matrix[i] = translationMatrix[i];
+				projectionMatrix[i] = projectionMatrixTranslation[i];
+				modelMatrix[i] = modelMatrixTranslation[i];
 			}
 		}
 	}
 
 	void OculusRift::UpdateUniforms(RiftEye eye, GLuint program)
 	{
-		pv_glUseProgram(program);
-
 		int textureRange = pv_glGetUniformLocation(program, "u_texRange");
 		int lensCenterOffset = pv_glGetUniformLocation(program, "u_lensCenterOffset");
 		int distortion = pv_glGetUniformLocation(program, "u_distortion");
@@ -540,11 +542,13 @@ namespace PV
 		pv_glBindVertexArray(this->quadVBOHandle);
 		pv_glActiveTexture(PV_GL_TEXTURE0);
 
+		pv_glUseProgram(this->defaultProgram);
 		this->UpdateUniforms(Left, this->defaultProgram);
 		glViewport(this->LeftEye.VP.x, this->LeftEye.VP.y, this->LeftEye.VP.w, this->LeftEye.VP.h);
 		glBindTexture(GL_TEXTURE_2D, leftEyeTexture);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+		pv_glUseProgram(this->defaultProgram);
 		this->UpdateUniforms(Right, this->defaultProgram);
 		glViewport(this->RightEye.VP.x, this->RightEye.VP.y, this->RightEye.VP.w, this->RightEye.VP.h);
 		glBindTexture(GL_TEXTURE_2D, rightEyeTexture);
