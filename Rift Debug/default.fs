@@ -78,9 +78,9 @@ void main(){
     vec2 clamped = clamp(actualTextureCoords, vec2(0, 0), u_texRange);
 
     if (!all(equal(clamped, actualTextureCoords))) {
-        color = fragColor;
+        color = vec4(0, 0, 0, 0);
     } else {
-        color = fragColor;
+        color = texture(sampler0, actualTextureCoords);
 //        color = fragColor;
     }
 //    gl_FragColor = vec4(actualTextureCoords, 1, 1);

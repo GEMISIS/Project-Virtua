@@ -170,6 +170,12 @@ int main()
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};
+	float offsetMatrix2[16] = {
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
 
 	unsigned int program = createShaders("vertexShader.vs", "fragShader.fs");
 
@@ -197,7 +203,7 @@ int main()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
 			glViewport(0, 0, 640, 800);
-			rift.ShiftView(Left, offsetMatrix);
+			rift.ShiftView(Left, offsetMatrix, offsetMatrix2);
 			glUseProgram(program);
 			translation = pv_glGetUniformLocation(program, "translation");
 			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
@@ -205,17 +211,14 @@ int main()
 
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 			glViewport(0, 0, 640, 800);
-			rift.ShiftView(Right, offsetMatrix);
+			rift.ShiftView(Right, offsetMatrix, offsetMatrix2);
 			glUseProgram(program);
 			translation = pv_glGetUniformLocation(program, "translation");
 			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
 			drawGLScene(rift, offsetMatrix);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, 1280, 800);
-			gluOrtho2D(0.0f, 1.0f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 			rift.ComposeFinalImage(_VRTexture, _VRTexture2);
 		}
 		else

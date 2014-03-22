@@ -13,7 +13,7 @@ out vec2 fragTexCoords;
 void main()
 {
     vec4 v = vec4(vertexPosition, 1);
-    gl_Position = translation * v;
+    gl_Position = v;
 
 	fragColor = vec4(vertexColor, 1);
 	fragTexCoords = texCoords;

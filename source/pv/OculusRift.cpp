@@ -51,7 +51,7 @@ namespace PV
 
 			int openGlVersion = 0;
 			glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
-			if (openGlVersion > 3)
+			if (openGlVersion >= 3)
 			{
 				// Setup the shaders for the Oculus rift.
 				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
@@ -83,7 +83,7 @@ namespace PV
 
 			int openGlVersion = 0;
 			glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
-			if (openGlVersion > 3)
+			if (openGlVersion >= 3)
 			{
 				// Setup the shaders for the Oculus rift.
 				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
@@ -280,6 +280,7 @@ namespace PV
 
 	void OculusRift::renderGLBelow2(RiftEye eye)
 	{
+#ifndef REMOVE_GL2_COMPAT
 		gluPerspective(this->FieldOfView, this->AspectRatio, 0.001f, 10000.0f);
 		if (eye == Left)
 		{
@@ -297,9 +298,10 @@ namespace PV
 			glTranslatef(-this->ProjectionCenterOffset, 0.0f, 0.0f);
 			glTranslatef(-this->HalfIPD * this->ViewCenter, 0.0f, 0.0f);
 		}
+#endif
 	}
 
-	void OculusRift::ShiftView(RiftEye eye, float projectionMatrix[16], float modelMatrix[16])
+	void OculusRift::ShiftView(RiftEye eye, float projectionMatrix[16], float viewMatrix[16])
 	{
 		int glVersion[] = { 0, 0 };
 		glGetIntegerv(PV_GL_MAJOR_VERSION, &glVersion[0]);
@@ -316,7 +318,7 @@ namespace PV
 				0, 0, 1, 0,
 				0, 0, 0, 1
 			};
-			float modelMatrixTranslation[16] = {
+			float viewMatrixTranslation[16] = {
 				1, 0, 0, (this->HalfIPD * this->ViewCenter),
 				0, 1, 0, 0,
 				0, 0, 1, 0,
@@ -325,13 +327,10 @@ namespace PV
 			if (eye == Right)
 			{
 				projectionMatrixTranslation[3] *= -1;
-				modelMatrixTranslation[3] *= -1;
+				viewMatrixTranslation[3] *= -1;
 			}
-			for (int i = 0; i < 16; i += 1)
-			{
-				projectionMatrix[i] = projectionMatrixTranslation[i];
-				modelMatrix[i] = modelMatrixTranslation[i];
-			}
+			projectionMatrix[3] += projectionMatrixTranslation[3];
+			viewMatrix[3] += viewMatrix[3];
 		}
 	}
 
@@ -537,9 +536,8 @@ namespace PV
 		{
 			pv_glUseProgram(this->defaultProgram);
 		}
-		pv_glUseProgram(0);
 
-		pv_glBindVertexArray(this->quadVBOHandle);
+		pv_glBindVertexArray(this->quadVAOHandle);
 		pv_glActiveTexture(PV_GL_TEXTURE0);
 
 		pv_glUseProgram(this->defaultProgram);

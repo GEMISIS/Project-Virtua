@@ -54,9 +54,9 @@ namespace PV
 		* Store the view's shifted values in a 4x4 matrix of floats.
 		* @param eye The eye to shift the view for (Left or Right).
 		* @param projectionMatrix The projection view's offset matrix.
-		* @param modelMatrix The model view's offset matrix.
+		* @param viewMatrix The main view's offset matrix.
 		*/
-		void ShiftView(RiftEye eye, float projectionMatrix[16], float modelMatrix[16]);
+		void ShiftView(RiftEye eye, float projectionMatrix[16], float viewMatrix[16]);
 
 		/**
 		 * Updates the uniforms for the shaders for the specified eye.  This can be usedto create custom shaders that
