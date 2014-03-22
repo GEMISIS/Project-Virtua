@@ -131,6 +131,7 @@ int main()
 #else
 	testWindow.create(L"testing - release", 1280, 800, false, windowProcess);
 #endif
+	bool active = PV::DetectDevice();
 	testWindow.setWindowDrawingStateGL();
 	testWindow.setVisible(true);
 

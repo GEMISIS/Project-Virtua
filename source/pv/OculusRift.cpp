@@ -4,6 +4,48 @@
 
 namespace PV
 {
+	void InitRift()
+	{
+		if (!System::IsInitialized())
+		{
+			// Check if we are debugging or not.
+#ifdef _DEBUG
+			// If so, log all interactions with the oculus rift.
+			System::Init(Log::ConfigureDefaultLog(LogMask_All));
+#else
+			// Otherwise, log no interactions with the oculus rift.
+			System::Init(Log::ConfigureDefaultLog(LogMask_None));
+#endif
+		}
+	}
+	bool DetectDevice()
+	{
+		InitRift();
+		bool active = false;
+		Ptr<DeviceManager> deviceManager = DeviceManager::Create();
+		Ptr<HMDDevice> HMDHardwareDevice = deviceManager->EnumerateDevices<HMDDevice>().CreateDevice();
+		// Check if the oculus rift device was successfully gotten.
+		if (HMDHardwareDevice)
+		{
+			HMDInfo HMD;
+			// If so, set the oculus rift's HMD object.
+			if (HMDHardwareDevice->GetDeviceInfo(&HMD))
+			{
+				// Then get the oculus rift sensor.
+				Ptr<SensorDevice> Sensor = HMDHardwareDevice->GetSensor();
+
+				// Check that the sensor was successfully gotten.
+				if (Sensor)
+				{
+					active = true;
+					Sensor->Release();
+				}
+			}
+		}
+		HMDHardwareDevice->Release();
+		deviceManager->Release();
+		return active;
+	}
 	/**
  * This is the constructor used to create a new Oculus Rift device.
  *
@@ -150,14 +192,7 @@ namespace PV
 	 */
 	void OculusRift::Initialize()
 	{
-		// Check if we are debugging or not.
-#ifdef _DEBUG
-		// If so, log all interactions with the oculus rift.
-		System::Init(Log::ConfigureDefaultLog(LogMask_All));
-#else
-		// Otherwise, log no interactions with the oculus rift.
-		System::Init(Log::ConfigureDefaultLog(LogMask_None));
-#endif
+		InitRift();
 
 		// Then create a device manager.
 		this->deviceManager = *DeviceManager::Create();

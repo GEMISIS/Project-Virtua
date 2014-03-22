@@ -9,6 +9,11 @@ namespace PV
 	using namespace OVR::Util::Render;
 
 	/**
+	 * Checks to see if there is an Oculus Rift available.
+	 */
+	bool DetectDevice();
+
+	/**
 	 * A class for managing any Oculus Rift devices connected to the computer.  This structure can be used
 	 * to get various properties of the Oculus Rift, such as the head rotation, as well as to warp the output
 	 * to be displayed in OpenGL.  DirectX support is still under construction as of now.
