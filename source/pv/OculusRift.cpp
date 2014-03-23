@@ -244,14 +244,6 @@ namespace PV
 		this->FieldOfView = RadToDegree(2.0f *
 			atan((this->HMD.VScreenSize / 2.0f) / this->HMD.EyeToScreenDistance));
 
-		// Get the center of the viewing screen.
-		this->ViewCenter = this->HMD.HScreenSize * 0.25f;
-		// Get the offest for the screen's center.
-		this->ProjectionCenterOffset = 4.0f * (this->ViewCenter - (this->HMD.LensSeparationDistance * 0.5f))
-			/ this->HMD.HScreenSize;
-		// Get the distance between the eyes and halve it.
-		this->HalfIPD = this->HMD.InterpupillaryDistance * 0.5f;
-
 		// Set the viewport for what both eyes can see.
 		this->StereoConfiguration.SetFullViewport(this->viewport);
 		// Set the stereo mode to cache.
@@ -260,6 +252,13 @@ namespace PV
 		this->StereoConfiguration.SetHMDInfo(this->HMD);
 		// Set the distortion scaling values.
 		this->StereoConfiguration.SetDistortionFitPointVP(-1.0f, 0.0f);
+
+		// Get the center of the viewing screen.
+		this->ViewCenter = this->HMD.HScreenSize * 0.25f;
+		// Get the offest for the screen's center.
+		this->ProjectionCenterOffset = this->StereoConfiguration.GetProjectionCenterOffset() * 0.5f;
+		// Get the distance between the eyes and halve it.
+		this->HalfIPD = this->StereoConfiguration.GetIPD() * 0.5f;
 
 		// Get the rendering properties for the left eye.
 		this->LeftEye = this->StereoConfiguration.GetEyeRenderParams(StereoEye_Left);
@@ -347,25 +346,16 @@ namespace PV
 		}
 		else
 		{
-			float projectionMatrixTranslation[16] = {
-				1, 0, 0, this->ProjectionCenterOffset,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1
-			};
-			float viewMatrixTranslation[16] = {
-				1, 0, 0, (this->HalfIPD * this->ViewCenter),
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1
-			};
-			if (eye == Right)
+			if (eye == Left)
 			{
-				projectionMatrixTranslation[3] *= -1;
-				viewMatrixTranslation[3] *= -1;
+				projectionMatrix[3] += this->ProjectionCenterOffset;
+				viewMatrix[3] += (this->HalfIPD * this->ViewCenter);
 			}
-			projectionMatrix[3] += projectionMatrixTranslation[3];
-			viewMatrix[3] += viewMatrix[3];
+			else if (eye == Right)
+			{
+				projectionMatrix[3] += -this->ProjectionCenterOffset;
+				viewMatrix[3] += -(this->HalfIPD * this->ViewCenter);
+			}
 		}
 	}
 

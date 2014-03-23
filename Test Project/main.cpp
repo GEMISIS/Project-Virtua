@@ -26,16 +26,16 @@ unsigned int verticesArrayHandle;
 void initQuad()
 {
 	float quadVerts[quadVetex_size * quadVertices] = {
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f
+		-0.75, -0.75, -1.0f,
+		-0.75, 0.75, -1.0f,
+		0.75, -0.75, -1.0f,
+		0.75, 0.75, -1.0f
 	};
 	float quadColor[quadColor_size * 3] = {
 		1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f
+		0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f
 	};
 	float quadTexture[quadTex_size * 2] = {
 		0.0, 0.0,
@@ -91,17 +91,12 @@ void initQuad()
 	glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 }
 
-void onResize(int width, int height)
-{
-  glViewport(0, 0, width, height);
-}
-
 LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam, LPARAM messageParam)
 {
 	switch(message)
 	{
 	case WM_SIZE:
-		//onResize(LOWORD(messageParam),HIWORD(messageParam));
+		glViewport(0, 0, LOWORD(messageParam), HIWORD(messageParam));
 		return 0;
 	case WM_CLOSE:
 		PostQuitMessage(0);
@@ -144,12 +139,12 @@ int main()
 	OculusRift rift(false);
 	if (rift.isConnected())
 	{
-		testWindow.SetFullscreen(false);
-		onResize(1280 / 2, 800);
+		testWindow.SetFullscreen(true);
+		glViewport(0, 0, 1280 / 2, 800);
 	}
 	else
 	{
-		onResize(1280, 800);
+		glViewport(0, 0, 1280, 800);
 	}
 
 	printf("Rift Connected: %s\n", (rift.isConnected()) ? "Yes" : "No");
@@ -159,14 +154,30 @@ int main()
 	printf("Version: %d.%d\n", version[0], version[1]);
 
 	initQuad();
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+#define M_PI 3.14159265358979323846
 
-	float offsetMatrix[16] = {
+	float fov = rift.FieldOfView;
+	float aspect = rift.AspectRatio;
+	float nearV = 0.1f;
+	float farV = 100000.0f;
+
+	float angle = (fov / 180.0f) * M_PI;
+	float f = 1.0f / tan(angle * 0.5f);
+
+	float perspectiveMatrixCore[16] = {
+		f / aspect, 0, 0, 0,
+		0, f, 0, 0,
+		0, 0, (farV + nearV) / (nearV - farV), -1.0f,
+		0, 0, (2.0f * farV * nearV) / (nearV - farV), 0
+	};
+	float perspectiveMatrix[16] = {
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};
-	float offsetMatrix2[16] = {
+	float viewMatrix[16] = {
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
@@ -178,6 +189,13 @@ int main()
 	MSG msg;
 	while (!done)
 	{
+		float ang = rift.GetRotation().y * M_PI / 180.0f;
+		float rotMatrix[16] = {
+			cos(ang), 0, -sin(ang), 0,
+			0, 1, 0, 0,
+			sin(ang), 0, cos(ang), 0,
+			0, 0, 0, 1
+		};
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT)
@@ -194,23 +212,42 @@ int main()
 		rift.Update();
 
 		testWindow.MakeCurrentGLContext();
-		int translation = 0;
+		int perspCore = 0;
+		int perspTranslation = 0;
+		int viewTranslation = 0;
+		int rot = 0;
 		if (rift.isConnected())
 		{
+			perspectiveMatrix[3] = 0.0f;
+			viewMatrix[3] = 0.0f;
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
 			glViewport(0, 0, 640, 800);
-			rift.ShiftView(Left, offsetMatrix, offsetMatrix2);
+			rift.ShiftView(Left, perspectiveMatrix, viewMatrix);
 			glUseProgram(program);
-			translation = pv_glGetUniformLocation(program, "translation");
-			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
+			perspCore = pv_glGetUniformLocation(program, "perspCore");
+			pv_glUniformMatrix4fv(perspCore, 1, false, perspectiveMatrixCore);
+			perspTranslation = pv_glGetUniformLocation(program, "perspTranslation");
+			pv_glUniformMatrix4fv(perspTranslation, 1, false, perspectiveMatrix);
+			viewTranslation = pv_glGetUniformLocation(program, "viewTranslation");
+			pv_glUniformMatrix4fv(viewTranslation, 1, false, viewMatrix);
+			rot = pv_glGetUniformLocation(program, "rotMatrix");
+			pv_glUniformMatrix4fv(rot, 1, false, rotMatrix);
 			drawGLScene(rift);
 
+			perspectiveMatrix[3] = 0.0f;
+			viewMatrix[3] = 0.0f;
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 			glViewport(0, 0, 640, 800);
-			rift.ShiftView(Right, offsetMatrix, offsetMatrix2);
+			rift.ShiftView(Right, perspectiveMatrix, viewMatrix);
 			glUseProgram(program);
-			translation = pv_glGetUniformLocation(program, "translation");
-			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
+			perspCore = pv_glGetUniformLocation(program, "perspCore");
+			pv_glUniformMatrix4fv(perspCore, 1, false, perspectiveMatrixCore);
+			perspTranslation = pv_glGetUniformLocation(program, "perspTranslation");
+			pv_glUniformMatrix4fv(perspTranslation, 1, false, perspectiveMatrix);
+			viewTranslation = pv_glGetUniformLocation(program, "viewTranslation");
+			pv_glUniformMatrix4fv(viewTranslation, 1, false, viewMatrix);
+			rot = pv_glGetUniformLocation(program, "rotMatrix");
+			pv_glUniformMatrix4fv(rot, 1, false, rotMatrix);
 			drawGLScene(rift);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -221,8 +258,10 @@ int main()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glUseProgram(program);
-			translation = glGetUniformLocation(program, "translation");
-			glUniformMatrix4fv(translation, 1, false, offsetMatrix);
+			perspTranslation = pv_glGetUniformLocation(program, "perspTranslation");
+			pv_glUniformMatrix4fv(perspTranslation, 1, false, perspectiveMatrix);
+			viewTranslation = pv_glGetUniformLocation(program, "viewTranslation");
+			pv_glUniformMatrix4fv(viewTranslation, 1, false, viewMatrix);
 			drawGLScene(rift);
 		}
 
