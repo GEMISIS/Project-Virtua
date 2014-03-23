@@ -11,7 +11,7 @@ namespace PV
 	/**
 	 * The default bits per pixel to use for an OpenGL context.
 	 */
-#define DEFAULT_BITS_PER_PIXEL 16
+#define DEFAULT_BITS_PER_PIXEL 32
 
 	typedef LRESULT CALLBACK windowProcessCallback(HWND winHandle, UINT message, WPARAM windowParam, LPARAM messageParam);
 
@@ -23,17 +23,38 @@ namespace PV
 	{
 	public:
 		/**
-		 * This method creates a window using the given information and then returns its status.
-		 * @param title The title to be displayed in the window.
-		 * @param width An unsigned integer for the width of the window.
-		 * @param height An unsigned integer for the height of the window.
-		 * @param fullscreen If true, the window will be made full screen, with the width and height determining the
-		 * screen resolution.  If false, it will simply create the window with the selected width and height as its
-		 * size.
-		 * @param callback The callback to use when updating the window.
-		 * @return On success, this method will return 1.
-		 * On fail, it will return an error code.
-		 */
+		* This method creates a window using the given information and then returns its status.
+		* @param title The title to be displayed in the window.
+		* @param callback The callback to use when updating the window.
+		* @return On success, this method will return 1.
+		* On fail, it will return an error code.
+		*/
+		WINDOW_ERRORS create(LPCWSTR title, windowProcessCallback callback);
+
+		/**
+		* This method creates a window using the given information and then returns its status.
+		* @param title The title to be displayed in the window.
+		* @param callback The callback to use when updating the window.
+		* @param fullscreen If true, the window will be made full screen, with the width and height determining the
+		* screen resolution.  If false, it will simply create the window with the selected width and height as its
+		* size.
+		* @return On success, this method will return 1.
+		* On fail, it will return an error code.
+		*/
+		WINDOW_ERRORS create(LPCWSTR title, bool fullscreen, windowProcessCallback callback);
+
+		/**
+		* This method creates a window using the given information and then returns its status.
+		* @param title The title to be displayed in the window.
+		* @param width An unsigned integer for the width of the window.
+		* @param height An unsigned integer for the height of the window.
+		* @param fullscreen If true, the window will be made full screen, with the width and height determining the
+		* screen resolution.  If false, it will simply create the window with the selected width and height as its
+		* size.
+		* @param callback The callback to use when updating the window.
+		* @return On success, this method will return 1.
+		* On fail, it will return an error code.
+		*/
 		WINDOW_ERRORS create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, windowProcessCallback callback);
 
 		/**

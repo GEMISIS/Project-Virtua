@@ -41,8 +41,8 @@ namespace PV
 					Sensor->Release();
 				}
 			}
+			HMDHardwareDevice->Release();
 		}
-		HMDHardwareDevice->Release();
 		deviceManager->Release();
 		return active;
 	}
@@ -600,6 +600,23 @@ namespace PV
 	 */
 	OculusRift::~OculusRift()
 	{
-		//System::Destroy();
+		// Check if the oculus rift device was successfully gotten.
+		if (this->HMDHardwareDevice)
+		{
+			this->HMDHardwareDevice.Clear();
+		}
+		if (this->Sensor)
+		{
+			this->Sensor.Clear();
+		}
+		if (this->deviceManager)
+		{
+			this->deviceManager.Clear();
+		}
+
+		if (System::IsInitialized())
+		{
+			System::Destroy();
+		}
 	}
 };

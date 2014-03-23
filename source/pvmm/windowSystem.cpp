@@ -148,6 +148,53 @@ namespace PV
 	}
 
 	/**
+	* This method creates a window using the given information and then returns its status.
+	* @param title The title to be displayed in the window.
+	* @param callback The callback to use when updating the window.
+	* @param fullscreen If true, the window will be made full screen, with the width and height determining the
+	* screen resolution.  If false, it will simply create the window with the selected width and height as its
+	* size.
+	* @return On success, this method will return 1.
+	* On fail, it will return an error code.
+	*/
+	WINDOW_ERRORS Window::create(LPCWSTR title, bool fullscreen, windowProcessCallback callback)
+	{
+		// Check that a callback was given.
+		if (callback != NULL)
+		{
+			this->setWindowProcessCallback(callback);
+		}
+		else
+		{
+			//		this->setWindowProcessCallback(&Window::process);
+		}
+		// Create the window returning any errors that come up.
+		return this->create(title, 1280, 800, fullscreen, DEFAULT_BITS_PER_PIXEL);
+	}
+
+	/**
+	* This method creates a window using the given information and then returns its status.
+	* @param title The title to be displayed in the window.
+	* @param callback The callback to use when updating the window.
+	* @return On success, this method will return 1.
+	* On fail, it will return an error code.
+	*/
+	WINDOW_ERRORS Window::create(LPCWSTR title, windowProcessCallback callback)
+	{
+		// Check that a callback was given.
+		if (callback != NULL)
+		{
+			this->setWindowProcessCallback(callback);
+		}
+		else
+		{
+			//		this->setWindowProcessCallback(&Window::process);
+		}
+		// Create the window returning any errors that come up.
+		return this->create(title, 1280, 800, false, DEFAULT_BITS_PER_PIXEL);
+	}
+
+	/**
 	 * Set the window's process callback method.  This is used when doing things such as resizing
 	 * the window, closing the window, etc.
 	 * @param callback The function to use.
@@ -399,15 +446,21 @@ namespace PV
 
 		this->isFullscreen = fullscreen;
 
-		ChangeDisplaySettings(NULL, CDS_FULLSCREEN);
 		if (this->isFullscreen)
 		{
-			windowRectangle.right = GetSystemMetrics(SM_CXSCREEN);
-			windowRectangle.bottom = GetSystemMetrics(SM_CYSCREEN);
-			AdjustWindowRectEx(&windowRectangle, WS_OVERLAPPEDWINDOW, false, 0);
-			SetWindowPos(this->windowHandle, HWND_TOPMOST, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_DEFERERASE);
-			SetWindowLong(this->windowHandle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
-			ShowCursor(false);
+			DEVMODE deviceModeScreenSettings;
+			EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &deviceModeScreenSettings);
+			deviceModeScreenSettings.dmPelsWidth = (DWORD)this->width;
+			deviceModeScreenSettings.dmPelsHeight = (DWORD)this->height;
+			deviceModeScreenSettings.dmBitsPerPel = (DWORD)this->bitsPerPixel;
+
+			long success = ChangeDisplaySettings(&deviceModeScreenSettings, CDS_FULLSCREEN);
+			if (success == DISP_CHANGE_SUCCESSFUL)
+			{
+				AdjustWindowRectEx(&windowRectangle, WS_POPUP, false, WS_EX_APPWINDOW);
+				SetWindowLong(this->windowHandle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
+				ShowCursor(false);
+			}
 		}
 		else
 		{

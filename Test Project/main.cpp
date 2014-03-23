@@ -110,26 +110,21 @@ LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam,
 	return DefWindowProc(winHandle, message, windowParam, messageParam);
 }
 
-int drawGLScene(OculusRift rift, float offsetMatrix[16])
+void drawGLScene(OculusRift &rift)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glRotatef(rift.GetRotation().x, 1, 0, 0);
-	glRotatef(rift.GetRotation().y, 0, 1, 0);
-
 	glBindVertexArray(verticesArrayHandle);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	return 1;
 }
 
 int main()
 {
 	Window testWindow;
 #ifdef _DEBUG
-	testWindow.create(L"testing - debug", 1280, 800, false, windowProcess);
+	testWindow.create(L"testing - debug", windowProcess);
 #else
-	testWindow.create(L"testing - release", 1280, 800, false, windowProcess);
+	testWindow.create(L"testing - release", windowProcess);
 #endif
 	bool active = PV::DetectDevice();
 	testWindow.setWindowDrawingStateGL();
@@ -208,7 +203,7 @@ int main()
 			glUseProgram(program);
 			translation = pv_glGetUniformLocation(program, "translation");
 			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
-			drawGLScene(rift, offsetMatrix);
+			drawGLScene(rift);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 			glViewport(0, 0, 640, 800);
@@ -216,7 +211,7 @@ int main()
 			glUseProgram(program);
 			translation = pv_glGetUniformLocation(program, "translation");
 			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
-			drawGLScene(rift, offsetMatrix);
+			drawGLScene(rift);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -226,9 +221,9 @@ int main()
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glUseProgram(program);
-			translation = pv_glGetUniformLocation(program, "translation");
-			pv_glUniformMatrix4fv(translation, 1, false, offsetMatrix);
-			drawGLScene(rift, offsetMatrix);
+			translation = glGetUniformLocation(program, "translation");
+			glUniformMatrix4fv(translation, 1, false, offsetMatrix);
+			drawGLScene(rift);
 		}
 
 		testWindow.Update();
