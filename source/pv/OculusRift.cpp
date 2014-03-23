@@ -348,13 +348,13 @@ namespace PV
 		{
 			if (eye == Left)
 			{
-				projectionMatrix[3] += this->ProjectionCenterOffset;
-				viewMatrix[3] += (this->HalfIPD * this->ViewCenter);
+				projectionMatrix[12] += this->ProjectionCenterOffset;
+				viewMatrix[12] += (this->HalfIPD * this->ViewCenter);
 			}
 			else if (eye == Right)
 			{
-				projectionMatrix[3] += -this->ProjectionCenterOffset;
-				viewMatrix[3] += -(this->HalfIPD * this->ViewCenter);
+				projectionMatrix[12] += -this->ProjectionCenterOffset;
+				viewMatrix[12] += -(this->HalfIPD * this->ViewCenter);
 			}
 		}
 	}

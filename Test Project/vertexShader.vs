@@ -15,8 +15,9 @@ out vec2 fragTexCoords;
 
 void main()
 {
-    vec4 v = vec4(vertexPosition, 1);
-    gl_Position = (perspCore * perspTranslation) * viewTranslation * v * rotMatrix;
+    vec4 v = rotMatrix * vec4(vertexPosition, 1);
+	mat4 perspective = perspTranslation * perspCore;
+    gl_Position = perspective * viewTranslation * v;
 
 	fragColor = vec4(vertexColor, 1);
 	fragTexCoords = texCoords;

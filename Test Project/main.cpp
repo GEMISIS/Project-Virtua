@@ -139,7 +139,7 @@ int main()
 	OculusRift rift(false);
 	if (rift.isConnected())
 	{
-		testWindow.SetFullscreen(true);
+		testWindow.SetFullscreen(false);
 		glViewport(0, 0, 1280 / 2, 800);
 	}
 	else
@@ -218,8 +218,8 @@ int main()
 		int rot = 0;
 		if (rift.isConnected())
 		{
-			perspectiveMatrix[3] = 0.0f;
-			viewMatrix[3] = 0.0f;
+			perspectiveMatrix[12] = 0.0f;
+			viewMatrix[12] = 0.0f;
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
 			glViewport(0, 0, 640, 800);
 			rift.ShiftView(Left, perspectiveMatrix, viewMatrix);
@@ -234,8 +234,8 @@ int main()
 			pv_glUniformMatrix4fv(rot, 1, false, rotMatrix);
 			drawGLScene(rift);
 
-			perspectiveMatrix[3] = 0.0f;
-			viewMatrix[3] = 0.0f;
+			perspectiveMatrix[12] = 0.0f;
+			viewMatrix[12] = 0.0f;
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 			glViewport(0, 0, 640, 800);
 			rift.ShiftView(Right, perspectiveMatrix, viewMatrix);
