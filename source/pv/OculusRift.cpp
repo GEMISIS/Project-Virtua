@@ -256,7 +256,7 @@ namespace PV
 		// Get the center of the viewing screen.
 		this->ViewCenter = this->HMD.HScreenSize * 0.25f;
 		// Get the offest for the screen's center.
-		this->ProjectionCenterOffset = this->StereoConfiguration.GetProjectionCenterOffset() * 0.5f;
+		this->ProjectionCenterOffset = this->StereoConfiguration.GetProjectionCenterOffset();
 		// Get the distance between the eyes and halve it.
 		this->HalfIPD = this->StereoConfiguration.GetIPD() * 0.5f;
 

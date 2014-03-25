@@ -53,8 +53,6 @@ namespace PV
 		appInstance = GetModuleHandle(NULL);
 		// Set the style to redraw vertically and horizantally, as well as to own it's own device context.
 		windowsClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-		// Set the handle to the window processing method (this is set on the developer's end).
-		windowsClass.lpfnWndProc = (WNDPROC)this->windowProcess;
 		// The amount of extra bytes to allocate for the window-class structure.
 		windowsClass.cbClsExtra = 0;
 		// The amount of extra bytes to allocate for the window's instance.
@@ -202,7 +200,7 @@ namespace PV
 	void Window::setWindowProcessCallback(windowProcessCallback callback)
 	{
 		// Set the callback casted.
-		this->windowProcess = ((LRESULT)callback);
+		windowsClass.lpfnWndProc = (WNDPROC)callback;
 	}
 
 	/**

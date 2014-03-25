@@ -139,7 +139,7 @@ int main()
 	OculusRift rift(false);
 	if (rift.isConnected())
 	{
-		testWindow.SetFullscreen(false);
+		testWindow.SetFullscreen(true);
 		glViewport(0, 0, 1280 / 2, 800);
 	}
 	else

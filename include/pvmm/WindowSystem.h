@@ -183,11 +183,6 @@ namespace PV
 		WNDCLASS windowsClass;
 
 		/**
-		 * The window's process method for processing its events.
-		 */
-		LRESULT windowProcess;
-
-		/**
 		 * The window's title.
 		 */
 		LPCWSTR title;
