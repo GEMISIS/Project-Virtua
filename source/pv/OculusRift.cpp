@@ -14,7 +14,7 @@ namespace PV
 			OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
 #else
 			// Otherwise, log no interactions with the oculus rift.
-			System::Init(Log::ConfigureDefaultLog(LogMask_None));
+			OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_None));
 #endif
 		}
 	}
