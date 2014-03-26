@@ -108,12 +108,22 @@ namespace PV
 			// If using a demo Oculus Rift, setup the virtual data.
 			this->HMD.HResolution = 1280;
 			this->HMD.VResolution = 800;
-			this->HMD.HScreenSize = 0.14976f;
-			this->HMD.VScreenSize = 0.0936f;
-			this->HMD.VScreenCenter = this->HMD.VScreenSize / 2;
-			this->HMD.EyeToScreenDistance = 0.041f;
-			this->HMD.LensSeparationDistance = 0.0635f;
-			this->HMD.InterpupillaryDistance = 0.064f;
+			this->HMD.HScreenSize = 0.149759993f;
+			this->HMD.VScreenSize = 0.0935999975f;
+			this->HMD.VScreenCenter = 0.0467999987f;
+			this->HMD.EyeToScreenDistance = 0.0410000011f;
+			this->HMD.LensSeparationDistance = 0.0635000020f;
+			this->HMD.InterpupillaryDistance = 0.0640000030f;
+			this->HMD.DistortionK[0] = 1.00000000f;
+			this->HMD.DistortionK[1] = 0.219999999f;
+			this->HMD.DistortionK[2] = 0.239999995f;
+			this->HMD.DistortionK[3] = 0.000000000f;
+			this->HMD.ChromaAbCorrection[0] = 0.995999992f;
+			this->HMD.ChromaAbCorrection[1] = -0.00400000019f;
+			this->HMD.ChromaAbCorrection[2] = 1.01400006f;
+			this->HMD.ChromaAbCorrection[3] = 0.000000000f;
+			this->HMD.DesktopX = 0;
+			this->HMD.DesktopY = 0;
 			this->viewport = OVR::Util::Render::Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
 
 			// Say that it is connected, but virtually.
@@ -256,7 +266,7 @@ namespace PV
 		// Get the center of the viewing screen.
 		this->ViewCenter = this->HMD.HScreenSize * 0.25f;
 		// Get the offest for the screen's center.
-		this->ProjectionCenterOffset = this->StereoConfiguration.GetProjectionCenterOffset() / 0.5f;
+		this->ProjectionCenterOffset = (this->StereoConfiguration.GetProjectionCenterOffset() + 1.0f) * 0.25f;
 		// Get the distance between the eyes and halve it.
 		this->HalfIPD = this->StereoConfiguration.GetIPD() * 0.5f;
 

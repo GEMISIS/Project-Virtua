@@ -86,4 +86,69 @@ namespace PV
 		linkShaders(program, vertex, fragment);
 		return program;
 	}
+
+	void createPerspectiveMatrix(float* array, float fieldOfView, float aspectRatio, float nearValue, float farValue)
+	{
+		float width = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
+		float height = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
+		float depth = farValue - nearValue;
+
+		for (int i = 0; i < 16; i += 1)
+		{
+			switch (i)
+			{
+			case 0:
+				array[i] = (2 * nearValue / width) / aspectRatio;
+				break;
+			case 5:
+				array[i] = 2 * nearValue / height;
+				break;
+			case 10:
+				array[i] = -(farValue + nearValue) / depth;
+				break;
+			case 11:
+				array[i] = -1;
+				break;
+			case 14:
+				array[i] = -2 * (farValue * nearValue) / depth;
+				break;
+			default:
+				array[i] = 0;
+				break;
+			}
+		}
+	}
+	void createPerspectiveMatrix(PV::Math::Matrix<float> &matrix, float fieldOfView, float aspectRatio, float nearValue, float farValue)
+	{
+		float width = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
+		float height = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
+		float depth = farValue - nearValue;
+
+		matrix = PV::Math::Matrix <float>(4, 4);
+		matrix = new float[16];
+		for (int i = 0; i < 16; i += 1)
+		{
+			switch (i)
+			{
+			case 0:
+				matrix[i] = (2 * nearValue / width) / aspectRatio;
+				break;
+			case 5:
+				matrix[i] = 2 * nearValue / height;
+				break;
+			case 10:
+				matrix[i] = -(farValue + nearValue) / depth;
+				break;
+			case 11:
+				matrix[i] = -1;
+				break;
+			case 14:
+				matrix[i] = -2 * (farValue * nearValue) / depth;
+				break;
+			default:
+				matrix[i] = 0;
+				break;
+			}
+		}
+	}
 };
