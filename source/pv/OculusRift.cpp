@@ -6,12 +6,12 @@ namespace PV
 {
 	void InitRift()
 	{
-		if (!System::IsInitialized())
+		if (!OVR::System::IsInitialized())
 		{
 			// Check if we are debugging or not.
 #ifdef _DEBUG
 			// If so, log all interactions with the oculus rift.
-			System::Init(Log::ConfigureDefaultLog(LogMask_All));
+			OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
 #else
 			// Otherwise, log no interactions with the oculus rift.
 			System::Init(Log::ConfigureDefaultLog(LogMask_None));
@@ -22,17 +22,17 @@ namespace PV
 	{
 		InitRift();
 		bool active = false;
-		Ptr<DeviceManager> deviceManager = DeviceManager::Create();
-		Ptr<HMDDevice> HMDHardwareDevice = deviceManager->EnumerateDevices<HMDDevice>().CreateDevice();
+		OVR::Ptr<OVR::DeviceManager> deviceManager = OVR::DeviceManager::Create();
+		OVR::Ptr<OVR::HMDDevice> HMDHardwareDevice = deviceManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
 		// Check if the oculus rift device was successfully gotten.
 		if (HMDHardwareDevice)
 		{
-			HMDInfo HMD;
+			OVR::HMDInfo HMD;
 			// If so, set the oculus rift's HMD object.
 			if (HMDHardwareDevice->GetDeviceInfo(&HMD))
 			{
 				// Then get the oculus rift sensor.
-				Ptr<SensorDevice> Sensor = HMDHardwareDevice->GetSensor();
+				OVR::Ptr<OVR::SensorDevice> Sensor = HMDHardwareDevice->GetSensor();
 
 				// Check that the sensor was successfully gotten.
 				if (Sensor)
@@ -86,7 +86,7 @@ namespace PV
 
 		if (this->connected)
 		{
-			this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
+			this->viewport = OVR::Util::Render::Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
 
 			// Setup the user's data for the Oculus Rift.
 			this->Setup();
@@ -114,7 +114,7 @@ namespace PV
 			this->HMD.EyeToScreenDistance = 0.041f;
 			this->HMD.LensSeparationDistance = 0.0635f;
 			this->HMD.InterpupillaryDistance = 0.064f;
-			this->viewport = Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
+			this->viewport = OVR::Util::Render::Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
 
 			// Say that it is connected, but virtually.
 			this->connected = true;
@@ -195,9 +195,9 @@ namespace PV
 		InitRift();
 
 		// Then create a device manager.
-		this->deviceManager = *DeviceManager::Create();
+		this->deviceManager = *OVR::DeviceManager::Create();
 		// Then get the oculus rift's HMD device.
-		this->HMDHardwareDevice = *this->deviceManager->EnumerateDevices<HMDDevice>().CreateDevice();
+		this->HMDHardwareDevice = *this->deviceManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
 
 		// Set the boolean indicating that there is an oculus rift to false.
 		this->connected = false;
@@ -215,7 +215,7 @@ namespace PV
 				if (this->Sensor)
 				{
 					// Then attach the sensor to a sensor fusion object.
-					this->sensorFusion = new SensorFusion(this->Sensor);
+					this->sensorFusion = new OVR::SensorFusion(this->Sensor);
 					// Finally, set the boolean indicating that the oculus rift was gotten to true.
 					this->connected = true;
 				}
@@ -241,13 +241,13 @@ namespace PV
 		  * The aspect ratio is determined based on the distance between the eyes and
 		  * the size of the screen.  This is then converted to degrees for general use.
 		  */
-		this->FieldOfView = RadToDegree(2.0f *
+		this->FieldOfView = OVR::RadToDegree(2.0f *
 			atan((this->HMD.VScreenSize / 2.0f) / this->HMD.EyeToScreenDistance));
 
 		// Set the viewport for what both eyes can see.
 		this->StereoConfiguration.SetFullViewport(this->viewport);
 		// Set the stereo mode to cache.
-		this->StereoConfiguration.SetStereoMode(Stereo_LeftRight_Multipass);
+		this->StereoConfiguration.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
 		// Set which HMD to use.
 		this->StereoConfiguration.SetHMDInfo(this->HMD);
 		// Set the distortion scaling values.
@@ -256,14 +256,14 @@ namespace PV
 		// Get the center of the viewing screen.
 		this->ViewCenter = this->HMD.HScreenSize * 0.25f;
 		// Get the offest for the screen's center.
-		this->ProjectionCenterOffset = this->StereoConfiguration.GetProjectionCenterOffset();
+		this->ProjectionCenterOffset = this->StereoConfiguration.GetProjectionCenterOffset() / 0.5f;
 		// Get the distance between the eyes and halve it.
 		this->HalfIPD = this->StereoConfiguration.GetIPD() * 0.5f;
 
 		// Get the rendering properties for the left eye.
-		this->LeftEye = this->StereoConfiguration.GetEyeRenderParams(StereoEye_Left);
+		this->LeftEye = this->StereoConfiguration.GetEyeRenderParams(OVR::Util::Render::StereoEye_Left);
 		// Get the rendering properties for the right eye.
-		this->RightEye = this->StereoConfiguration.GetEyeRenderParams(StereoEye_Right);
+		this->RightEye = this->StereoConfiguration.GetEyeRenderParams(OVR::Util::Render::StereoEye_Right);
 	}
 
 	/**
@@ -292,11 +292,11 @@ namespace PV
 			this->OldOrientation.pitch = this->Orientation.pitch;
 			this->OldOrientation.roll = this->Orientation.roll;
 
-			this->sensorFusion->GetOrientation().GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
+			this->sensorFusion->GetOrientation().GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
 
-			this->Orientation.yaw = RadToDegree(this->Orientation.yaw);
-			this->Orientation.pitch = RadToDegree(this->Orientation.pitch);
-			this->Orientation.roll = RadToDegree(this->Orientation.roll);
+			this->Orientation.yaw = OVR::RadToDegree(this->Orientation.yaw);
+			this->Orientation.pitch = OVR::RadToDegree(this->Orientation.pitch);
+			this->Orientation.roll = OVR::RadToDegree(this->Orientation.roll);
 
 			this->Rotation.x -= (this->Orientation.pitch - this->OldOrientation.pitch);
 			this->Rotation.y -= (this->Orientation.yaw - this->OldOrientation.yaw);
@@ -308,7 +308,7 @@ namespace PV
 			this->OldOrientation_quart.axis.z = this->Orientation_quart.axis.z;
 
 			this->sensorFusion->GetOrientation().GetAxisAngle(&this->Orientation_quart.axis, &this->Orientation_quart.angle);
-			this->Orientation_quart.angle = -RadToDegree(this->Orientation_quart.angle);
+			this->Orientation_quart.angle = -OVR::RadToDegree(this->Orientation_quart.angle);
 		}
 	}
 
@@ -340,20 +340,50 @@ namespace PV
 		int glVersion[] = { 0, 0 };
 		glGetIntegerv(PV_GL_MAJOR_VERSION, &glVersion[0]);
 		glGetIntegerv(PV_GL_MINOR_VERSION, &glVersion[1]);
+		
 		if (glVersion[0] < 3)
 		{
 			this->renderGLBelow2(eye);
 		}
 		else
 		{
+			PV::Math::Matrix<float> mp(4, 4);
+			mp = projectionMatrix;
+
 			if (eye == Left)
 			{
-				projectionMatrix[12] += this->ProjectionCenterOffset;
+				float pm[] = {
+					1.0f, 0.0f, 0.0f, 0.0f,
+					0.0f, 1.0f, 0.0f, 0.0f,
+					0.0f, 0.0f, 1.0f, 0.0f,
+					this->ProjectionCenterOffset, 0.0f, 0.0f, 1.0f
+				};
+				PV::Math::Matrix<float> pmm(4, 4);
+				pmm = pm;
+				pmm = mp * pmm;
+				for (int i = 0; i < 16; i += 1)
+				{
+					projectionMatrix[i] = pmm[i];
+				}
+
 				viewMatrix[12] += (this->HalfIPD * this->ViewCenter);
 			}
 			else if (eye == Right)
 			{
-				projectionMatrix[12] += -this->ProjectionCenterOffset;
+				float pm[] = {
+					1.0f, 0.0f, 0.0f, 0.0f,
+					0.0f, 1.0f, 0.0f, 0.0f,
+					0.0f, 0.0f, 1.0f, 0.0f,
+					-this->ProjectionCenterOffset, 0.0f, 0.0f, 1.0f
+				};
+				PV::Math::Matrix<float> pmm(4, 4);
+				pmm = pm;
+				pmm = mp * pmm;
+				for (int i = 0; i < 16; i += 1)
+				{
+					projectionMatrix[i] = pmm[i];
+				}
+
 				viewMatrix[12] += -(this->HalfIPD * this->ViewCenter);
 			}
 		}
@@ -548,7 +578,7 @@ namespace PV
 	 * Get viewport for the Oculus Rift.  This should be split in half for each eye.
 	 * @return The viewport of what the Oculus Rift can see.
 	 */
-	const Viewport OculusRift::GetViewport() const
+	const OVR::Util::Render::Viewport OculusRift::GetViewport() const
 	{
 		return this->viewport;
 	}
@@ -604,9 +634,9 @@ namespace PV
 			this->deviceManager.Clear();
 		}
 
-		if (System::IsInitialized())
+		if (OVR::System::IsInitialized())
 		{
-			System::Destroy();
+			OVR::System::Destroy();
 		}
 	}
 };

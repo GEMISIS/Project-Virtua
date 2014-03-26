@@ -3,6 +3,10 @@
 namespace PV
 {
 #ifdef _WIN32
+	Window::Window()
+	{
+		this->windowsClass.hInstance = NULL;
+	}
 	/**
 	 * This method creates a window using the given information.  If an error occurs, it is returned.
 	 * a window using the given information.  If an error occurs, it is returned.

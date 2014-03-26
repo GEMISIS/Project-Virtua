@@ -1,6 +1,5 @@
 #version 150
 
-uniform mat4 perspCore;
 uniform mat4 perspTranslation;
 uniform mat4 viewTranslation;
 uniform mat4 rotMatrix;
@@ -16,8 +15,7 @@ out vec2 fragTexCoords;
 void main()
 {
     vec4 v = rotMatrix * vec4(vertexPosition, 1);
-	mat4 perspective = perspTranslation * perspCore;
-    gl_Position = perspective * viewTranslation * v;
+    gl_Position = perspTranslation * viewTranslation * v;
 
 	fragColor = vec4(vertexColor, 1);
 	fragTexCoords = texCoords;

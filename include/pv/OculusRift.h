@@ -2,12 +2,10 @@
 #define _OCULUS_RIFT_H_
 
 #include "pv/types.h"
+#include "pv/Matrices.h"
 
 namespace PV
 {
-	using namespace OVR;
-	using namespace OVR::Util::Render;
-
 	/**
 	 * Checks to see if there is an Oculus Rift available.
 	 */
@@ -106,7 +104,7 @@ namespace PV
 		 * Get viewport for the Oculus Rift.  This should be split in half for each eye.
 		 * @return The viewport of what the Oculus Rift can see.
 		 */
-		const Viewport GetViewport() const;
+		const OVR::Util::Render::Viewport GetViewport() const;
 
 		/**
 		 * Compose the final rendered image that the Rift should see per eye using textured quads.
@@ -146,27 +144,27 @@ namespace PV
 		/**
 		  * Manages the USB devices connected to the computer.
 		  */
-		Ptr<DeviceManager> deviceManager;
+		OVR::Ptr<OVR::DeviceManager> deviceManager;
 		/**
 		  * Manages a Head Mounted Display (HMD) device (IE: The oculus rift).  This is used
 		  * mainly for getting hardware information rather than user info (IE: No eye distance info).
 		  */
-		Ptr<HMDDevice> HMDHardwareDevice;
+		OVR::Ptr<OVR::HMDDevice> HMDHardwareDevice;
 		/**
 		  * The actual oculus rift sensor.  Can be used to get various things from the actual
 		  * device once created.
 		  */
-		Ptr<SensorDevice> Sensor;
+		OVR::Ptr<OVR::SensorDevice> Sensor;
 		/**
 		  * The oculus rift's information in the form of a Head Mounted Display (HMD).  This is used
 		  * to get information specially needed for HMD's, rather than hardware information.
 		  */
-		HMDInfo HMD;
+		OVR::HMDInfo HMD;
 		/**
 		  * The fusion sensor object is used to get information from the HDM's built in sensors.
 		  * (IE: Accelerometer information, orientation, etc.)
 		  */
-		SensorFusion* sensorFusion;
+		OVR::SensorFusion* sensorFusion;
 
 		/**
 		  * A boolean indicating whether an oculus rift is connected or not.
@@ -201,19 +199,19 @@ namespace PV
 		  * The configuration for the stereo-scopic viewing.  Contains properties like how big
 		  * the display for each eye is.
 		  */
-		StereoConfig StereoConfiguration;
+		OVR::Util::Render::StereoConfig StereoConfiguration;
 		/**
 		  * The stereo parameters for the left eye.
 		  */
-		StereoEyeParams LeftEye;
+		OVR::Util::Render::StereoEyeParams LeftEye;
 		/**
 		  * The stereo parameters for the right eye.
 		  */
-		StereoEyeParams RightEye;
+		OVR::Util::Render::StereoEyeParams RightEye;
 		/**
 		 * The viewport for what the user's eyes can see.
 		 */
-		Viewport viewport;
+		OVR::Util::Render::Viewport viewport;
 
 		/**
 		* This is the program handle that is used for the shaders associated with each eye.

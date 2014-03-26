@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\pv\FileIO.h" />
     <ClInclude Include="..\include\pv\Kinect1.h" />
+    <ClInclude Include="..\include\pv\Matrices.h" />
     <ClInclude Include="..\include\pv\MinOpenGL.h" />
     <ClInclude Include="..\include\pv\OculusRift.h" />
     <ClInclude Include="..\include\pv\types.h" />
@@ -24,6 +25,7 @@
   <ItemGroup>
     <ClCompile Include="..\source\pv\FileIO.cpp" />
     <ClCompile Include="..\source\pv\Kinect1.cpp" />
+    <ClCompile Include="..\source\pv\Matrices.cpp" />
     <ClCompile Include="..\source\pv\MinOpenGL.cpp" />
     <ClCompile Include="..\source\pv\OculusRift.cpp" />
   </ItemGroup>

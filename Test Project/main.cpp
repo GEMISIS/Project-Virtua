@@ -26,10 +26,10 @@ unsigned int verticesArrayHandle;
 void initQuad()
 {
 	float quadVerts[quadVetex_size * quadVertices] = {
-		-0.75, -0.75, -1.0f,
-		-0.75, 0.75, -1.0f,
-		0.75, -0.75, -1.0f,
-		0.75, 0.75, -1.0f
+		-0.75, -0.75, -4.0f,
+		-0.75, 0.75, -4.0f,
+		0.75, -0.75, -4.0f,
+		0.75, 0.75, -4.0f
 	};
 	float quadColor[quadColor_size * 3] = {
 		1.0f, 0.0f, 1.0f,
@@ -93,7 +93,7 @@ void initQuad()
 
 LRESULT CALLBACK windowProcess(HWND winHandle, UINT message, WPARAM windowParam, LPARAM messageParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_SIZE:
 		glViewport(0, 0, LOWORD(messageParam), HIWORD(messageParam));
@@ -139,7 +139,7 @@ int main()
 	OculusRift rift(false);
 	if (rift.isConnected())
 	{
-		testWindow.SetFullscreen(true);
+		testWindow.SetFullscreen(false);
 		glViewport(0, 0, 1280 / 2, 800);
 	}
 	else
@@ -165,30 +165,23 @@ int main()
 	float angle = (fov / 180.0f) * M_PI;
 	float f = 1.0f / tan(angle * 0.5f);
 
-	float perspectiveMatrixCore[16] = {
-		f / aspect, 0, 0, 0,
-		0, f, 0, 0,
-		0, 0, (farV + nearV) / (nearV - farV), -1.0f,
-		0, 0, (2.0f * farV * nearV) / (nearV - farV), 0
-	};
-	float perspectiveMatrix[16] = {
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-	float viewMatrix[16] = {
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-
 	unsigned int program = createShaders("vertexShader.vs", "fragShader.fs");
 
 	MSG msg;
 	while (!done)
 	{
+		float perspectiveMatrix[16] = {
+			f / aspect, 0, 0, 0,
+			0, f, 0, 0,
+			0, 0, (farV + nearV) / (nearV - farV), -1.0f,
+			0, 0, (2.0f * farV * nearV) / (nearV - farV), 0
+		};
+		float viewMatrix[16] = {
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		};
 		float ang = rift.GetRotation().y * M_PI / 180.0f;
 		float rotMatrix[16] = {
 			cos(ang), 0, -sin(ang), 0,
@@ -218,14 +211,11 @@ int main()
 		int rot = 0;
 		if (rift.isConnected())
 		{
-			perspectiveMatrix[12] = 0.0f;
 			viewMatrix[12] = 0.0f;
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO);
 			glViewport(0, 0, 640, 800);
 			rift.ShiftView(Left, perspectiveMatrix, viewMatrix);
-			glUseProgram(program);
-			perspCore = pv_glGetUniformLocation(program, "perspCore");
-			pv_glUniformMatrix4fv(perspCore, 1, false, perspectiveMatrixCore);
+			pv_glUseProgram(program);
 			perspTranslation = pv_glGetUniformLocation(program, "perspTranslation");
 			pv_glUniformMatrix4fv(perspTranslation, 1, false, perspectiveMatrix);
 			viewTranslation = pv_glGetUniformLocation(program, "viewTranslation");
@@ -234,14 +224,11 @@ int main()
 			pv_glUniformMatrix4fv(rot, 1, false, rotMatrix);
 			drawGLScene(rift);
 
-			perspectiveMatrix[12] = 0.0f;
 			viewMatrix[12] = 0.0f;
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 			glViewport(0, 0, 640, 800);
 			rift.ShiftView(Right, perspectiveMatrix, viewMatrix);
 			glUseProgram(program);
-			perspCore = pv_glGetUniformLocation(program, "perspCore");
-			pv_glUniformMatrix4fv(perspCore, 1, false, perspectiveMatrixCore);
 			perspTranslation = pv_glGetUniformLocation(program, "perspTranslation");
 			pv_glUniformMatrix4fv(perspTranslation, 1, false, perspectiveMatrix);
 			viewTranslation = pv_glGetUniformLocation(program, "viewTranslation");

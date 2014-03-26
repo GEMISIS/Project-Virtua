@@ -5,9 +5,6 @@
 
 namespace PV
 {
-	using namespace OVR;
-	using namespace OVR::Util::Render;
-
 #ifdef _WIN32
 	/**
 	 * A list of potential errors when creating and destroy a window and it's parts.
@@ -119,7 +116,7 @@ namespace PV
 		 * A vector with X, Y, and Z variables respresenting the axis as normals that
 		 * is being roated around.
 		 */
-		Vector3f axis;
+		OVR::Vector3f axis;
 		/**
 		 * The angle of rotation for this orientation.
 		 */

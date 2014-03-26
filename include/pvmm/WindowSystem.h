@@ -22,6 +22,7 @@ namespace PV
 	class Window
 	{
 	public:
+		Window();
 		/**
 		* This method creates a window using the given information and then returns its status.
 		* @param title The title to be displayed in the window.
