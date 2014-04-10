@@ -241,27 +241,24 @@ namespace PV
 	 */
 	void OculusRift::Setup()
 	{
-		/**
-		  * Set the aspect ration.  Note that this has to be statically converted, as the normal
-		  * data type is an unsigned integer for the screen resolution values.
-		  */
-		this->AspectRatio = static_cast<float>(this->HMD.HResolution * 0.5f)
-			/ static_cast<float>(this->HMD.VResolution);
-		/**
-		  * The aspect ratio is determined based on the distance between the eyes and
-		  * the size of the screen.  This is then converted to degrees for general use.
-		  */
-		this->FieldOfView = OVR::RadToDegree(2.0f *
-			atan((this->HMD.VScreenSize / 2.0f) / this->HMD.EyeToScreenDistance));
-
 		// Set the viewport for what both eyes can see.
 		this->StereoConfiguration.SetFullViewport(this->viewport);
+
 		// Set the stereo mode to cache.
 		this->StereoConfiguration.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
 		// Set which HMD to use.
 		this->StereoConfiguration.SetHMDInfo(this->HMD);
-		// Set the distortion scaling values.
-		this->StereoConfiguration.SetDistortionFitPointVP(-1.0f, 0.0f);
+
+		/**
+		* Set the aspect ration.  Note that this has to be statically converted, as the normal
+		* data type is an unsigned integer for the screen resolution values.
+		*/
+		this->AspectRatio = this->StereoConfiguration.GetAspect();
+		/**
+		* The aspect ratio is determined based on the distance between the eyes and
+		* the size of the screen.  This is then converted to degrees for general use.
+		*/
+		this->FieldOfView = this->StereoConfiguration.GetYFOVDegrees();
 
 		// Get the center of the viewing screen.
 		this->ViewCenter = this->HMD.HScreenSize * 0.25f;
@@ -357,44 +354,15 @@ namespace PV
 		}
 		else
 		{
-			PV::Math::Matrix<float> mp(4, 4);
-			mp = projectionMatrix;
-
 			if (eye == Left)
 			{
-				float pm[] = {
-					1.0f, 0.0f, 0.0f, 0.0f,
-					0.0f, 1.0f, 0.0f, 0.0f,
-					0.0f, 0.0f, 1.0f, 0.0f,
-					this->ProjectionCenterOffset, 0.0f, 0.0f, 1.0f
-				};
-				PV::Math::Matrix<float> pmm(4, 4);
-				pmm = pm;
-				pmm = mp * pmm;
-				for (int i = 0; i < 16; i += 1)
-				{
-					projectionMatrix[i] = pmm[i];
-				}
-
-				viewMatrix[12] += (this->HalfIPD * this->ViewCenter);
+				projectionMatrix[12] = this->ProjectionCenterOffset;
+				viewMatrix[12] = (this->HalfIPD * this->ViewCenter);
 			}
 			else if (eye == Right)
 			{
-				float pm[] = {
-					1.0f, 0.0f, 0.0f, 0.0f,
-					0.0f, 1.0f, 0.0f, 0.0f,
-					0.0f, 0.0f, 1.0f, 0.0f,
-					-this->ProjectionCenterOffset, 0.0f, 0.0f, 1.0f
-				};
-				PV::Math::Matrix<float> pmm(4, 4);
-				pmm = pm;
-				pmm = mp * pmm;
-				for (int i = 0; i < 16; i += 1)
-				{
-					projectionMatrix[i] = pmm[i];
-				}
-
-				viewMatrix[12] += -(this->HalfIPD * this->ViewCenter);
+				projectionMatrix[12] = -this->ProjectionCenterOffset;
+				viewMatrix[12] = -(this->HalfIPD * this->ViewCenter);
 			}
 		}
 	}
@@ -440,10 +408,11 @@ namespace PV
 				{
 					int length = fragFile->Size();
 					char* data = (char*)malloc(length * sizeof(char)+1);
-					strcpy(data, fragFile->Data());
+					strncpy(data, fragFile->Data(), length);
 					data[length] = '\0';
 					pv_glShaderSource(fragment, 1, &data, &length);
 					pv_glCompileShader(fragment);
+					free(data);
 
 					int result = false;
 					int logLength = 0;
@@ -469,10 +438,11 @@ namespace PV
 				{
 					int length = fragFile->Size();
 					char* data = (char*)malloc(length * sizeof(char)+1);
-					strcpy(data, fragFile->Data());
+					strncpy(data, fragFile->Data(), length);
 					data[length] = '\0';
 					pv_glShaderSource(fragment, 1, &data, &length);
 					pv_glCompileShader(fragment);
+					free(data);
 
 					int result = false;
 					int logLength = 0;
@@ -502,11 +472,12 @@ namespace PV
 				if (vertFile->DataLoaded())
 				{
 					int length = vertFile->Size();
-					char* data = (char*)malloc(length * sizeof(char)+1);
-					strcpy(data, vertFile->Data());
+					char* data = (char*)malloc((length + 1) * sizeof(char));
+					strncpy(data, vertFile->Data(), length);
 					data[length] = '\0';
 					pv_glShaderSource(vertex, 1, &data, &length);
 					pv_glCompileShader(vertex);
+					free(data);
 
 					int result = false;
 					int logLength = 0;
@@ -531,11 +502,12 @@ namespace PV
 				if (vertFile->DataLoaded())
 				{
 					int length = vertFile->Size();
-					char* data = (char*)malloc(length * sizeof(char)+1);
-					strcpy(data, vertFile->Data());
+					char* data = (char*)malloc((length + 1) * sizeof(char));
+					strncpy(data, vertFile->Data(), length);
 					data[length] = '\0';
 					pv_glShaderSource(vertex, 1, &data, &length);
 					pv_glCompileShader(vertex);
+					free(data);
 
 					int result = false;
 					int logLength = 0;

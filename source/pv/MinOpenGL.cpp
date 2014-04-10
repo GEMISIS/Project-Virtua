@@ -31,7 +31,7 @@ namespace PV
 	pv_glActiveTextureFunction pv_glActiveTexture = NULL;
 	pv_glBindAttribLocationFunction pv_glBindAttribLocation = NULL;
 	pv_glBindFragDataLocationFunction pv_glBindFragDataLocation = NULL;
-
+#include <stdio.h>
 	void initMinGL()
 	{
 		pv_glCreateShader = (pv_glCreateShaderFunction)glGetProcAddress("glCreateShader");
@@ -65,6 +65,14 @@ namespace PV
 
 		pv_glBindAttribLocation = (pv_glBindAttribLocationFunction)glGetProcAddress("glBindAttribLocation");
 		pv_glBindFragDataLocation = (pv_glBindFragDataLocationFunction)glGetProcAddress("glBindFragDataLocation");
+		if (pv_glShaderSource == NULL)
+		{
+			printf("Bad");
+		}
+		if (pv_glCompileShader == NULL)
+		{
+			printf("Bad");
+		}
 	}
 };
 

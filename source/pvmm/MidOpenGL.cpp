@@ -61,7 +61,7 @@ namespace PV
 		if (vertFile->DataLoaded())
 		{
 			int length = vertFile->Size();
-			char* data = (char*)malloc(length * sizeof(char) + 1);
+			char* data = (char*)malloc((length + 1) * sizeof(char));
 			strcpy(data, vertFile->Data());
 			data[length] = '\0';
 			compileShaders(vertex, data);
@@ -74,7 +74,7 @@ namespace PV
 		if (fragFile->DataLoaded())
 		{
 			int length = fragFile->Size();
-			char* data = (char*)malloc(length * sizeof(char)+1);
+			char* data = (char*)malloc((length + 1) * sizeof(char));
 			strcpy(data, fragFile->Data());
 			data[length] = '\0';
 			compileShaders(fragment, data);

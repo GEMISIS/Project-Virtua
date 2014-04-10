@@ -1,7 +1,7 @@
 #version 150
 
 in vec4 fragColor;
-in vec2 texCoords;
+in vec2 fragTexCoords;
 
 out vec4 color;
 

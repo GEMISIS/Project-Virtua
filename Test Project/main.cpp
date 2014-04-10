@@ -144,11 +144,20 @@ int main()
 
 	unsigned int program = createShaders("vertexShader.vs", "fragShader.fs");
 
+	float perspectiveMatrix[16] = { 0 };
+	float VieweMatrix[16] = { 0 };
+
 	float perspectiveMatrixLeft[16] = {
-		0
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
 	};
 	float perspectiveMatrixRight[16] = {
-		0
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
 	};
 	float viewMatrixLeft[16] = {
 		1, 0, 0, 0,
@@ -165,15 +174,13 @@ int main()
 
 	if (rift.isConnected())
 	{
-		createPerspectiveMatrix(perspectiveMatrixLeft, rift.FieldOfView, rift.AspectRatio, 0.1f, 1000.0f);
+		createPerspectiveMatrix(perspectiveMatrix, rift.FieldOfView, rift.AspectRatio, 0.1f, 1000.0f);
 		rift.ShiftView(Left, perspectiveMatrixLeft, viewMatrixLeft);
-
-		createPerspectiveMatrix(perspectiveMatrixRight, rift.FieldOfView, rift.AspectRatio, 0.1f, 1000.0f);
 		rift.ShiftView(Right, perspectiveMatrixRight, viewMatrixRight);
 	}
 	else
 	{
-		createPerspectiveMatrix(perspectiveMatrixLeft, 90.0f, 1280.0f / 800.0f, 0.1f, 1000.0f);
+		createPerspectiveMatrix(perspectiveMatrix, 90.0f, 1280.0f / 800.0f, 0.1f, 1000.0f);
 	}
 
 	MSG msg;
@@ -212,6 +219,8 @@ int main()
 			glViewport(0, 0, 640, 800);
 
 			pv_glUseProgram(program);
+			perspCore = pv_glGetUniformLocation(program, "perspCore");
+			pv_glUniformMatrix4fv(perspCore, 1, false, perspectiveMatrix);
 			perspTranslation = pv_glGetUniformLocation(program, "perspTranslation");
 			pv_glUniformMatrix4fv(perspTranslation, 1, false, perspectiveMatrixLeft);
 			viewTranslation = pv_glGetUniformLocation(program, "viewTranslation");
@@ -223,6 +232,8 @@ int main()
 			glBindFramebuffer(GL_FRAMEBUFFER, _VRFBO2);
 			glViewport(0, 0, 640, 800);
 			glUseProgram(program);
+			perspCore = pv_glGetUniformLocation(program, "perspCore");
+			pv_glUniformMatrix4fv(perspCore, 1, false, perspectiveMatrix);
 			perspTranslation = pv_glGetUniformLocation(program, "perspTranslation");
 			pv_glUniformMatrix4fv(perspTranslation, 1, false, perspectiveMatrixRight);
 			viewTranslation = pv_glGetUniformLocation(program, "viewTranslation");
