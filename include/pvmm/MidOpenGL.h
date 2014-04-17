@@ -62,6 +62,9 @@ namespace PV
 	 * @param farValue The cutoff value for objects further from the screen.
 	 */
 	void createPerspectiveMatrix(PV::Math::Matrix<float> &matrix, float fieldOfView, float aspectRatio, float nearValue, float farValue);
+
+	void createLookAtMatrix(PV::Math::Matrix<float> &matrix, Math::vec3 position, Math::vec3 rotation);
+	void createLookAtMatrix(PV::Math::Matrix<float> &matrix, Math::vec3 eye, Math::vec3 target, Math::vec3 up);
 };
 
 #endif

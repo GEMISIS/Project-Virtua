@@ -62,9 +62,10 @@ namespace PV
 		{
 			int length = vertFile->Size();
 			char* data = (char*)malloc((length + 1) * sizeof(char));
-			strcpy(data, vertFile->Data());
+			strncpy(data, vertFile->Data(), length);
 			data[length] = '\0';
 			compileShaders(vertex, data);
+			free(data);
 		}
 		else
 		{
@@ -75,9 +76,10 @@ namespace PV
 		{
 			int length = fragFile->Size();
 			char* data = (char*)malloc((length + 1) * sizeof(char));
-			strcpy(data, fragFile->Data());
+			strncpy(data, fragFile->Data(), length);
 			data[length] = '\0';
 			compileShaders(fragment, data);
+			free(data);
 		}
 		else
 		{
@@ -150,5 +152,54 @@ namespace PV
 				break;
 			}
 		}
+	}
+	void createLookAtMatrix(PV::Math::Matrix<float> &matrix, Math::vec3 eye, Math::vec3 target, Math::vec3 up)
+	{
+		Math::vec3 zAxis = { eye.x - target.x, eye.y - target.y, eye.z - target.z };
+		zAxis = Math::normalize(zAxis);
+		Math::vec3 xAxis = Math::normalize(Math::crossMultiply(up, zAxis));
+		Math::vec3 yAxis = Math::crossMultiply(zAxis, xAxis);
+
+		Math::Matrix<float> orientationMatrix(4, 4);
+		Math::Matrix<float> translationMatrix(4, 4);
+
+		orientationMatrix[0] = xAxis.x;
+		orientationMatrix[1] = yAxis.x;
+		orientationMatrix[2] = zAxis.x;
+		orientationMatrix[4] = xAxis.y;
+		orientationMatrix[5] = yAxis.y;
+		orientationMatrix[6] = zAxis.y;
+		orientationMatrix[8] = xAxis.z;
+		orientationMatrix[9] = yAxis.z;
+		orientationMatrix[10] = zAxis.z;
+
+		translationMatrix[12] = -eye.x;
+		translationMatrix[13] = -eye.y;
+		translationMatrix[14] = -eye.z;
+
+		matrix = orientationMatrix * translationMatrix;
+	}
+	void createLookAtMatrix(PV::Math::Matrix<float> &matrix, Math::vec3 position, Math::vec3 rotation)
+	{
+		Math::vec3 target = { 0, 0, 0 };
+		Math::vec3 up = { 0, 0, 0 };
+		Math::vec3 direction = { 0, 0, 0 };
+		Math::vec3 right = { 0, 0, 0 };
+
+		direction.x = cos(rotation.x) * sin(rotation.y);
+		direction.y = sin(rotation.x);
+		direction.z = cos(rotation.x) * cos(rotation.y);
+
+		right.x = sin(rotation.y - M_PI / 2.0f);
+		right.y = 0;
+		right.z = cos(rotation.y - M_PI / 2);
+
+		up = Math::crossMultiply(right, direction);
+
+		target.x = position.x + direction.x;
+		target.y = position.y + direction.y;
+		target.z = position.z + direction.z;
+
+		createLookAtMatrix(matrix, position, target, up);
 	}
 };

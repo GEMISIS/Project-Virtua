@@ -32,7 +32,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Rift Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -67,8 +67,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>pvmmd</TargetName>
-    <IncludePath>../include;C:\Users\GEMISIS\Documents\OculusSdk\Include;$(IncludePath)</IncludePath>
+    <IncludePath>../3rdPartyLibs/OculusSdk/src;../3rdPartyLibs/OculusSdk/include;../include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;$(IncludePath)</IncludePath>
     <OutDir>..\lib</OutDir>
+    <LibraryPath>../3rdPartyLibs/OculusSdk/lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Rift Debug|Win32'">
     <TargetName>pvmmd</TargetName>

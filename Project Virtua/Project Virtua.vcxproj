@@ -39,7 +39,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Rift Debug|Win32'" Label="Configuration">
@@ -72,8 +72,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>pvd</TargetName>
     <OutDir>..\lib</OutDir>
-    <IncludePath>C:\Users\GEMISIS\Documents\OculusSdk\Include;../include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>../3rdPartyLibs/OculusSdk/src;../3rdPartyLibs/OculusSdk/include;../include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>../3rdPartyLibs/OculusSDK/lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Rift Debug|Win32'">
     <TargetName>pvd</TargetName>
@@ -93,7 +93,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>OVR_BUILD_DEBUG;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>

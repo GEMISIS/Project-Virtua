@@ -1,25 +1,26 @@
+#include <math.h>
 #include "pv/Matrices.h"
 
 namespace PV
 {
 	namespace Math
 	{
-		Matrix<float>::Matrix(unsigned int width, unsigned int height)
+		template <class T>
+		Matrix<T>::Matrix(unsigned int width, unsigned int height)
 		{
-			this->matrix = NULL;
 			this->width = width;
 			this->height = height;
+			this->matrix = new T[width * height];
+			this->SetIdentity();
 		}
 		template <>
-		Matrix<float> Matrix<float>::operator+(Matrix<float> inputMatrix)
+		Matrix<float> Matrix<float>::operator+(const Matrix<float> inputMatrix)
 		{
 			Matrix<float> outputMatrix(this->width, this->height);
-			outputMatrix.matrix = new float[this->width * this->height];
 
 			for (int i = 0; i < this->width * this->height && i < inputMatrix.width * inputMatrix.height; i += 1)
 			{
-				float value = this->matrix[i] + inputMatrix[i];
-				outputMatrix[i] = value;
+				outputMatrix[i] = this->matrix[i] + inputMatrix[i];
 			}
 			return outputMatrix;
 		}
@@ -29,56 +30,18 @@ namespace PV
 			if (this->width == inputMatrix.height)
 			{
 				Matrix<float> outputMatrix(this->width, inputMatrix.height);
-				outputMatrix.matrix = new float[this->width * inputMatrix.height];
-
-				Matrix<float> matA(this->width, this->height);
-				matA = this->matrix;
-
-				Matrix<float> matB(inputMatrix.width, inputMatrix.height);
-				matB = inputMatrix.matrix;
 
 				for (int y = 0; y < outputMatrix.height; y += 1)
 				{
 					for (int x = 0; x < outputMatrix.width; x += 1)
 					{
-						float finalValue = 0.0f;
-						for (int i = 0; i < matA.width; i += 1)
+						outputMatrix[x + y * outputMatrix.width] = 0.0f;
+						for (int i = 0; i < this->width; i += 1)
 						{
-							float valueA = matA[i + y * matA.width];
-							float valueB = matB[x + i * matB.width];
-							float temp = valueA * valueB;
-							finalValue = finalValue + temp;
+							float valueA = this->matrix[x + i * outputMatrix.width];
+							float valueB = inputMatrix.matrix[i + y * outputMatrix.width];
+							outputMatrix[x + y * outputMatrix.width] += valueA * valueB;
 						}
-						outputMatrix[x + y * outputMatrix.width] = finalValue;
-					}
-				}
-
-				return outputMatrix;
-			}
-			else if (this->width == inputMatrix.height)
-			{
-				Matrix<float> outputMatrix(this->height, inputMatrix.width);
-				outputMatrix.matrix = new float[this->width * inputMatrix.height];
-
-				Matrix<float> matA(inputMatrix.width, inputMatrix.height);
-				matA = inputMatrix.matrix;
-
-				Matrix<float> matB(this->width, this->height);
-				matB = this->matrix;
-
-				for (int y = 0; y < outputMatrix.height; y += 1)
-				{
-					for (int x = 0; x < outputMatrix.width; x += 1)
-					{
-						float finalValue = 0.0f;
-						for (int i = 0; i < matA.width; i += 1)
-						{
-							float valueA = matA[i + y * matA.width];
-							float valueB = matB[x + i * matB.width];
-							float temp = valueA * valueB;
-							finalValue = finalValue + temp;
-						}
-						outputMatrix[x + y * outputMatrix.width];
 					}
 				}
 
@@ -90,7 +53,7 @@ namespace PV
 		Matrix<float> Matrix<float>::operator=(const float* inputMatrix)
 		{
 			int length = width * height;
-			if (this->matrix != NULL)
+			if (this->matrix != 0)
 			{
 				delete this->matrix;
 			}
@@ -101,10 +64,64 @@ namespace PV
 			}
 			return *this;
 		}
-		template <>
-		float& Matrix<float>::operator[](int subscript)
+		template <class T>
+		T& Matrix<T>::operator[](const int subscript)
 		{
 			return this->matrix[subscript];
+		}
+		template <class T>
+		const T& Matrix<T>::operator[](const int subscript) const
+		{
+			return this->matrix[subscript];
+		}
+		template <>
+		void Matrix<float>::Rotate(float pitch, float yaw, float roll)
+		{
+			Matrix<float> pitchMatrix(this->width, this->height);
+			Matrix<float> yawMatrix(this->width, this->height);
+			Matrix<float> rollMatrix(this->width, this->height);
+
+			pitchMatrix[5] = cos(-pitch * 3.14159265358979323846f / 180.0f);
+			pitchMatrix[6] = -sin(-pitch * 3.14159265358979323846f / 180.0f);
+			pitchMatrix[9] = sin(-pitch * 3.14159265358979323846f / 180.0f);
+			pitchMatrix[10] = cos(-pitch * 3.14159265358979323846f / 180.0f);
+
+			yawMatrix[0] = cos(-yaw * 3.14159265358979323846f / 180.0f);
+			yawMatrix[2] = sin(-yaw * 3.14159265358979323846f / 180.0f);
+			yawMatrix[8] = -sin(-yaw * 3.14159265358979323846f / 180.0f);
+			yawMatrix[10] = cos(-yaw * 3.14159265358979323846f / 180.0f);
+
+			rollMatrix[0] = cos(-roll * 3.14159265358979323846f / 180.0f);
+			rollMatrix[1] = -sin(-roll * 3.14159265358979323846f / 180.0f);
+			rollMatrix[4] = sin(-roll * 3.14159265358979323846f / 180.0f);
+			rollMatrix[5] = cos(-roll * 3.14159265358979323846f / 180.0f);
+
+			*this = (pitchMatrix * yawMatrix * rollMatrix) * *this;
+		}
+		template<>
+		void Matrix<float>::Translate(float x, float y, float z)
+		{
+			this->matrix[12] += x;
+			this->matrix[13] += y;
+			this->matrix[14] += z;
+		}
+		template<>
+		void Matrix<float>::SetIdentity()
+		{
+			for (int y = 0; y < height; y += 1)
+			{
+				for (int x = 0; x < width; x += 1)
+				{
+					if (x == y)
+					{
+						this->matrix[x + y * width] = 1.0f;
+					}
+					else
+					{
+						this->matrix[x + y * width] = 0.0f;
+					}
+				}
+			}
 		}
 		template <>
 		float* Matrix<float>::getArray()

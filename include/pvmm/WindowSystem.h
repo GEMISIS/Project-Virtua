@@ -147,10 +147,6 @@ namespace PV
 		 * This will destroy the OpenGL context associated with this window.
 		 */
 		void destroyGLSystem();
-	private:
-		unsigned int width;
-		unsigned int height;
-		RECT windowRectangle;
 
 		/**
 		 * The rendering context for where to draw stuff to.
@@ -167,6 +163,11 @@ namespace PV
 		 * A window handle for managing the actual window.
 		 */
 		HWND windowHandle;
+
+	private:
+		unsigned int width;
+		unsigned int height;
+		RECT windowRectangle;
 
 		/**
 		 * A variable for an instance of the application.

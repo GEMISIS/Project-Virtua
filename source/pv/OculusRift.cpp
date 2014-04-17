@@ -1,49 +1,19 @@
 #include "pv/OculusRift.h"
 #include "pv/MinOpenGL.h"
 #include "pv/FileIO.h"
+#include "Kernel/OVR_Math.h"
 
 namespace PV
 {
 	void InitRift()
 	{
-		if (!OVR::System::IsInitialized())
-		{
-			// Check if we are debugging or not.
-#ifdef _DEBUG
-			// If so, log all interactions with the oculus rift.
-			OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-#else
-			// Otherwise, log no interactions with the oculus rift.
-			OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_None));
-#endif
-		}
+		// Check if we are debugging or not.
+		ovr_Initialize();
 	}
 	bool DetectDevice()
 	{
 		InitRift();
 		bool active = false;
-		OVR::Ptr<OVR::DeviceManager> deviceManager = OVR::DeviceManager::Create();
-		OVR::Ptr<OVR::HMDDevice> HMDHardwareDevice = deviceManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-		// Check if the oculus rift device was successfully gotten.
-		if (HMDHardwareDevice)
-		{
-			OVR::HMDInfo HMD;
-			// If so, set the oculus rift's HMD object.
-			if (HMDHardwareDevice->GetDeviceInfo(&HMD))
-			{
-				// Then get the oculus rift sensor.
-				OVR::Ptr<OVR::SensorDevice> Sensor = HMDHardwareDevice->GetSensor();
-
-				// Check that the sensor was successfully gotten.
-				if (Sensor)
-				{
-					active = true;
-					Sensor->Release();
-				}
-			}
-			HMDHardwareDevice->Release();
-		}
-		deviceManager->Release();
 		return active;
 	}
 	/**
@@ -53,7 +23,7 @@ namespace PV
  * Oculus Rift device that is connected to the computer.  Use the IsConnected
  * method to see if the device was successfully setup.
  */
-	OculusRift::OculusRift(bool useDemoRift)
+	OculusRift::OculusRift(bool useDemoRift, HGLRC openGlContext, HWND window, HDC gdiDc)
 	{
 		// Setup the initial values for all of the rotations.
 		this->Rotation.x = 0.0f;
@@ -86,26 +56,13 @@ namespace PV
 
 		if (this->connected)
 		{
-			this->viewport = OVR::Util::Render::Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
-
 			// Setup the user's data for the Oculus Rift.
-			this->Setup();
-
-			int openGlVersion = 0;
-			glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
-			if (openGlVersion >= 3)
-			{
-				// Setup the shaders for the Oculus rift.
-				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
-				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
-			}
-
-			// Setup the rendering quad for the Oculus rift.
-			this->InitializeRenderQuad();
+			this->Setup(openGlContext, window, gdiDc);
 		}
 		else if (useDemoRift)
 		{
 			// If using a demo Oculus Rift, setup the virtual data.
+			/*
 			this->HMD.HResolution = 1280;
 			this->HMD.VResolution = 800;
 			this->HMD.HScreenSize = 0.149759993f;
@@ -125,72 +82,15 @@ namespace PV
 			this->HMD.DesktopX = 0;
 			this->HMD.DesktopY = 0;
 			this->viewport = OVR::Util::Render::Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
+			*/
 
 			// Say that it is connected, but virtually.
 			this->connected = true;
 			this->virtuallyConnected = true;
 
 			// Setup the user's data for the Oculus Rift.
-			this->Setup();
-
-			int openGlVersion = 0;
-			glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
-			if (openGlVersion >= 3)
-			{
-				// Setup the shaders for the Oculus rift.
-				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
-				this->SetupShaders(this->defaultProgram, this->fragmentShader, this->vertexShader);
-			}
-			// Setup the rendering quad for the Oculus rift.
-			this->InitializeRenderQuad();
+			this->Setup(openGlContext, window, gdiDc);
 		}
-	}
-
-	void OculusRift::InitializeRenderQuad()
-	{
-		float quadVerts[] = {
-			-1.0f, -1.0f,
-			-1.0f, 1.0f,
-			1.0f, -1.0f,
-			1.0f, 1.0f
-		};
-		float quadColor[] = {
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f
-		};
-		float quadTexture[] = {
-			0.0, 0.0,
-			0.0f, 1.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f
-		};
-
-		// Create the vertex array handle.
-		pv_glGenVertexArrays(1, &this->quadVAOHandle);
-		pv_glBindVertexArray(this->quadVAOHandle);
-
-		// Create the vertices buffer.
-		pv_glGenBuffers(1, &this->quadVBOHandle);
-		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, this->quadVBOHandle);
-		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, PV_GL_STATIC_DRAW);
-		pv_glEnableVertexAttribArray(0);
-		pv_glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-		pv_glGenBuffers(1, &this->quadCBOHandle);
-		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, this->quadCBOHandle);
-		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadColor), quadColor, PV_GL_STATIC_DRAW);
-		pv_glEnableVertexAttribArray(1);
-		pv_glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-		pv_glGenBuffers(1, &this->quadTCBOHandle);
-		pv_glBindBuffer(PV_GL_ARRAY_BUFFER, this->quadTCBOHandle);
-		pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadTexture), quadTexture, PV_GL_STATIC_DRAW);
-		pv_glEnableVertexAttribArray(2);
-		pv_glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-		pv_glBindVertexArray(0);
 	}
 
 	/**
@@ -204,31 +104,19 @@ namespace PV
 	{
 		InitRift();
 
-		// Then create a device manager.
-		this->deviceManager = *OVR::DeviceManager::Create();
-		// Then get the oculus rift's HMD device.
-		this->HMDHardwareDevice = *this->deviceManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-
 		// Set the boolean indicating that there is an oculus rift to false.
 		this->connected = false;
 
-		// Check if the oculus rift device was successfully gotten.
-		if (this->HMDHardwareDevice)
-		{
-			// If so, set the oculus rift's HMD object.
-			if (this->HMDHardwareDevice->GetDeviceInfo(&HMD))
-			{
-				// Then get the oculus rift sensor.
-				this->Sensor = *this->HMDHardwareDevice->GetSensor();
+		this->HMD = ovrHmd_Create(0);
 
-				// Check that the sensor was successfully gotten.
-				if (this->Sensor)
-				{
-					// Then attach the sensor to a sensor fusion object.
-					this->sensorFusion = new OVR::SensorFusion(this->Sensor);
-					// Finally, set the boolean indicating that the oculus rift was gotten to true.
-					this->connected = true;
-				}
+		if (this->HMD)
+		{
+			ovrHmd_GetDesc(this->HMD, &this->HMDDesc);
+			if (this->HMDDesc.Type == ovrHmd_DK1 || this->HMDDesc.Type == ovrHmd_DK2)
+			{
+				ovrHmd_StartSensor(this->HMD, ovrHmdCap_Orientation | ovrHmdCap_YawCorrection | ovrHmdCap_Position | ovrHmdCap_LowPersistence, ovrHmdCap_Orientation);
+				this->sensorState = ovrHmd_GetSensorState(this->HMD, 0.0);
+				this->connected = true;
 			}
 		}
 	}
@@ -239,38 +127,53 @@ namespace PV
 	 * This method goes through and sets up the user's data for the Oculus Rift headset.
 	 * This data includes things such as the interpupillary distance, field of view, and more.
 	 */
-	void OculusRift::Setup()
+	void OculusRift::Setup(HGLRC openGlContext, HWND window, HDC gdiDc)
 	{
-		// Set the viewport for what both eyes can see.
-		this->StereoConfiguration.SetFullViewport(this->viewport);
+		OVR::Sizei size = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMDDesc.DefaultEyeFov[0], 1.0f);
+		OVR::Sizei size2 = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMDDesc.DefaultEyeFov[0], 1.0f);
 
-		// Set the stereo mode to cache.
-		this->StereoConfiguration.SetStereoMode(OVR::Util::Render::Stereo_LeftRight_Multipass);
-		// Set which HMD to use.
-		this->StereoConfiguration.SetHMDInfo(this->HMD);
+		this->renderTargetSize.w = 1280;
+		this->renderTargetSize.h = 800;
 
-		/**
-		* Set the aspect ration.  Note that this has to be statically converted, as the normal
-		* data type is an unsigned integer for the screen resolution values.
-		*/
-		this->AspectRatio = this->StereoConfiguration.GetAspect();
-		/**
-		* The aspect ratio is determined based on the distance between the eyes and
-		* the size of the screen.  This is then converted to degrees for general use.
-		*/
-		this->FieldOfView = this->StereoConfiguration.GetYFOVDegrees();
+		this->eyes[0].Eye = ovrEye_Left;
+		this->eyes[0].Fov = this->HMDDesc.DefaultEyeFov[0];
+		this->eyes[0].TextureSize = this->renderTargetSize;
+		this->eyes[0].RenderViewport.Pos = OVR::Vector2i(0, 0);
+		this->eyes[0].RenderViewport.Size = OVR::Sizei(this->renderTargetSize.w / 2, this->renderTargetSize.h);
 
-		// Get the center of the viewing screen.
-		this->ViewCenter = this->HMD.HScreenSize * 0.25f;
-		// Get the offest for the screen's center.
-		this->ProjectionCenterOffset = (this->StereoConfiguration.GetProjectionCenterOffset() + 1.0f) * 0.25f;
-		// Get the distance between the eyes and halve it.
-		this->HalfIPD = this->StereoConfiguration.GetIPD() * 0.5f;
+		this->eyes[1].Eye = ovrEye_Right;
+		this->eyes[1].Fov = this->HMDDesc.DefaultEyeFov[1];
+		this->eyes[1].TextureSize = this->renderTargetSize;
+		this->eyes[1].RenderViewport.Pos = OVR::Vector2i((this->renderTargetSize.w + 1) / 2, 0);
+		this->eyes[1].RenderViewport.Size = this->eyes[0].RenderViewport.Size;
 
-		// Get the rendering properties for the left eye.
-		this->LeftEye = this->StereoConfiguration.GetEyeRenderParams(OVR::Util::Render::StereoEye_Left);
-		// Get the rendering properties for the right eye.
-		this->RightEye = this->StereoConfiguration.GetEyeRenderParams(OVR::Util::Render::StereoEye_Right);
+		this->openGLConfig.OGL.Header.API = ovrRenderAPI_OpenGL;
+		this->openGLConfig.OGL.Header.RTSize = OVR::Sizei(HMDDesc.Resolution.w, HMDDesc.Resolution.h);
+		this->openGLConfig.OGL.Header.Multisample = 0;
+		this->openGLConfig.OGL.WglContext = openGlContext;
+		this->openGLConfig.OGL.Window = window;
+		this->openGLConfig.OGL.GdiDc = gdiDc;
+
+		this->eyes[0].TextureSize.w = 1280 / 2;
+		this->eyes[1].TextureSize.w = 1280 / 2;
+		if (!ovrHmd_ConfigureRendering(this->HMD, &this->openGLConfig.Config, ovrHmdCap_NoVSync, this->HMDDesc.DistortionCaps, eyes, eyeRenderDesc))
+		{
+			this->connected = false;
+			printf("Error configuring Oculus Rift renderer!\n");
+		}
+	}
+
+	void OculusRift::SetRenderTextures(unsigned int leftEyeTexture, unsigned int rightEyeTexture)
+	{
+		this->eyeTextures[0].OGL.Header.API = ovrRenderAPI_OpenGL;
+		this->eyeTextures[0].OGL.Header.TextureSize = this->renderTargetSize;
+		this->eyeTextures[0].OGL.Header.RenderViewport = this->eyes[0].RenderViewport;
+		this->eyeTextures[0].OGL.TexId = leftEyeTexture;
+
+		this->eyeTextures[1].OGL.Header.API = ovrRenderAPI_OpenGL;
+		this->eyeTextures[1].OGL.Header.TextureSize = this->renderTargetSize;
+		this->eyeTextures[1].OGL.Header.RenderViewport = this->eyes[1].RenderViewport;
+		this->eyeTextures[1].OGL.TexId = rightEyeTexture;
 	}
 
 	/**
@@ -295,255 +198,68 @@ namespace PV
 	{
 		if (this->connected && !this->virtuallyConnected)
 		{
-			this->OldOrientation.yaw = this->Orientation.yaw;
-			this->OldOrientation.pitch = this->Orientation.pitch;
-			this->OldOrientation.roll = this->Orientation.roll;
-
-			this->sensorFusion->GetOrientation().GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
-
-			this->Orientation.yaw = OVR::RadToDegree(this->Orientation.yaw);
-			this->Orientation.pitch = OVR::RadToDegree(this->Orientation.pitch);
-			this->Orientation.roll = OVR::RadToDegree(this->Orientation.roll);
-
-			this->Rotation.x -= (this->Orientation.pitch - this->OldOrientation.pitch);
-			this->Rotation.y -= (this->Orientation.yaw - this->OldOrientation.yaw);
-			this->Rotation.z -= (this->Orientation.roll - this->OldOrientation.roll);
-
-			this->OldOrientation_quart.angle = this->Orientation_quart.angle;
-			this->OldOrientation_quart.axis.x = this->Orientation_quart.axis.x;
-			this->OldOrientation_quart.axis.y = this->Orientation_quart.axis.y;
-			this->OldOrientation_quart.axis.z = this->Orientation_quart.axis.z;
-
-			this->sensorFusion->GetOrientation().GetAxisAngle(&this->Orientation_quart.axis, &this->Orientation_quart.angle);
-			this->Orientation_quart.angle = -OVR::RadToDegree(this->Orientation_quart.angle);
-		}
-	}
-
-	void OculusRift::renderGLBelow2(RiftEye eye)
-	{
-#ifndef REMOVE_GL2_COMPAT
-		gluPerspective(this->FieldOfView, this->AspectRatio, 0.001f, 10000.0f);
-		if (eye == Left)
-		{
-			glViewport(this->LeftEye.VP.x, this->LeftEye.VP.y, this->LeftEye.VP.w, this->LeftEye.VP.h);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			glTranslatef(this->ProjectionCenterOffset, 0.0f, 0.0f);
-			glTranslatef(this->HalfIPD * this->ViewCenter, 0.0f, 0.0f);
-		}
-		else if (eye == Right)
-		{
-			glViewport(this->RightEye.VP.x, this->RightEye.VP.y, this->RightEye.VP.w, this->RightEye.VP.h);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			glTranslatef(-this->ProjectionCenterOffset, 0.0f, 0.0f);
-			glTranslatef(-this->HalfIPD * this->ViewCenter, 0.0f, 0.0f);
-		}
-#endif
-	}
-
-	void OculusRift::ShiftView(RiftEye eye, float projectionMatrix[16], float viewMatrix[16])
-	{
-		int glVersion[] = { 0, 0 };
-		glGetIntegerv(PV_GL_MAJOR_VERSION, &glVersion[0]);
-		glGetIntegerv(PV_GL_MINOR_VERSION, &glVersion[1]);
-		
-		if (glVersion[0] < 3)
-		{
-			this->renderGLBelow2(eye);
-		}
-		else
-		{
-			if (eye == Left)
+			this->sensorState = ovrHmd_GetSensorState(this->HMD, 0.0);
+			if (this->sensorState.StatusFlags & (ovrStatus_OrientationTracked))
 			{
-				projectionMatrix[12] = this->ProjectionCenterOffset;
-				viewMatrix[12] = (this->HalfIPD * this->ViewCenter);
-			}
-			else if (eye == Right)
-			{
-				projectionMatrix[12] = -this->ProjectionCenterOffset;
-				viewMatrix[12] = -(this->HalfIPD * this->ViewCenter);
+				this->OldOrientation.yaw = this->Orientation.yaw;
+				this->OldOrientation.pitch = this->Orientation.pitch;
+				this->OldOrientation.roll = this->Orientation.roll;
+
+				OVR::Posef pose = this->sensorState.Recorded.Pose;
+				pose.Orientation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
+
+				this->Orientation.pitch = this->Orientation.pitch * 180.0f / 3.14159265358979323846f;
+				this->Orientation.yaw = this->Orientation.yaw * 180.0f / 3.14159265358979323846f;
+				this->Orientation.roll = this->Orientation.roll * 180.0f / 3.14159265358979323846f;
+
+				this->Rotation.x -= (this->Orientation.pitch - this->OldOrientation.pitch);
+				this->Rotation.y -= (this->Orientation.yaw - this->OldOrientation.yaw);
+				this->Rotation.z -= (this->Orientation.roll - this->OldOrientation.roll);
 			}
 		}
 	}
 
-	void OculusRift::UpdateUniforms(RiftEye eye, GLuint program)
+	void OculusRift::getPerspectiveMatrix(RiftEye eye, Math::Matrix<float> &perspectiveMatrix)
 	{
-		int textureRange = pv_glGetUniformLocation(program, "u_texRange");
-		int lensCenterOffset = pv_glGetUniformLocation(program, "u_lensCenterOffset");
-		int distortion = pv_glGetUniformLocation(program, "u_distortion");
-		int aspectRatio = pv_glGetUniformLocation(program, "u_aspect");
-		int fillScale = pv_glGetUniformLocation(program, "u_fillScale");
-
-		pv_glUniform2f(textureRange, 1.0f, 1.0f);
-		if (eye == Left)
+		ovrMatrix4f proj = ovrMatrix4f_Projection(this->eyes[HMDDesc.EyeRenderOrder[eye]].Fov, 0.01f, 10000.0f, true);
+		for (int y = 0; y < 4; y += 1)
 		{
-			pv_glUniform2f(lensCenterOffset, this->LeftEye.pDistortion->XCenterOffset, this->LeftEye.pDistortion->YCenterOffset);
+			for (int x = 0; x < 4; x += 1)
+			{
+				perspectiveMatrix[x + y * 4] = proj.M[x][y];
+			}
 		}
-		else if (eye == Right)
-		{
-			pv_glUniform2f(lensCenterOffset, this->RightEye.pDistortion->XCenterOffset, this->RightEye.pDistortion->YCenterOffset);
-		}
-		pv_glUniform4f(distortion, this->HMD.DistortionK[0], this->HMD.DistortionK[1], this->HMD.DistortionK[2], this->HMD.DistortionK[3]);
-		pv_glUniform1f(aspectRatio, this->AspectRatio);
-		pv_glUniform1f(fillScale, this->StereoConfiguration.GetDistortionScale());
 	}
 
-	void OculusRift::SetupShaders(int &program, int &fragment, int &vertex)
+	bool OculusRift::StartRender()
 	{
-		this->SetupShaders(NULL, NULL, program, fragment, vertex);
+		if (this->isConnected())
+		{
+			ovrHmd_BeginFrame(this->HMD, 0);
+			return true;
+		}
+		return false;
 	}
 
-	void OculusRift::SetupShaders(const char* vertexShader, const char* fragmentShader, int &program, int &fragment, int &vertex)
+	void OculusRift::StartEyeRender(RiftEye eye, Math::Matrix<float> &viewMatrix)
 	{
-		program = pv_glCreateProgram();
-		if (fragment < 1)
-		{
-			fragment = pv_glCreateShader(PV_GL_FRAGMENT_SHADER);
+		currentEyePose = ovrHmd_BeginEyeRender(this->HMD, this->HMDDesc.EyeRenderOrder[eye]);
+		OVR::Quatf orientation = OVR::Quatf(currentEyePose.Orientation);
+		OVR::Matrix4f viewShift = OVR::Matrix4f(orientation.Inverted()) * OVR::Matrix4f::Translation(currentEyePose.Position);
+	}
 
-			if (fragmentShader == NULL)
-			{
-				File* fragFile = new File("default.fs", true);
-				if (fragFile->DataLoaded())
-				{
-					int length = fragFile->Size();
-					char* data = (char*)malloc(length * sizeof(char)+1);
-					strncpy(data, fragFile->Data(), length);
-					data[length] = '\0';
-					pv_glShaderSource(fragment, 1, &data, &length);
-					pv_glCompileShader(fragment);
-					free(data);
+	void OculusRift::EndEyeRender(RiftEye eye)
+	{
+		glViewport(this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.x, 
+			this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.y,
+			this->eyeRenderDesc[eye].Desc.RenderViewport.Size.w,
+			this->eyeRenderDesc[eye].Desc.RenderViewport.Size.h);
+		ovrHmd_EndEyeRender(this->HMD, this->HMDDesc.EyeRenderOrder[eye], this->currentEyePose, &this->eyeTextures[this->HMDDesc.EyeRenderOrder[eye]].Texture);
+	}
 
-					int result = false;
-					int logLength = 0;
-					pv_glGetShaderiv(fragment, PV_GL_COMPILE_STATUS, &result);
-					if (result == GL_FALSE)
-					{
-						pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
-						char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-						pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
-						fprintf(stdout, "%s\nFragment shader failed!\n", FragmentShaderErrorMessage);
-						free(FragmentShaderErrorMessage);
-					}
-				}
-				else
-				{
-					fprintf(stdout, "Could not find fragment shader file %s!\n", fragmentShader);
-				}
-			}
-			else
-			{
-				File* fragFile = new File(fragmentShader, true);
-				if (fragFile->DataLoaded())
-				{
-					int length = fragFile->Size();
-					char* data = (char*)malloc(length * sizeof(char)+1);
-					strncpy(data, fragFile->Data(), length);
-					data[length] = '\0';
-					pv_glShaderSource(fragment, 1, &data, &length);
-					pv_glCompileShader(fragment);
-					free(data);
-
-					int result = false;
-					int logLength = 0;
-					pv_glGetShaderiv(fragment, PV_GL_COMPILE_STATUS, &result);
-					if (result == GL_FALSE)
-					{
-						pv_glGetShaderiv(fragment, PV_GL_INFO_LOG_LENGTH, &logLength);
-						char* FragmentShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-						pv_glGetShaderInfoLog(fragment, logLength, NULL, FragmentShaderErrorMessage);
-						fprintf(stdout, "%s\nFragment shader failed!\n", FragmentShaderErrorMessage);
-						free(FragmentShaderErrorMessage);
-					}
-				}
-				else
-				{
-					fprintf(stdout, "Could not find fragment shader file %s!\n", fragmentShader);
-				}
-			}
-		}
-		if (vertex < 1)
-		{
-			vertex = pv_glCreateShader(PV_GL_VERTEX_SHADER);
-
-			if (vertexShader == NULL)
-			{
-				File* vertFile = new File("default.vs", true);
-				if (vertFile->DataLoaded())
-				{
-					int length = vertFile->Size();
-					char* data = (char*)malloc((length + 1) * sizeof(char));
-					strncpy(data, vertFile->Data(), length);
-					data[length] = '\0';
-					pv_glShaderSource(vertex, 1, &data, &length);
-					pv_glCompileShader(vertex);
-					free(data);
-
-					int result = false;
-					int logLength = 0;
-					pv_glGetShaderiv(vertex, PV_GL_COMPILE_STATUS, &result);
-					if (result == GL_FALSE)
-					{
-						pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
-						char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-						pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
-						fprintf(stdout, "%s\nVertex shader failed!\n", VertexShaderErrorMessage);
-						free(VertexShaderErrorMessage);
-					}
-				}
-				else
-				{
-					fprintf(stdout, "Could not find fragment shader file %s!\n", fragmentShader);
-				}
-			}
-			else
-			{
-				File* vertFile = new File(vertexShader, true);
-				if (vertFile->DataLoaded())
-				{
-					int length = vertFile->Size();
-					char* data = (char*)malloc((length + 1) * sizeof(char));
-					strncpy(data, vertFile->Data(), length);
-					data[length] = '\0';
-					pv_glShaderSource(vertex, 1, &data, &length);
-					pv_glCompileShader(vertex);
-					free(data);
-
-					int result = false;
-					int logLength = 0;
-					pv_glGetShaderiv(vertex, PV_GL_COMPILE_STATUS, &result);
-					if (result == GL_FALSE)
-					{
-						pv_glGetShaderiv(vertex, PV_GL_INFO_LOG_LENGTH, &logLength);
-						char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* logLength);
-						pv_glGetShaderInfoLog(vertex, logLength, NULL, VertexShaderErrorMessage);
-						fprintf(stdout, "%s\nVertex shader failed!\n", VertexShaderErrorMessage);
-						free(VertexShaderErrorMessage);
-					}
-				}
-				else
-				{
-					fprintf(stdout, "Could not find vertex shader file %s!\n", vertexShader);
-				}
-			}
-		}
-
-		pv_glAttachShader(program, fragment);
-		pv_glAttachShader(program, vertex);
-
-		pv_glLinkProgram(program);
-
-		int Presult = false;
-		int PlogLength = 0;
-		pv_glGetProgramiv(program, PV_GL_LINK_STATUS, &Presult);
-		if (Presult == GL_FALSE)
-		{
-			pv_glGetProgramiv(program, PV_GL_INFO_LOG_LENGTH, &PlogLength);
-			char* VertexShaderErrorMessage = (char*)malloc(sizeof(char)* PlogLength);
-			pv_glGetProgramInfoLog(program, PlogLength, NULL, VertexShaderErrorMessage);
-			fprintf(stdout, "%s\nProgram link failed!\n", VertexShaderErrorMessage);
-			free(VertexShaderErrorMessage);
-		}
+	void OculusRift::EndRender()
+	{
+		ovrHmd_EndFrame(this->HMD);
 	}
 
 	/**
@@ -556,41 +272,8 @@ namespace PV
 		return this->Rotation;
 	}
 
-	/**
-	 * Get viewport for the Oculus Rift.  This should be split in half for each eye.
-	 * @return The viewport of what the Oculus Rift can see.
-	 */
-	const OVR::Util::Render::Viewport OculusRift::GetViewport() const
-	{
-		return this->viewport;
-	}
-
 	void OculusRift::ComposeFinalImage(unsigned int leftEyeTexture, unsigned int rightEyeTexture)
 	{
-		int openGlVersion = 0;
-		glGetIntegerv(PV_GL_MAJOR_VERSION, &openGlVersion);
-		if (openGlVersion >= 3)
-		{
-			pv_glUseProgram(this->defaultProgram);
-		}
-
-		pv_glBindVertexArray(this->quadVAOHandle);
-		pv_glActiveTexture(PV_GL_TEXTURE0);
-
-		pv_glUseProgram(this->defaultProgram);
-		this->UpdateUniforms(Left, this->defaultProgram);
-		glViewport(this->LeftEye.VP.x, this->LeftEye.VP.y, this->LeftEye.VP.w, this->LeftEye.VP.h);
-		glBindTexture(GL_TEXTURE_2D, leftEyeTexture);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-		pv_glUseProgram(this->defaultProgram);
-		this->UpdateUniforms(Right, this->defaultProgram);
-		glViewport(this->RightEye.VP.x, this->RightEye.VP.y, this->RightEye.VP.w, this->RightEye.VP.h);
-		glBindTexture(GL_TEXTURE_2D, rightEyeTexture);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		pv_glBindVertexArray(0);
 	}
 
 
@@ -602,23 +285,7 @@ namespace PV
 	 */
 	OculusRift::~OculusRift()
 	{
-		// Check if the oculus rift device was successfully gotten.
-		if (this->HMDHardwareDevice)
-		{
-			this->HMDHardwareDevice.Clear();
-		}
-		if (this->Sensor)
-		{
-			this->Sensor.Clear();
-		}
-		if (this->deviceManager)
-		{
-			this->deviceManager.Clear();
-		}
-
-		if (OVR::System::IsInitialized())
-		{
-			OVR::System::Destroy();
-		}
+		ovrHmd_Destroy(this->HMD);
+		ovr_Shutdown();
 	}
 };
