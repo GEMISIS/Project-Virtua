@@ -130,7 +130,7 @@ namespace PV
 	void OculusRift::Setup(HGLRC openGlContext, HWND window, HDC gdiDc)
 	{
 		OVR::Sizei size = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMDDesc.DefaultEyeFov[0], 1.0f);
-		OVR::Sizei size2 = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMDDesc.DefaultEyeFov[0], 1.0f);
+		OVR::Sizei size2 = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMDDesc.DefaultEyeFov[1], 1.0f);
 
 		this->renderTargetSize.w = 1280;
 		this->renderTargetSize.h = 800;
@@ -154,9 +154,7 @@ namespace PV
 		this->openGLConfig.OGL.Window = window;
 		this->openGLConfig.OGL.GdiDc = gdiDc;
 
-		this->eyes[0].TextureSize.w = 1280 / 2;
-		this->eyes[1].TextureSize.w = 1280 / 2;
-		if (!ovrHmd_ConfigureRendering(this->HMD, &this->openGLConfig.Config, ovrHmdCap_NoVSync, this->HMDDesc.DistortionCaps, eyes, eyeRenderDesc))
+		if (!ovrHmd_ConfigureRendering(this->HMD, &this->openGLConfig.Config, 0, this->HMDDesc.DistortionCaps, eyes, eyeRenderDesc))
 		{
 			this->connected = false;
 			printf("Error configuring Oculus Rift renderer!\n");
@@ -244,16 +242,15 @@ namespace PV
 	void OculusRift::StartEyeRender(RiftEye eye, Math::Matrix<float> &viewMatrix)
 	{
 		currentEyePose = ovrHmd_BeginEyeRender(this->HMD, this->HMDDesc.EyeRenderOrder[eye]);
-		OVR::Quatf orientation = OVR::Quatf(currentEyePose.Orientation);
-		OVR::Matrix4f viewShift = OVR::Matrix4f(orientation.Inverted()) * OVR::Matrix4f::Translation(currentEyePose.Position);
+		viewMatrix.Translate(this->eyeRenderDesc[this->HMDDesc.EyeRenderOrder[eye]].ViewAdjust.x, this->eyeRenderDesc[this->HMDDesc.EyeRenderOrder[eye]].ViewAdjust.y, this->eyeRenderDesc[this->HMDDesc.EyeRenderOrder[eye]].ViewAdjust.z);
+		glViewport(this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.x,
+			this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.y,
+			this->eyeRenderDesc[eye].Desc.RenderViewport.Size.w,
+			this->eyeRenderDesc[eye].Desc.RenderViewport.Size.h);
 	}
 
 	void OculusRift::EndEyeRender(RiftEye eye)
 	{
-		glViewport(this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.x, 
-			this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.y,
-			this->eyeRenderDesc[eye].Desc.RenderViewport.Size.w,
-			this->eyeRenderDesc[eye].Desc.RenderViewport.Size.h);
 		ovrHmd_EndEyeRender(this->HMD, this->HMDDesc.EyeRenderOrder[eye], this->currentEyePose, &this->eyeTextures[this->HMDDesc.EyeRenderOrder[eye]].Texture);
 	}
 
