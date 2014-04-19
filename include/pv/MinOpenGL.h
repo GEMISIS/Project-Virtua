@@ -70,10 +70,17 @@ namespace PV
 #define PV_GL_ARRAY_BUFFER 0x8892
 #define PV_GL_ELEMENT_ARRAY_BUFFER 0x8893
 #define PV_GL_STATIC_DRAW 0x88E4
+#define PV_GL_CLAMP_TO_EDGE 0x812F
+#define PV_GL_GENERATE_MIPMAP 0x8191
+#define PV_GL_FRAMEBUFFER 0x8D40
+#define PV_GL_COLOR_ATTACHMENT0 0x8CE0
+#define PV_GL_RENDERBUFFER 0x8D41
+#define PV_GL_DEPTH_ATTACHMENT 0x8D00
+#define PV_GL_FRAMEBUFFER_COMPLETE 0x8CD5
 
-	/**
-	 * Specifies to the glCreateShader function to create a fragment shader.
-	 */
+/**
+ * Specifies to the glCreateShader function to create a fragment shader.
+ */
 #define PV_GL_FRAGMENT_SHADER 0x8B30
 	/**
 	 * Specifies to the glCreateShader function to create a vertex shader.
@@ -82,111 +89,167 @@ namespace PV
 
 #define PV_GL_TEXTURE0                       0x84C0
 
-	/**
-	 * A function pointer for the glCreateShader function.
-	 */
-	typedef GLuint(__stdcall* pv_glCreateShaderFunction) (GLenum shaderType);
-	/**
-	 * A function pointer for the glShaderSource function.
-	 */
-	typedef void(__stdcall* pv_glShaderSourceFunction) (GLuint shader, GLsizei count, const char* const* string, const GLint* length);
-	/**
-	 * A function pointer for the glCompileShader function.
-	 */
-	typedef void(__stdcall* pv_glCompileShaderFunction) (GLuint shader);
-	/**
-	 * A function pointer for the glGetShaderiv function.
-	 */
-	typedef void(__stdcall* pv_glGetShaderivFunction) (GLuint shader, GLenum pname, GLint* params);
-	/**
-	* A function pointer for the glGetShaderInfoLog function.
-	*/
-	typedef void(__stdcall* pv_glGetShaderInfoLogFunction) (GLuint shader, GLsizei maxLength, GLsizei* length, char* infoLog);
-	/**
-	 * A function pointer for the glDeleteShader function.
-	 */
-	typedef void(__stdcall* pv_glDeleteShaderFunction) (GLuint shader);
-	/**
-	 * A function pointer for the glCreateProgram function.
-	 */
-	typedef GLuint(__stdcall* pv_glCreateProgramFunction) (void);
-	/**
-	 * A function pointer for the glAttachShader function.
-	 */
-	typedef void(__stdcall* pv_glAttachShaderFunction) (GLuint program, GLuint shader);
-	/**
-	* A function pointer for the glLinkProgram function.
-	*/
-	typedef void(__stdcall* pv_glLinkProgramFunction) (GLuint program);
-	/**
-	* A function pointer for the glUseProgram function.
-	*/
-	typedef void(__stdcall* pv_glUseProgramFunction) (GLuint program);
-	typedef void(__stdcall* pv_glGetProgramivFunction) (GLuint program, GLenum pname, GLint* pararms);
-	typedef void(__stdcall* pv_glGetProgramInfoLogFunction) (GLuint program, GLsizei maxLength, GLsizei *length, char *infoLog);
-	/**
-	 * A function pointer for the glGetUniformLocation function.
-	 */
-	typedef GLint(__stdcall* pv_glGetUniformLocationFunction) (GLuint program, const char* name);
-	/**
-	 * A function pointer for the glUniform1f function.
-	 */
-	typedef void(__stdcall* pv_glUniform1fFunction) (GLint location, GLfloat v0);
-	/**
-	 * A function pointer for the glUniform2f function.
-	 */
-	typedef void(__stdcall* pv_glUniform2fFunction) (GLint location, GLfloat v0, GLfloat v1);
-	/**
-	 * A function pointer for the glUniform3f function.
-	 */
-	typedef void(__stdcall* pv_glUniform3fFunction) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
-	/**
-	 * A function pointer for the glUniform4f function.
-	 */
-	typedef void(__stdcall* pv_glUniform4fFunction) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
-	/**
-	 * A function pointer for the glUniformMatrix4fv function.
-	 */
-	typedef void(__stdcall* pv_glUniformMatrix4fvFunction) (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
+/**
+ * A function pointer for the glCreateShader function.
+ */
+typedef GLuint(__stdcall* pv_glCreateShaderFunction) (GLenum shaderType);
+/**
+ * A function pointer for the glShaderSource function.
+ */
+typedef void(__stdcall* pv_glShaderSourceFunction) (GLuint shader, GLsizei count, const char* const* string, const GLint* length);
+/**
+ * A function pointer for the glCompileShader function.
+ */
+typedef void(__stdcall* pv_glCompileShaderFunction) (GLuint shader);
+/**
+ * A function pointer for the glGetShaderiv function.
+ */
+typedef void(__stdcall* pv_glGetShaderivFunction) (GLuint shader, GLenum pname, GLint* params);
+/**
+* A function pointer for the glGetShaderInfoLog function.
+*/
+typedef void(__stdcall* pv_glGetShaderInfoLogFunction) (GLuint shader, GLsizei maxLength, GLsizei* length, char* infoLog);
+/**
+ * A function pointer for the glDeleteShader function.
+ */
+typedef void(__stdcall* pv_glDeleteShaderFunction) (GLuint shader);
+/**
+ * A function pointer for the glCreateProgram function.
+ */
+typedef GLuint(__stdcall* pv_glCreateProgramFunction) (void);
+/**
+ * A function pointer for the glAttachShader function.
+ */
+typedef void(__stdcall* pv_glAttachShaderFunction) (GLuint program, GLuint shader);
+/**
+* A function pointer for the glLinkProgram function.
+*/
+typedef void(__stdcall* pv_glLinkProgramFunction) (GLuint program);
+/**
+* A function pointer for the glUseProgram function.
+*/
+typedef void(__stdcall* pv_glUseProgramFunction) (GLuint program);
+/**
+* A function pointer for the glGetProgramiv function.
+*/
+typedef void(__stdcall* pv_glGetProgramivFunction) (GLuint program, GLenum pname, GLint* pararms);
+/**
+* A function pointer for the glGetProgramInfoLog function.
+*/
+typedef void(__stdcall* pv_glGetProgramInfoLogFunction) (GLuint program, GLsizei maxLength, GLsizei *length, char *infoLog);
+/**
+ * A function pointer for the glGetUniformLocation function.
+ */
+typedef GLint(__stdcall* pv_glGetUniformLocationFunction) (GLuint program, const char* name);
+/**
+ * A function pointer for the glUniform1f function.
+ */
+typedef void(__stdcall* pv_glUniform1fFunction) (GLint location, GLfloat v0);
+/**
+ * A function pointer for the glUniform2f function.
+ */
+typedef void(__stdcall* pv_glUniform2fFunction) (GLint location, GLfloat v0, GLfloat v1);
+/**
+ * A function pointer for the glUniform3f function.
+ */
+typedef void(__stdcall* pv_glUniform3fFunction) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+/**
+ * A function pointer for the glUniform4f function.
+ */
+typedef void(__stdcall* pv_glUniform4fFunction) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+/**
+ * A function pointer for the glUniformMatrix4fv function.
+ */
+typedef void(__stdcall* pv_glUniformMatrix4fvFunction) (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 
-	/**
-	* A function pointer for the glGenVertexArrays function.
-	*/
-	typedef void(__stdcall* pv_glGenVertexArraysFunction) (GLsizei n, GLuint* arrays);
-	/**
-	* A function pointer for the glBindVertexArray function.
-	*/
-	typedef void(__stdcall* pv_glBindVertexArrayFunction) (GLuint array);
-	/**
-	* A function pointer for the glGenBuffers function.
-	*/
-	typedef void(__stdcall* pv_glGenBuffersFunction) (GLsizei n, GLuint * buffers);
-	/**
-	* A function pointer for the glBindBuffer function.
-	*/
-	typedef void(__stdcall* pv_glBindBufferFunction) (GLenum target, GLuint buffer);
-	/**
-	* A function pointer for the glBufferData function.
-	*/
+/**
+* A function pointer for the glGenVertexArrays function.
+*/
+typedef void(__stdcall* pv_glGenVertexArraysFunction) (GLsizei n, GLuint* arrays);
+/**
+* A function pointer for the glBindVertexArray function.
+*/
+typedef void(__stdcall* pv_glBindVertexArrayFunction) (GLuint array);
+/**
+* A function pointer for the glGenBuffers function.
+*/
+typedef void(__stdcall* pv_glGenBuffersFunction) (GLsizei n, GLuint * buffers);
+/**
+* A function pointer for the glBindBuffer function.
+*/
+typedef void(__stdcall* pv_glBindBufferFunction) (GLenum target, GLuint buffer);
+/**
+* A function pointer for the glBufferData function.
+*/
 #ifdef _WIN64
 	typedef void(__stdcall* pv_glBufferDataFunction) (GLenum target, signed long long int size, const GLvoid * data, GLenum usage);
 #else
 	typedef void(__stdcall* pv_glBufferDataFunction) (GLenum target, signed long int size, const GLvoid * data, GLenum usage);
 #endif
-	/**
-	* A function pointer for the glEnableVertexAttribArray function.
-	*/
-	typedef void(__stdcall* pv_glEnableVertexAttribArrayFunction) (GLuint index);
-	/**
-	* A function pointer for the glVertexAttribPointer function.
-	*/
-	typedef void(__stdcall* pv_glVertexAttribPointerFunction) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
+/**
+* A function pointer for the glEnableVertexAttribArray function.
+*/
+typedef void(__stdcall* pv_glEnableVertexAttribArrayFunction) (GLuint index);
+/**
+* A function pointer for the glVertexAttribPointer function.
+*/
+typedef void(__stdcall* pv_glVertexAttribPointerFunction) (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
 
-	typedef void(__stdcall* pv_glActiveTextureFunction) (GLenum texture);
+/**
+* A function pointer for the glActiveTexture function.
+*/
+typedef void(__stdcall* pv_glActiveTextureFunction) (GLenum texture);
 
-	typedef void(__stdcall* pv_glBindAttribLocationFunction) (GLuint program, GLuint index, const char* name);
+/**
+* A function pointer for the glBindAttribLocation function.
+*/
+typedef void(__stdcall* pv_glBindAttribLocationFunction) (GLuint program, GLuint index, const char* name);
 
-	typedef void(__stdcall* pv_glBindFragDataLocationFunction) (GLuint program, GLuint colorNumber, const char* name);
+/**
+* A function pointer for the glBindFragDataLocation function.
+*/
+typedef void(__stdcall* pv_glBindFragDataLocationFunction) (GLuint program, GLuint colorNumber, const char* name);
+
+/**
+* A function pointer for the glGenerateMipmap function.
+*/
+typedef void(__stdcall* pv_glGenerateMipmapFunction) (unsigned int target);
+/**
+* A function pointer for the glGenFramebuffers function.
+*/
+typedef void(__stdcall* pv_glGenFramebuffersFunction) (unsigned int n, unsigned int* framebuffers);
+/**
+* A function pointer for the glBindFramebuffer function.
+*/
+typedef void(__stdcall* pv_glBindFramebufferFunction) (unsigned int n, unsigned int framebuffer);
+/**
+* A function pointer for the glFramebufferTexture2D function.
+*/
+typedef void(__stdcall* pv_glFramebufferTexture2DFunction) (unsigned int target, unsigned int attachment, unsigned int textarget, unsigned int texture, int level);
+/**
+* A function pointer for the glGenRenderbuffers function.
+*/
+typedef void(__stdcall* pv_glGenRenderbuffersFunction) (unsigned int n, unsigned int* renderbuffers);
+/**
+* A function pointer for the glBindRenderbuffer function.
+*/
+typedef void(__stdcall* pv_glBindRenderbufferFunction) (unsigned int n, unsigned int renderbuffer);
+/**
+* A function pointer for the glRenderbufferStorage function.
+*/
+typedef void(__stdcall* pv_glRenderbufferStorageFunction) (unsigned int target, unsigned int internalformat, unsigned int width, unsigned int height);
+/**
+* A function pointer for the glFramebufferRenderbuffer function.
+*/
+typedef void(__stdcall* pv_glFramebufferRenderbufferFunction) (unsigned int target, unsigned int attachment, unsigned int renderbuffertarget, unsigned int renderbuffer);
+/**
+* A function pointer for the glCheckFramebufferStatus function.
+*/
+typedef unsigned int(__stdcall* pv_glCheckFramebufferStatusFunction) (unsigned int target);
+/**
+* A function pointer for the glGenerateMipmap function.
+*/
+typedef void(__stdcall* pv_glGenerateMipmapFunction) (unsigned int target);
 
 	/**
 	 * The OpenGL method "glCreateShader", to be grabbed as an OpenGL extension.
@@ -517,6 +580,16 @@ namespace PV
 
 	extern pv_glBindAttribLocationFunction pv_glBindAttribLocation;
 	extern pv_glBindFragDataLocationFunction pv_glBindFragDataLocation;
+
+	extern pv_glGenFramebuffersFunction pv_glGenFramebuffers;
+	extern pv_glBindFramebufferFunction pv_glBindFramebuffer;
+	extern pv_glFramebufferTexture2DFunction pv_glFramebufferTexture2D;
+	extern pv_glGenRenderbuffersFunction pv_glGenRenderbuffers;
+	extern pv_glBindRenderbufferFunction pv_glBindRenderbuffer;
+	extern pv_glRenderbufferStorageFunction pv_glRenderbufferStorage;
+	extern pv_glFramebufferRenderbufferFunction pv_glFramebufferRenderbuffer;
+	extern pv_glCheckFramebufferStatusFunction pv_glCheckFramebufferStatus;
+	extern pv_glGenerateMipmapFunction pv_glGenerateMipmap;
 
 	/**
 	 * Initializes the minimum required OpenGL functions for use with Project Virtua.  All of these methods are prefixed with pv_ in order

@@ -63,7 +63,21 @@ namespace PV
 	 */
 	void createPerspectiveMatrix(PV::Math::Matrix<float> &matrix, float fieldOfView, float aspectRatio, float nearValue, float farValue);
 
+	/**
+	 * Creates a lookAt matrix using from the desired position and rotation, and then stores it in the desired matrix.
+	 * @param matrix The matrix to store the resulting lookAt matrix into.
+	 * @param position The position of the camera to use in the lookAt matrix.
+	 * @param rotation The rotation of the camera to use in the lookAt matrix.
+	 */
 	void createLookAtMatrix(PV::Math::Matrix<float> &matrix, Math::vec3 position, Math::vec3 rotation);
+
+	/**
+	* Creates a lookAt matrix at the specified eye position, looking at a specific target, and then stores it in the desired matrix.
+	* @param matrix The matrix to store the resulting lookAt matrix into.
+	* @param eye The position of the eye to use in the lookAt matrix.
+	* @param target The target of where the camera is looking in the lookAt matrix.
+	* @param up What direction up is relative to the camera.
+	*/
 	void createLookAtMatrix(PV::Math::Matrix<float> &matrix, Math::vec3 eye, Math::vec3 target, Math::vec3 up);
 };
 

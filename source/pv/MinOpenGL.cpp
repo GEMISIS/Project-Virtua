@@ -31,6 +31,16 @@ namespace PV
 	pv_glActiveTextureFunction pv_glActiveTexture = NULL;
 	pv_glBindAttribLocationFunction pv_glBindAttribLocation = NULL;
 	pv_glBindFragDataLocationFunction pv_glBindFragDataLocation = NULL;
+
+	pv_glGenFramebuffersFunction pv_glGenFramebuffers = NULL;
+	pv_glBindFramebufferFunction pv_glBindFramebuffer = NULL;
+	pv_glFramebufferTexture2DFunction pv_glFramebufferTexture2D = NULL;
+	pv_glGenRenderbuffersFunction pv_glGenRenderbuffers = NULL;
+	pv_glBindRenderbufferFunction pv_glBindRenderbuffer = NULL;
+	pv_glRenderbufferStorageFunction pv_glRenderbufferStorage = NULL;
+	pv_glFramebufferRenderbufferFunction pv_glFramebufferRenderbuffer = NULL;
+	pv_glCheckFramebufferStatusFunction pv_glCheckFramebufferStatus = NULL;
+	pv_glGenerateMipmapFunction pv_glGenerateMipmap = NULL;
 #include <stdio.h>
 	void initMinGL()
 	{
@@ -65,14 +75,16 @@ namespace PV
 
 		pv_glBindAttribLocation = (pv_glBindAttribLocationFunction)glGetProcAddress("glBindAttribLocation");
 		pv_glBindFragDataLocation = (pv_glBindFragDataLocationFunction)glGetProcAddress("glBindFragDataLocation");
-		if (pv_glShaderSource == NULL)
-		{
-			printf("Bad");
-		}
-		if (pv_glCompileShader == NULL)
-		{
-			printf("Bad");
-		}
+
+		pv_glGenFramebuffers = (pv_glGenFramebuffersFunction)glGetProcAddress("glGenFramebuffers");
+		pv_glBindFramebuffer = (pv_glBindFramebufferFunction)glGetProcAddress("glBindFramebuffer");
+		pv_glFramebufferTexture2D = (pv_glFramebufferTexture2DFunction)glGetProcAddress("glFramebufferTexture2D");
+		pv_glGenRenderbuffers = (pv_glGenRenderbuffersFunction)glGetProcAddress("glGenRenderbuffers");
+		pv_glBindRenderbuffer = (pv_glBindRenderbufferFunction)glGetProcAddress("glBindRenderbuffer");
+		pv_glRenderbufferStorage = (pv_glRenderbufferStorageFunction)glGetProcAddress("glRenderbufferStorage");
+		pv_glFramebufferRenderbuffer = (pv_glFramebufferRenderbufferFunction)glGetProcAddress("glFramebufferRenderbuffer");
+		pv_glCheckFramebufferStatus = (pv_glCheckFramebufferStatusFunction)glGetProcAddress("glCheckFramebufferStatus");
+		pv_glGenerateMipmap = (pv_glGenerateMipmapFunction)glGetProcAddress("glGenerateMipmap");
 	}
 };
 

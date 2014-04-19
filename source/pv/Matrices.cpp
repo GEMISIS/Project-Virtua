@@ -81,20 +81,20 @@ namespace PV
 			Matrix<float> yawMatrix(this->width, this->height);
 			Matrix<float> rollMatrix(this->width, this->height);
 
-			pitchMatrix[5] = cos(-pitch * 3.14159265358979323846f / 180.0f);
-			pitchMatrix[6] = -sin(-pitch * 3.14159265358979323846f / 180.0f);
-			pitchMatrix[9] = sin(-pitch * 3.14159265358979323846f / 180.0f);
-			pitchMatrix[10] = cos(-pitch * 3.14159265358979323846f / 180.0f);
+			pitchMatrix[5] = cos(-pitch);
+			pitchMatrix[6] = -sin(-pitch);
+			pitchMatrix[9] = sin(-pitch);
+			pitchMatrix[10] = cos(-pitch);
 
-			yawMatrix[0] = cos(-yaw * 3.14159265358979323846f / 180.0f);
-			yawMatrix[2] = sin(-yaw * 3.14159265358979323846f / 180.0f);
-			yawMatrix[8] = -sin(-yaw * 3.14159265358979323846f / 180.0f);
-			yawMatrix[10] = cos(-yaw * 3.14159265358979323846f / 180.0f);
+			yawMatrix[0] = cos(-yaw);
+			yawMatrix[2] = sin(-yaw);
+			yawMatrix[8] = -sin(-yaw);
+			yawMatrix[10] = cos(-yaw);
 
-			rollMatrix[0] = cos(-roll * 3.14159265358979323846f / 180.0f);
-			rollMatrix[1] = -sin(-roll * 3.14159265358979323846f / 180.0f);
-			rollMatrix[4] = sin(-roll * 3.14159265358979323846f / 180.0f);
-			rollMatrix[5] = cos(-roll * 3.14159265358979323846f / 180.0f);
+			rollMatrix[0] = cos(-roll);
+			rollMatrix[1] = -sin(-roll);
+			rollMatrix[4] = sin(-roll);
+			rollMatrix[5] = cos(-roll);
 
 			*this = (pitchMatrix * yawMatrix * rollMatrix) * *this;
 		}
