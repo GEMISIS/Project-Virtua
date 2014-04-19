@@ -65,6 +65,11 @@ namespace PV
 		const KinectStatus Status() const;
 
 		/**
+		 * Returns the person data from a Kinect sensor.
+		 */
+		const NUI_SKELETON_DATA getMainPerson();
+
+		/**
 		 * Destroys this instance of the Kinect for Windows V1 sensor, disconnecting it and releasing its data.
 		 */
 		~Kinect1();
@@ -77,6 +82,14 @@ namespace PV
 		 * The status of the Kinect for Windows V1 sensor currently.
 		 */
 		KinectStatus status;
+		/**
+		 * A handle for managing recieved skeleton data.
+		 */
+		HANDLE nextSkeletonEvent;
+		/**
+		 * The skeleton data that is currently be tracked.
+		 */
+		NUI_SKELETON_DATA mainSkeleton;
 	};
 };
 #endif

@@ -27,7 +27,9 @@ namespace PV
 			{
 				if (NuiCreateSensorByIndex(index, &this->sensor) > -1)
 				{
-					this->sensor->NuiInitialize(NUI_INITIALIZE_FLAG_USES_SKELETON);
+					this->nextSkeletonEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
+					this->sensor->NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH | NUI_INITIALIZE_FLAG_USES_COLOR | NUI_INITIALIZE_FLAG_USES_SKELETON);
+					this->sensor->NuiSkeletonTrackingEnable(this->nextSkeletonEvent, 0);
 					status = this->status = Ready;
 				}
 				else if (this->sensor == NULL)
@@ -40,6 +42,32 @@ namespace PV
 		return Ready;
 	}
 
+	const KinectStatus Kinect1::Status() const
+	{
+		return this->status;
+	}
+	
+	const NUI_SKELETON_DATA Kinect1::getMainPerson()
+	{
+		if (this->status == Ready)
+		{
+			NUI_SKELETON_FRAME frame;
+			this->sensor->NuiSkeletonGetNextFrame(0, &frame);
+
+			const NUI_TRANSFORM_SMOOTH_PARAMETERS VerySmoothParams = { 0.7f, 0.3f, 1.0f, 1.0f, 1.0f };
+			this->sensor->NuiTransformSmooth(&frame, &VerySmoothParams);
+
+			for (int i = 0; i < NUI_SKELETON_COUNT; i++)
+			{
+				this->mainSkeleton = frame.SkeletonData[i];
+
+				if (this->mainSkeleton.eTrackingState == NUI_SKELETON_TRACKING_STATE::NUI_SKELETON_TRACKED)
+				{
+					return this->mainSkeleton;
+				}
+			}
+		}
+	}
 #endif
 
 #endif

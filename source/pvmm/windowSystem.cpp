@@ -1,8 +1,23 @@
 #include "pvmm/windowSystem.h"
+#include "pv/MinOpenGL.h"
 
 namespace PV
 {
 #ifdef _WIN32
+	LRESULT CALLBACK defaultWindowProcess(HWND winHandle, UINT message, WPARAM windowParam, LPARAM messageParam)
+	{
+		switch (message)
+		{
+		case WM_SIZE:
+			glViewport(0, 0, LOWORD(messageParam), HIWORD(messageParam));
+			return 0;
+		case WM_CLOSE:
+			PostQuitMessage(0);
+			return 0;
+		}
+		return DefWindowProc(winHandle, message, windowParam, messageParam);
+	}
+
 	Window::Window()
 	{
 		this->windowsClass.hInstance = NULL;
@@ -143,7 +158,7 @@ namespace PV
 		}
 		else
 		{
-			//		this->setWindowProcessCallback(&Window::process);
+			this->setWindowProcessCallback(defaultWindowProcess);
 		}
 		// Create the window returning any errors that come up.
 		return this->create(title, width, height, fullscreen, DEFAULT_BITS_PER_PIXEL);
@@ -168,7 +183,7 @@ namespace PV
 		}
 		else
 		{
-			//		this->setWindowProcessCallback(&Window::process);
+			this->setWindowProcessCallback(defaultWindowProcess);
 		}
 		// Create the window returning any errors that come up.
 		return this->create(title, 1280, 800, fullscreen, DEFAULT_BITS_PER_PIXEL);
@@ -190,10 +205,24 @@ namespace PV
 		}
 		else
 		{
-			//		this->setWindowProcessCallback(&Window::process);
+			this->setWindowProcessCallback(defaultWindowProcess);
 		}
 		// Create the window returning any errors that come up.
 		return this->create(title, 1280, 800, false, DEFAULT_BITS_PER_PIXEL);
+	}
+
+	/**
+	* This method creates a window using the given information and then returns its status.
+	* The default window process simply handles the window closing as well as changing the viewport
+	* when the window size changes.
+	* @param title The title to be displayed in the window.
+	* @return On success, this method will return 1.
+	* On fail, it will return an error code.
+	*/
+	WINDOW_ERRORS Window::create(LPCWSTR title)
+	{
+		// Create the window returning any errors that come up.
+		return this->create(title, NULL);
 	}
 
 	/**

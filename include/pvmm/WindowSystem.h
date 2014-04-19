@@ -25,6 +25,16 @@ namespace PV
 		Window();
 		/**
 		* This method creates a window using the given information and then returns its status.
+		* The default window process simply handles the window closing as well as changing the viewport
+		* when the window size changes.
+		* @param title The title to be displayed in the window.
+		* @return On success, this method will return 1.
+		* On fail, it will return an error code.
+		*/
+		WINDOW_ERRORS create(LPCWSTR title);
+
+		/**
+		* This method creates a window using the given information and then returns its status.
 		* @param title The title to be displayed in the window.
 		* @param callback The callback to use when updating the window.
 		* @return On success, this method will return 1.
@@ -137,10 +147,6 @@ namespace PV
 		 * This will destroy the OpenGL context associated with this window.
 		 */
 		void destroyGLSystem();
-	private:
-		unsigned int width;
-		unsigned int height;
-		RECT windowRectangle;
 
 		/**
 		 * The rendering context for where to draw stuff to.
@@ -157,6 +163,11 @@ namespace PV
 		 * A window handle for managing the actual window.
 		 */
 		HWND windowHandle;
+
+	private:
+		unsigned int width;
+		unsigned int height;
+		RECT windowRectangle;
 
 		/**
 		 * A variable for an instance of the application.

@@ -3,6 +3,7 @@
 
 #include "pv/types.h"
 #include "pv/Matrices.h"
+#include "OVR_CAPI_GL.h"
 
 namespace PV
 {
@@ -26,8 +27,11 @@ namespace PV
 		 * a virtual Oculus Rift device if the hardware is not found.  This is useful for testing the output
 		 * from the device.
 		 * @param useDemoRift This will tell the class to create a virtual Oculus Rift when true.
+		 * @param openGlContext The OpenGL context to use for rendering the final scene to.
+		 * @param window The window that contains the OpenGL context.
+		 * @param deviceContext The device context that is used for the window.
 		 */
-		OculusRift(bool useDemoRift);
+		OculusRift(bool useDemoRift, HGLRC openGlContext, HWND window, HDC deviceContext);
 		/**
 		 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
 		 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
@@ -35,10 +39,19 @@ namespace PV
 		 */
 		void Initialize();
 		/**
-		 * This method goes through and sets up the user's data for the Oculus Rift headset.
-		 * This data includes things such as the interpupillary distance, field of view, and more.
+		 * This method goes through and sets up the Oculus Rift for use.
+		 * @param openGlContext The OpenGL context to use for rendering the final scene to.
+		 * @param window The window that contains the OpenGL context.
+		 * @param deviceContext The device context that is used for the window.
 		 */
-		void Setup();
+		void Setup(HGLRC openGlContext, HWND window, HDC deviceContext);
+
+		/**
+		 * Set the textures for the left and right eyes.
+		 * @param leftEyeTexture The texture to display to the left eye.
+		 * @param rightEyeTexture The texture to display to the right eye.
+		 */
+		void SetRenderTextures(unsigned int leftEyeTexture, unsigned int rightEyeTexture);
 
 		/**
 		 * This method checks to see if the Oculus Rift is connected and returns
@@ -54,44 +67,31 @@ namespace PV
 		void Update();
 
 		/**
-		* Store the view's shifted values in a 4x4 matrix of floats.
-		* @param eye The eye to shift the view for (Left or Right).
-		* @param projectionMatrix The projection view's offset matrix.
-		* @param viewMatrix The main view's offset matrix.
-		*/
-		void ShiftView(RiftEye eye, float projectionMatrix[16], float viewMatrix[16]);
-
-		/**
-		 * Updates the uniforms for the shaders for the specified eye.  This can be usedto create custom shaders that
-		 * warp the view for the Oculus Rift, though we recommend that you check that you are doing so correctly, as
-		 * this can affect the user's experience if done improperly.
-		 * @param eye The eye to setup the shaders for (Left or Right).
-		 * @param program The program that the shader is attached to.
+		 * Begins rendering a scene to the Oculus Rift.
 		 */
-		void UpdateUniforms(RiftEye eye, unsigned int program);
-
+		bool StartRender();
 		/**
-		* This function sets up the vertex and fragment shaders for the barrel distortion on the Oculus Rift.
-		* It will create a program object and compile and link predefined shaders to it.  This can then be used
-		* for rendering the scene with an Oculus Rift.
-		* @param program Stores the program's ID.
-		* @param fragment Stores the fragment shader's ID.
-		* @param vertex Stores the vertex shader's ID.
-		*/
-		void SetupShaders(int &program, int &fragment, int &vertex);
-
+		 * Begins rendering a specific eye for the Oculus Rift scene and retrieves the view offset matrix for it.
+		 * @param eye The eye to render the scene for.
+		 * @param viewMatrix The matrix to store the view offset into.
+		 */
+		void StartEyeRender(RiftEye eye, Math::Matrix<float> &viewMatrix);
+		/** 
+		 * Ends the rendering of a specific eye.
+		 * @param eye The eye to stop rendering for.
+		 */
+		void EndEyeRender(RiftEye eye);
 		/**
-		* This function sets up the vertex and fragment shaders for the barrel distortion on the Oculus Rift.
-		* It will create a program object and compile and link the chosen shaders to it.  This can then be used
-		* for rendering the scene with an Oculus Rift.  If NULL is passed to either the vertex shader or fragment
-		* shader name, then it will use the default shader that is provided with Project Virtua (default.vs and default.fs).
-		* @param vertexShader The name of the vertex shader file to load.
-		* @param fragmentShader The name of the fragment shader file to load.
-		* @param program Stores the program's ID.
-		* @param fragment Stores the fragment shader's ID.
-		* @param vertex Stores the vertex shader's ID.
-		*/
-		void SetupShaders(const char* vertexShader, const char* fragmentShader, int &program, int &fragment, int &vertex);
+		 * Ends rendering the scene for the Oculus Rift, calling the updates to swap the window's buffers as well.
+		 */
+		void EndRender();
+
+		/** 
+		 * Retrieves the perspective matrix.
+		 * @param eye The eye to retrieve the perspective for.
+		 * @param perspectiveMatrix The matrix to store the perspective view in.
+		 */
+		void getPerspectiveMatrix(RiftEye eye, Math::Matrix<float> &perspectiveMatrix);
 
 		/**
 		 * Get the rotation values for the angle of rotation for where the user is looking.
@@ -101,10 +101,9 @@ namespace PV
 		const rotation_t GetRotation() const;
 
 		/**
-		 * Get viewport for the Oculus Rift.  This should be split in half for each eye.
-		 * @return The viewport of what the Oculus Rift can see.
-		 */
-		const OVR::Util::Render::Viewport GetViewport() const;
+		* Gets the size of the textures to render to.
+		*/
+		const OVR::Sizei getRenderSize() const;
 
 		/**
 		 * Compose the final rendered image that the Rift should see per eye using textured quads.
@@ -114,57 +113,83 @@ namespace PV
 		void ComposeFinalImage(unsigned int leftEyeTexture, unsigned int rightEyeTexture);
 
 		/**
-		* The center viewing point.
-		*/
-		float ViewCenter;
-		/**
-		* The offset for the projection view due to the eyes and screen size.
-		*/
-		float ProjectionCenterOffset;
-		/**
-		* This is half of the interpupillary distance (IE: Distance between the eyes).
-		*/
-		float HalfIPD;
-
-		/**
-		* The field of view on the Y-axis that can be seen by the camera.
-		*/
-		float FieldOfView;
-		/**
-		* The aspect ration to display with the camera.
-		*/
-		float AspectRatio;
-
-		/**
 		 * This is the deconstructor for he Oculus Rift device.  This method will automatically
 		 * cleanup all resources associated with the Oculus Rift device.
 		 */
 		~OculusRift();
 	protected:
 		/**
-		  * Manages the USB devices connected to the computer.
-		  */
-		OVR::Ptr<OVR::DeviceManager> deviceManager;
-		/**
-		  * Manages a Head Mounted Display (HMD) device (IE: The oculus rift).  This is used
-		  * mainly for getting hardware information rather than user info (IE: No eye distance info).
-		  */
-		OVR::Ptr<OVR::HMDDevice> HMDHardwareDevice;
-		/**
-		  * The actual oculus rift sensor.  Can be used to get various things from the actual
-		  * device once created.
-		  */
-		OVR::Ptr<OVR::SensorDevice> Sensor;
-		/**
 		  * The oculus rift's information in the form of a Head Mounted Display (HMD).  This is used
 		  * to get information specially needed for HMD's, rather than hardware information.
 		  */
-		OVR::HMDInfo HMD;
+		ovrHmd HMD;
+
 		/**
-		  * The fusion sensor object is used to get information from the HDM's built in sensors.
-		  * (IE: Accelerometer information, orientation, etc.)
-		  */
-		OVR::SensorFusion* sensorFusion;
+		 * The size of the textures to render the scene to.
+		 */
+		OVR::Sizei renderSize;
+
+		/**
+		 * The head mounted display device description.
+		 */
+		ovrHmdDesc HMDDesc;
+
+		/**
+		 * A structure to hold the state of the Oculus Rift's sensors (Gyroscope, etc.)
+		 */
+		ovrSensorState sensorState;
+
+		/**
+		 * The OpenGL configuration for the Oculus Rift's renderer.
+		 */
+		ovrGLConfig openGLConfig;
+
+		/** 
+		 * The rendering descriptions for each eye.
+		 */
+		ovrEyeRenderDesc eyeRenderDesc[2];
+
+		/**
+		 * The OpenGL textures to use for each eye.
+		 */
+		ovrGLTexture eyeTextures[2];
+
+		/**
+		 * The Oculus Rift's descriptions for each eye.
+		 */
+		ovrEyeDesc eyes[2];
+
+		/** 
+		 * The poses of each eye from the Oculus Rift.
+		 */
+		OVR::Posef eyePoses[2];
+
+		/**
+		The texture to use for the left eye.
+		*/
+		unsigned int leftEyeTexture;
+		/**
+		The texture to use for the right eye.
+		*/
+		unsigned int rightEyeTexture;
+
+		/**
+		* The frame buffer to use for the left eye.
+		*/
+		unsigned int leftFrameBuffer;
+		/**
+		* The frame buffer to use for the right eye.
+		*/
+		unsigned int rightFrameBuffer;
+
+		/**
+		* The buffer to use for storing the depth data for the left eye.
+		*/
+		unsigned int leftDepthBuffer;
+		/**
+		* The buffer to use for storing the depth data for the right eye.
+		*/
+		unsigned int rightDepthBuffer;
 
 		/**
 		  * A boolean indicating whether an oculus rift is connected or not.
@@ -196,69 +221,14 @@ namespace PV
 		orientation_quart_t OldOrientation_quart;
 
 		/**
-		  * The configuration for the stereo-scopic viewing.  Contains properties like how big
-		  * the display for each eye is.
-		  */
-		OVR::Util::Render::StereoConfig StereoConfiguration;
-		/**
-		  * The stereo parameters for the left eye.
-		  */
-		OVR::Util::Render::StereoEyeParams LeftEye;
-		/**
-		  * The stereo parameters for the right eye.
-		  */
-		OVR::Util::Render::StereoEyeParams RightEye;
-		/**
-		 * The viewport for what the user's eyes can see.
-		 */
-		OVR::Util::Render::Viewport viewport;
-
-		/**
-		* This is the program handle that is used for the shaders associated with each eye.
-		*/
-		int defaultProgram;
-		/**
-		* This is the shader handle for the vertex shader.
-		*/
-		int vertexShader;
-		/**
-		 * This is the shader handle for the fragment shader.
-		 */
-		int fragmentShader;
-
-		/**
 		 * The rotation data for where the user is looking.
 		 */
 		rotation_t Rotation;
 
 		/**
-		 * This is the vertex array object handle used to render the quad.
+		 * Sets up the frame buffers for the left and right eyes.
 		 */
-		unsigned int quadVAOHandle;
-		/**
-		* This is the vertex buffer object handle used to render the quad.
-		*/
-		unsigned int quadVBOHandle;
-		/**
-		* This is the color buffer object handle used to render the quad.
-		*/
-		unsigned int quadCBOHandle;
-		/**
-		* This is the texture coordinates buffer object handle used to render the quad.
-		*/
-		unsigned int quadTCBOHandle;
-
-		/**
-		 * This function initializes the quad that is used for rendering the final scene to the eyes of the Oculus Rift.
-		 */
-		void InitializeRenderQuad();
-
-		/**
-		 * Renders to the screen for the Oculus Rift's eyes using OpenGL.  This is the compatiblity version
-		 * to be used on OpenGL versions less than 2.0.
-		 * @param eye The eye to render for.
-		 */
-		void renderGLBelow2(RiftEye eye);
+		void setupFrameBuffer();
 	};
 };
 #endif
