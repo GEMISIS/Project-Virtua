@@ -108,14 +108,14 @@ void drawGLScene(unsigned int program, Math::Matrix<float> perspectiveMatrix, Ma
 {
 	Math::Matrix<float> modelMatrix(4, 4);
 	modelMatrix.Translate(1.0f, 1.0f, 1.0f);
-	modelMatrix.Rotate(rotation, rotation, 0);
+	modelMatrix.Rotate(0, rotation, 0);
 	modelMatrix.Translate(-1.0f, -1.0f, -1.0f);
 
 	if (rotation >= 360.0f)
 	{
 		rotation = -0.01f;
 	}
-	//rotation += 0.01f;
+	rotation += 0.01f;
 
 	pv_glUseProgram(program);
 	Math::Matrix<float> mvp = perspectiveMatrix * viewMatrix * modelMatrix;
@@ -133,7 +133,6 @@ void drawGLScene(unsigned int program, Math::Matrix<float> perspectiveMatrix, Ma
 int main()
 {
 	Window testWindow;
-	Math::Matrix<float> mvp(4, 4);
 	Math::Matrix<float> perspectiveMatrix(4, 4);
 	Math::Matrix<float> viewMatrix(4, 4);
 	Math::Matrix<float> viewOffsetMatrix(4, 4);
@@ -179,9 +178,8 @@ int main()
 		createLookAtMatrix(viewMatrix, position, rotation);
 
 		testWindow.MakeCurrentGLContext();
-		if (rift.isConnected())
+		if (rift.StartRender())
 		{
-			rift.StartRender();
 			rift.StartEyeRender(Left, viewOffsetMatrix);
 			{
 				rift.getPerspectiveMatrix(Left, perspectiveMatrix);
@@ -197,7 +195,6 @@ int main()
 			rift.EndEyeRender(Right);
 
 			pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
-			glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 			rift.EndRender();
 		}
 		else
