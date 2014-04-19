@@ -115,7 +115,7 @@ void drawGLScene(unsigned int program, Math::Matrix<float> perspectiveMatrix, Ma
 	{
 		rotation = -0.01f;
 	}
-	rotation += 0.01f;
+	//rotation += 0.01f;
 
 	pv_glUseProgram(program);
 	Math::Matrix<float> mvp = perspectiveMatrix * viewMatrix * modelMatrix;
