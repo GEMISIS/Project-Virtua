@@ -3,6 +3,7 @@
 #include "pv/OculusRift.h"
 #include "pvmm/windowSystem.h"
 #include "pvmm/MidOpenGL.h"
+#include "pvmm/WavefrontObject.h"
 
 using namespace PV;
 
@@ -17,14 +18,15 @@ unsigned int colorsBufferHandle;
 unsigned int texCoordsBufferHandle;
 unsigned int verticesArrayHandle;
 float rotation = 0.0f;
+WavefrontObject* obj;
 
 void initQuad()
 {
 	float quadVerts[quadVetex_size * quadVertices] = {
-		-1.0, -1.0, -1.0f,
-		-1.0, 1.0, -1.0f,
-		1.0, -1.0, -1.0f,
-		1.0, 1.0, -1.0f
+		-100.0, -1.0, -100.0,
+		-100.0, -1.0, 100.0,
+		100.0, -1.0, -100.0,
+		100.0, -1.0, 100.0
 	};
 	float quadColor[quadColor_size * 3] = {
 		1.0f, 0.0f, 1.0f,
@@ -62,7 +64,12 @@ void initQuad()
 	pv_glBindBuffer(PV_GL_ARRAY_BUFFER, texCoordsBufferHandle);
 	pv_glBufferData(PV_GL_ARRAY_BUFFER, sizeof(quadTexture), quadTexture, PV_GL_STATIC_DRAW);
 	pv_glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
 	pv_glBindVertexArray(0);
+	pv_glBindBuffer(PV_GL_ARRAY_BUFFER, 0);
+
+	obj = new WavefrontObject();
+	obj->loadGraphics("MKIII.obj");
 }
 
 void handleInput(OculusRift* rift, Kinect1* kinect, Math::vec3 &position, Math::vec3 &rotation)
@@ -72,7 +79,7 @@ void handleInput(OculusRift* rift, Kinect1* kinect, Math::vec3 &position, Math::
 		rift->Update();
 		rotation.x = -rift->GetRotation().x * (float)M_PI / 180.0f;
 		rotation.y = -rift->GetRotation().y *(float)M_PI / 180.0f;
-		rotation.z = rift->GetRotation().z *(float)M_PI / 180.0f;
+		rotation.z = -rift->GetRotation().z *(float)M_PI / 180.0f;
 	}
 
 	const NUI_SKELETON_DATA skeleton = kinect->getMainPerson();
@@ -108,7 +115,7 @@ void drawGLScene(unsigned int program, Math::Matrix<float> perspectiveMatrix, Ma
 {
 	Math::Matrix<float> modelMatrix(4, 4);
 	modelMatrix.Translate(1.0f, 1.0f, 1.0f);
-	modelMatrix.Rotate(0, rotation, 0);
+	modelMatrix.Rotate(0, 0, 0);
 	modelMatrix.Translate(-1.0f, -1.0f, -1.0f);
 
 	if (rotation >= 360.0f)
@@ -118,16 +125,23 @@ void drawGLScene(unsigned int program, Math::Matrix<float> perspectiveMatrix, Ma
 	rotation += 0.01f;
 
 	pv_glUseProgram(program);
+
 	Math::Matrix<float> mvp = perspectiveMatrix * viewMatrix * modelMatrix;
 	unsigned int mvpLocation = pv_glGetUniformLocation(program, "mvp");
 	pv_glUniformMatrix4fv(mvpLocation, 1, false, mvp.getArray());
 
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	pv_glEnableVertexAttribArray(0);
+	pv_glEnableVertexAttribArray(1);
+	pv_glEnableVertexAttribArray(2);
 
 	pv_glBindVertexArray(verticesArrayHandle);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	pv_glBindVertexArray(0);
+
+	obj->draw();
 }
 
 int main()
@@ -151,7 +165,6 @@ int main()
 	wglSwapIntervalEXT(1);
 
 	glEnable(GL_LINE_SMOOTH);
-
 
 	OculusRift rift(false, testWindow.renderingContext, testWindow.windowHandle, testWindow.deviceContext);
 
@@ -195,7 +208,10 @@ int main()
 			rift.EndEyeRender(Right);
 
 			pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
+			glDisable(GL_DEPTH_TEST);
 			rift.EndRender();
+			glEnable(GL_DEPTH_TEST);
+			glClearDepth(1);
 		}
 		else
 		{

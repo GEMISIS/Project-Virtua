@@ -181,25 +181,12 @@ namespace PV
 	}
 	void createLookAtMatrix(PV::Math::Matrix<float> &matrix, Math::vec3 position, Math::vec3 rotation)
 	{
-		Math::vec3 target = { 0, 0, 0 };
-		Math::vec3 up = { 0, 0, 0 };
-		Math::vec3 direction = { 0, 0, 0 };
-		Math::vec3 right = { 0, 0, 0 };
+		Math::Matrix<float> positionMatrix(4, 4);
+		Math::Matrix<float> rotationMatrix(4, 4);
 
-		direction.x = cos(rotation.x) * sin(rotation.y);
-		direction.y = sin(rotation.x);
-		direction.z = cos(rotation.x) * cos(rotation.y);
+		positionMatrix.Translate(position.x, position.y, position.z);
+		rotationMatrix.Rotate(rotation.x, rotation.y, rotation.z);
 
-		right.x = sin(rotation.y - M_PI / 2.0f);
-		right.y = 0;
-		right.z = cos(rotation.y - M_PI / 2);
-
-		up = Math::crossMultiply(right, direction);
-
-		target.x = position.x + direction.x;
-		target.y = position.y + direction.y;
-		target.z = position.z + direction.z;
-
-		createLookAtMatrix(matrix, position, target, up);
+		matrix = rotationMatrix * positionMatrix;
 	}
 };

@@ -77,26 +77,26 @@ namespace PV
 		template <>
 		void Matrix<float>::Rotate(float pitch, float yaw, float roll)
 		{
-			Matrix<float> pitchMatrix(this->width, this->height);
-			Matrix<float> yawMatrix(this->width, this->height);
-			Matrix<float> rollMatrix(this->width, this->height);
+			Matrix<float> pitchMatrix(4, 4);
+			Matrix<float> yawMatrix(4, 4);
+			Matrix<float> rollMatrix(4, 4);
 
 			pitchMatrix[5] = cos(-pitch);
-			pitchMatrix[6] = -sin(-pitch);
-			pitchMatrix[9] = sin(-pitch);
+			pitchMatrix[6] = sin(-pitch);
+			pitchMatrix[9] = -sin(-pitch);
 			pitchMatrix[10] = cos(-pitch);
 
 			yawMatrix[0] = cos(-yaw);
-			yawMatrix[2] = sin(-yaw);
-			yawMatrix[8] = -sin(-yaw);
+			yawMatrix[2] = -sin(-yaw);
+			yawMatrix[8] = sin(-yaw);
 			yawMatrix[10] = cos(-yaw);
 
 			rollMatrix[0] = cos(-roll);
-			rollMatrix[1] = -sin(-roll);
-			rollMatrix[4] = sin(-roll);
+			rollMatrix[1] = sin(-roll);
+			rollMatrix[4] = -sin(-roll);
 			rollMatrix[5] = cos(-roll);
 
-			*this = (pitchMatrix * yawMatrix * rollMatrix) * *this;
+			*this = *this * rollMatrix * pitchMatrix * yawMatrix;
 		}
 		template<>
 		void Matrix<float>::Translate(float x, float y, float z)

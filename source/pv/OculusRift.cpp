@@ -183,11 +183,11 @@ namespace PV
 		glBindTexture(GL_TEXTURE_2D, this->leftEyeTexture);
 		pv_glGenFramebuffers(1, &this->leftFrameBuffer);
 		pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, this->leftFrameBuffer);
-		pv_glFramebufferTexture2D(PV_GL_FRAMEBUFFER, PV_GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->leftEyeTexture, 0);
 		pv_glGenRenderbuffers(1, &this->leftDepthBuffer);
 		pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, this->leftDepthBuffer);
-		pv_glRenderbufferStorage(PV_GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->renderSize.w / 2.0f, this->renderSize.h);
+		pv_glRenderbufferStorage(PV_GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->renderSize.w, this->renderSize.h);
 		pv_glFramebufferRenderbuffer(PV_GL_FRAMEBUFFER, PV_GL_DEPTH_ATTACHMENT, PV_GL_RENDERBUFFER, this->leftDepthBuffer);
+		pv_glFramebufferTexture2D(PV_GL_FRAMEBUFFER, PV_GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->leftEyeTexture, 0);
 
 		if (pv_glCheckFramebufferStatus(PV_GL_FRAMEBUFFER) != PV_GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -200,11 +200,11 @@ namespace PV
 		glBindTexture(GL_TEXTURE_2D, this->rightEyeTexture);
 		pv_glGenFramebuffers(1, &this->rightFrameBuffer);
 		pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, this->rightFrameBuffer);
-		pv_glFramebufferTexture2D(PV_GL_FRAMEBUFFER, PV_GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->rightEyeTexture, 0);
 		pv_glGenRenderbuffers(1, &this->rightDepthBuffer);
 		pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, this->rightDepthBuffer);
-		pv_glRenderbufferStorage(PV_GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->renderSize.w / 2.0f, this->renderSize.h);
+		pv_glRenderbufferStorage(PV_GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->renderSize.w, this->renderSize.h);
 		pv_glFramebufferRenderbuffer(PV_GL_FRAMEBUFFER, PV_GL_DEPTH_ATTACHMENT, PV_GL_RENDERBUFFER, this->rightDepthBuffer);
+		pv_glFramebufferTexture2D(PV_GL_FRAMEBUFFER, PV_GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->rightEyeTexture, 0);
 
 		pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
 	}
@@ -289,9 +289,11 @@ namespace PV
 			{
 			case ovrEye_Left:
 				pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, this->leftFrameBuffer);
+				pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, this->leftDepthBuffer);
 				break;
 			case ovrEye_Right:
 				pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, this->rightFrameBuffer);
+				pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, this->rightDepthBuffer);
 				break;
 			}
 		}
@@ -301,6 +303,8 @@ namespace PV
 	{
 		if (this->isConnected())
 		{
+			pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
+			pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, 0);
 			switch (this->HMDDesc.EyeRenderOrder[eye])
 			{
 			case ovrEye_Left:
