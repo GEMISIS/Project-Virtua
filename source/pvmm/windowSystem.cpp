@@ -23,8 +23,8 @@ namespace PV
 		this->windowsClass.hInstance = NULL;
 	}
 	/**
-	 * This method creates a window using the given information.  If an error occurs, it is returned.
-	 * a window using the given information.  If an error occurs, it is returned.
+	 * Creates a window using the given information and then returns its status.
+	 * 
 	 * @param title The title to be displayed in the window.
 	 * @param width An unsigned integer for the width of the window.
 	 * @param height An unsigned integer for the height of the window.
@@ -54,13 +54,10 @@ namespace PV
 		// Set the bits per pixel for this window.
 		this->bitsPerPixel = bitsPerPixel;
 
-		// Set the left side of the window.
+		// Set the sides of the window.
 		windowRectangle.left = 0;
-		// Set the right side of the window.
 		windowRectangle.right = width;
-		// Set the top of the window.
 		windowRectangle.top = 0;
-		// Set the bottom of the window.
 		windowRectangle.bottom = height;
 
 		// Set the boolean indicating whether the window is full screen or not to
@@ -72,15 +69,15 @@ namespace PV
 		appInstance = GetModuleHandle(NULL);
 		// Set the style to redraw vertically and horizantally, as well as to own it's own device context.
 		windowsClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-		// The amount of extra bytes to allocate for the window-class structure.
+		// Extra bytes to allocate for the window-class structure.
 		windowsClass.cbClsExtra = 0;
-		// The amount of extra bytes to allocate for the window's instance.
+		// Extra bytes to allocate for the window's instance.
 		windowsClass.cbWndExtra = 0;
-		// Set the handle to the application's instance.
+		// Set application's instance handle.
 		windowsClass.hInstance = appInstance;
-		// Set the handle to the window-class icon.
+		// Set window-class icon handle.
 		windowsClass.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-		// Set the handle to the window-class cursor.
+		// Set window-class cursor handle.
 		windowsClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 		// Set the handle to the class background brush to be NULL.
 		windowsClass.hbrBackground = NULL;
@@ -96,7 +93,7 @@ namespace PV
 			// If debugging, display a simple message indicating where to look in the code (IE: Here).
 			MessageBox(NULL, (LPCWSTR)L"Error registering class!", (LPCWSTR)L"CREATE WINDOW ERROR", MB_OK | MB_ICONERROR);
 #else
-			// If not debugging, then display a clean error to the user so they can report the issue.
+			// If not debugging, a clean error is displayed to the user so they can report the issue.
 			MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WC" + REGISTER_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			// Finally, return that there was an error registering the window.
@@ -109,19 +106,19 @@ namespace PV
 		// Finally, set the normal window style to be an overlapped window still.
 		windowStyle = WS_OVERLAPPEDWINDOW;
 
-		// Next, the window needs to have it's rectangle adjusted.
+		// Next, the window needs to have its rectangle adjusted.
 		AdjustWindowRectEx(&windowRectangle, windowStyle, false, windowExtendedStyle);
 
-		// Finally, the window is actually created and assigned to it's handle.
+		// Finally, the window is actually created and assigned to its handle.
 		if (!(this->windowHandle = CreateWindowEx(windowExtendedStyle, this->title, this->title, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | windowStyle, 0, 0, windowRectangle.right - windowRectangle.left, windowRectangle.bottom - windowRectangle.top, NULL, NULL, appInstance, NULL)))
 		{
-			// If this fails, the window is destroyed.
+			// If the window cannot be created and assigned, the window is destroyed.
 			this->destroy();
 #ifdef _DEBUG
 			// If debugging, an error indicating where to further debug is shown.
 			MessageBox(NULL, (LPCWSTR)L"Error creating window!", (LPCWSTR)L"CREATE WINDOW ERROR", MB_OK | MB_ICONERROR);
 #else
-			// If not debugging, a nice and clean error is displayed to the user.
+			// If not debugging, a clean error is displayed to the user so they can report the issue.
 			MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WC" + CREATION_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			// Return the error indicating that the window could not be created.
@@ -133,12 +130,12 @@ namespace PV
 
 		this->SetFullscreen(fullscreen);
 
-		// Return that everythign went okay.
+		// Return that everything went okay.
 		return OK;
 	}
 
 	/**
-	 * This method creates a window using the given information.  If an error occurs, it is returned.
+	 * Creates a window using the given information and then returns its status.
 	 * @param title The title to be displayed in the window.
 	 * @param width An unsigned integer for the width of the window.
 	 * @param height An unsigned integer for the height of the window.
@@ -165,7 +162,7 @@ namespace PV
 	}
 
 	/**
-	* This method creates a window using the given information and then returns its status.
+	* Creates a window using the given information and then returns its status.
 	* @param title The title to be displayed in the window.
 	* @param callback The callback to use when updating the window.
 	* @param fullscreen If true, the window will be made full screen, with the width and height determining the
@@ -190,7 +187,7 @@ namespace PV
 	}
 
 	/**
-	* This method creates a window using the given information and then returns its status.
+	* Creates a window using the given information and then returns its status.
 	* @param title The title to be displayed in the window.
 	* @param callback The callback to use when updating the window.
 	* @return On success, this method will return 1.
@@ -212,8 +209,8 @@ namespace PV
 	}
 
 	/**
-	* This method creates a window using the given information and then returns its status.
-	* The default window process simply handles the window closing as well as changing the viewport
+	* Creates a window using the given information and then returns its status.
+	* The default window process handles the window closing as well as changing the viewport
 	* when the window size changes.
 	* @param title The title to be displayed in the window.
 	* @return On success, this method will return 1.
@@ -226,8 +223,8 @@ namespace PV
 	}
 
 	/**
-	 * Set the window's process callback method.  This is used when doing things such as resizing
-	 * the window, closing the window, etc.
+	 * Set the window's process callback method.  Used when resizing the window, closing the window,
+	 * etc.
 	 * @param callback The function to use.
 	 */
 	void Window::setWindowProcessCallback(windowProcessCallback callback)
@@ -237,7 +234,7 @@ namespace PV
 	}
 
 	/**
-	 * Sets whether a window is visible or not.
+	 * Sets whether the visibility of the window.
 	 *
 	 * @param visible If true, the window will be shown, otherwise it will be hidden.
 	 * @return This will return 1 if it was previously visible and 0 if it was previously hidden.
@@ -249,7 +246,7 @@ namespace PV
 	}
 
 	/**
-	 * This will set the window as the current focus.
+	 * Sets the window as the current focus.
 	 * @return This will return 1 if the window was brougth to the foreground and 0 otherwise.
 	 */
 	int Window::Focus()
@@ -265,7 +262,7 @@ namespace PV
 	}
 
 	/**
-	 * This will update the window's buffer.
+	 * Updates the window's buffer.
 	 */
 	void Window::Update()
 	{
@@ -274,7 +271,7 @@ namespace PV
 	}
 
 	/**
-	 * This will set the window to use an OpenGL drawing context.
+	 * Sets the window to use an OpenGL drawing context.
 	 * @return Returns an error if something goes wrong when setting the drawing state.
 	 */
 	int Window::setWindowDrawingStateGL()
@@ -309,15 +306,14 @@ namespace PV
 		// Attempt to get a device context from the window handle.
 		if (!(deviceContext = GetDC(windowHandle)))
 		{
-			// If this failed, destroy the OpenGL system.
+			// If getting device context from the window fails, destroy the OpenGL system and the window.
 			this->destroyGLSystem();
-			// Also destroy the window.
 			this->destroy();
 #ifdef _DEBUG
 			// If debugging, display an error indicating that the device context couldn't be gotten.
 			MessageBox(NULL, (LPCWSTR)L"Error getting device context!", (LPCWSTR)L"Create GL Context ERROR", MB_OK | MB_ICONERROR);
 #else
-			// Display a nice error to the user if not debugging.
+			// If not debugging, a clean error is displayed to the user so they can report the issue.
 			MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WCGL" + WCGL_GET_CONTEXT_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			// Return an error indicating that the device context couldn't be gotten.
@@ -334,7 +330,7 @@ namespace PV
 			// If debugging, display that there was an error finding a usable pixel format.
 			MessageBox(NULL, (LPCWSTR)L"Error finding a usable pixel format!", (LPCWSTR)L"Create GL Context ERROR", MB_OK | MB_ICONERROR);
 #else
-			// Display a nice error to the user if not debugging.
+			// If not debugging, a clean error is displayed to the user so they can report the issue.
 			MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WCGL" + WCGL_GET_PF_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			// Return an error indicating that the pixel format couldn't be gotten.
@@ -351,7 +347,7 @@ namespace PV
 			// If debugging, display an error indicating that the pixel format couldn't be set.
 			MessageBox(NULL, (LPCWSTR)L"Error setting pixel format!", (LPCWSTR)L"Create GL Context ERROR", MB_OK | MB_ICONERROR);
 #else
-			// Display a nice error to the user if not debugging.
+			// If not debugging, a clean error is displayed to the user so they can report the issue.
 			MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WCGL" + WCGL_SET_PF_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			// Return an error indicating that the pixel format couldn't be set.
@@ -368,7 +364,7 @@ namespace PV
 			// Display an error indicating what happened if debuging.
 			MessageBox(NULL, (LPCWSTR)L"Error creating rendering context!", (LPCWSTR)L"Create GL Context ERROR", MB_OK | MB_ICONERROR);
 #else
-			// Display a nice error to the user otherwise.
+			// If not debugging, a clean error is displayed to the user so they can report the issue.
 			MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WCGL" + WCGL_CREATE_CONTEXT_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			// Return an error indicating that the OpenGL context couldn't be created.
@@ -385,7 +381,7 @@ namespace PV
 			// If debugging, display an error indicating that the current context couldn't be set.
 			MessageBox(NULL, (LPCWSTR)L"Error making rendering context the current one!", (LPCWSTR)L"Create GL Context ERROR", MB_OK | MB_ICONERROR);
 #else
-			// If not debugging, display a nice error to the user.
+			// If not debugging, a clean error is displayed to the user so they can report the issue.
 			MessageBox(NULL, (LPCWSTR)L"Error starting application!\nError code: WCGL" + WCGL_SET_CONTEXT_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			/**
@@ -397,7 +393,7 @@ namespace PV
 	}
 
 	/**
-	 * Make this window the current OpenGL context for rendering to.
+	 * Makes this window the current OpenGL context for rendering.
 	 * @return Return OK if there is no error, otherwise return the error.
 	 */
 	int Window::MakeCurrentGLContext()
@@ -408,20 +404,17 @@ namespace PV
 			// Try to set the current OpenGL context.
 			if (!wglMakeCurrent(deviceContext, renderingContext))
 			{
-				// If this failed, destroy the OpenGL system.
+				// If setting the OpenGL context fails, destroy the OpenGL system and the window.
 				this->destroyGLSystem();
-				// Also destroy the window.
 				this->destroy();
 #ifdef _DEBUG
 				// If debugging, display an error indicating that the current context couldn't be set.
 				MessageBox(NULL, (LPCWSTR)L"Error making rendering context the current one!", (LPCWSTR)L"Set GL Context ERROR", MB_OK | MB_ICONERROR);
 #else
-				// If not debugging, display a nice error to the user.
+				// If not debugging, a clean error is displayed to the user so they can report the issue.
 				MessageBox(NULL, (LPCWSTR)L"Error running application!\nError code: WMGL" + WCGL_SET_CONTEXT_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
-				/**
-				 * Return an error indicating that the OpenGL context couldn't be set.
-				 */
+				// Return an error indicating that the OpenGL context couldn't be set.
 				return WCGL_SET_CONTEXT_ERROR;
 			}
 		}
@@ -430,7 +423,7 @@ namespace PV
 	}
 
 	/**
-	 * Get the window's handle object.
+	 * Gets the window's handle object.
 	 *
 	 * This method returns the window's handle object if it exists.  It will return NULL otherwise.
 	 */
@@ -440,9 +433,9 @@ namespace PV
 	}
 
 	/**
-	 * Gets the applications instance.
+	 * Gets the application's instance.
 	 *
-	 * Gets the applications instance if it exists.  it will return NULL otherwise.
+	 * Gets the application's instance if it exists.  it will return NULL otherwise.
 	 */
 	const HINSTANCE Window::GetAppInstance()
 	{
@@ -471,6 +464,11 @@ namespace PV
 		return this->isFullscreen;
 	}
 
+	/**
+	 * Sets the window to be fullscreen or not
+	 * 
+	 * @param fullscreen Indicates if the window should be fullscreen
+	 */
 	void Window::SetFullscreen(bool fullscreen)
 	{
 		this->setVisible(false);
@@ -518,9 +516,9 @@ namespace PV
 	}
 
 	/**
-	 * The title of the window.
+	 * Gets title of the window.
 	 *
-	 * Gets the title of the window.
+	 * Gets title of the window.
 	 * @return The title of the window as a 16-bit unicode string.
 	 */
 	const LPCWSTR Window::Title()
@@ -529,7 +527,7 @@ namespace PV
 	}
 
 	/**
-	 * This will destroy the window and its associated properties.  Be careful calling this if
+	 * Destroys the window and its associated properties.  Be careful calling this if
 	 * the window is already destroyed by the user!
 	 */
 	void Window::destroy()
@@ -574,7 +572,7 @@ namespace PV
 			//			// If debugging, display an error indicating that the window handle couldn't be destroyed.
 			//			MessageBox(NULL, (LPCWSTR)L"Error destroying window handle!", (LPCWSTR)L"Window Destroy ERROR", MB_OK | MB_ICONERROR);
 			//#else
-			//			// Dispaly a nice error to the user if not debugging.
+			//			// Display a nice error to the user if not debugging.
 			//			MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WD" + WH_DESTROY_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 			//#endif
 			//			// Set the window handle to NULL.
@@ -597,7 +595,7 @@ namespace PV
 	}
 
 	/**
-	 * This will destroy the OpenGL context associated with this window.
+	 * Destroys the OpenGL context associated with this window.
 	 */
 	void Window::destroyGLSystem()
 	{
@@ -611,7 +609,7 @@ namespace PV
 				// If debugging, display an error indicating that the OpenGL system could not be destroyed.
 				MessageBox(NULL, (LPCWSTR)L"Changing window OpenGL context Failed!", (LPCWSTR)L"Destroy OpenGL System ERROR", MB_OK | MB_ICONERROR);
 #else
-				// If not debugging, display a nice error to the user.
+				// If not debugging, a clean error is displayed to the user so they can report the issue.
 				MessageBox(NULL, (LPCWSTR)L"Error closing window!\nError code: WDGL" + WDGL_CHANGE_CONTEXT_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			}
@@ -622,7 +620,7 @@ namespace PV
 				// If debugging, display an error indicating that there was a problem deleting the OpenGL context.
 				MessageBox(NULL, (LPCWSTR)L"Error destroying the OpenGL context!", (LPCWSTR)L"Destroy OpenGL System ERROR", MB_OK | MB_ICONERROR);
 #else
-				// Display a nice error to the user if not debugging.
+				// If not debugging, a clean error is displayed to the user so they can report the issue.
 				MessageBox(NULL, (LPCWSTR)L"Error closing application!\nError code: WDGL" + WDGL_DELETE_CONTEXT_ERROR, (LPCWSTR)L"Error", MB_OK | MB_ICONERROR);
 #endif
 			}

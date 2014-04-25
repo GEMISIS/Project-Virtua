@@ -133,10 +133,12 @@ void drawGLScene(unsigned int program, Math::Matrix<float> perspectiveMatrix, Ma
 int main()
 {
 	Window testWindow;
+	//Matrices to handle camera view and warping for OculusRift
 	Math::Matrix<float> perspectiveMatrix(4, 4);
 	Math::Matrix<float> viewMatrix(4, 4);
 	Math::Matrix<float> viewOffsetMatrix(4, 4);
 
+	//Position and rotation of the camera
 	Math::vec3 position = { 0, 0, -2.0f };
 	Math::vec3 rotation = { 0, 0, 0 };
 
@@ -152,7 +154,7 @@ int main()
 
 	glEnable(GL_LINE_SMOOTH);
 
-
+	//Create OculusRift object, passing the rendering context, device context, and handle of this window
 	OculusRift rift(false, testWindow.renderingContext, testWindow.windowHandle, testWindow.deviceContext);
 
 	initQuad();
@@ -178,8 +180,10 @@ int main()
 		createLookAtMatrix(viewMatrix, position, rotation);
 
 		testWindow.MakeCurrentGLContext();
+		//Attempts to render to OculusRift
 		if (rift.StartRender())
 		{
+			//Renders left eye
 			rift.StartEyeRender(Left, viewOffsetMatrix);
 			{
 				rift.getPerspectiveMatrix(Left, perspectiveMatrix);
@@ -187,6 +191,7 @@ int main()
 			}
 			rift.EndEyeRender(Left);
 
+			//Renders right eye
 			rift.StartEyeRender(Right, viewOffsetMatrix);
 			{
 				rift.getPerspectiveMatrix(Right, perspectiveMatrix);
@@ -194,9 +199,11 @@ int main()
 			}
 			rift.EndEyeRender(Right);
 
+			//Frame buffering is not handled automatically!
 			pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
 			rift.EndRender();
 		}
+		//Rendering to window if OculusRift fails
 		else
 		{
 			pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);

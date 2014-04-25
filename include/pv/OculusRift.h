@@ -21,25 +21,24 @@ namespace PV
 	{
 	public:
 		/**
-		 * This constructor will automatically attempt to initialize and setup an
-		 * Oculus Rift device that is connected to the computer.  Use the IsConnected
-		 * method to see if the device was successfully setup.  You can also specify to create
-		 * a virtual Oculus Rift device if the hardware is not found.  This is useful for testing the output
-		 * from the device.
-		 * @param useDemoRift This will tell the class to create a virtual Oculus Rift when true.
+		 * Attempts to initialize and setup an Oculus Rift device that is connected to
+		 * the computer.  Use the IsConnected method to see if the device was successfully
+		 * setup.  You can also specify to create a virtual Oculus Rift device if the hardware
+		 * is not found.  This is useful for testing the output from the device.
+		 * @param useDemoRift Class creates a virtual Oculus Rift when true.
 		 * @param openGlContext The OpenGL context to use for rendering the final scene to.
 		 * @param window The window that contains the OpenGL context.
 		 * @param deviceContext The device context that is used for the window.
 		 */
 		OculusRift(bool useDemoRift, HGLRC openGlContext, HWND window, HDC deviceContext);
 		/**
-		 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
-		 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
+		 * Connects to the Oculus Rift hardware.  It then retrieves the sensor,
+		 * as well as a sensor fusion, both of which can be used to retrieve data
 		 * from the Oculus Rift.
 		 */
 		void Initialize();
 		/**
-		 * This method goes through and sets up the Oculus Rift for use.
+		 * Sets up the Oculus Rift for use.
 		 * @param openGlContext The OpenGL context to use for rendering the final scene to.
 		 * @param window The window that contains the OpenGL context.
 		 * @param deviceContext The device context that is used for the window.
@@ -47,21 +46,21 @@ namespace PV
 		void Setup(HGLRC openGlContext, HWND window, HDC deviceContext);
 
 		/**
-		 * Set the textures for the left and right eyes.
+		 * Sets the textures for the left and right eyes.
 		 * @param leftEyeTexture The texture to display to the left eye.
 		 * @param rightEyeTexture The texture to display to the right eye.
 		 */
 		void SetRenderTextures(unsigned int leftEyeTexture, unsigned int rightEyeTexture);
 
 		/**
-		 * This method checks to see if the Oculus Rift is connected and returns
+		 * Checks to see if the Oculus Rift is connected and returns
 		 * a boolean indicating whether it is or not.
 		 * @return Returns true if the Oculus Rift is connected, false otherwise.
 		 */
 		const bool isConnected() const;
 
 		/**
-		 * This method updates data recieved from the Oculus Rift.  It currently pulls the change in
+		 * Updates data recieved from the Oculus Rift.  It currently pulls the change in
 		 * orientation and updates the rotation of where the user is looking.
 		 */
 		void Update();
@@ -94,7 +93,7 @@ namespace PV
 		void getPerspectiveMatrix(RiftEye eye, Math::Matrix<float> &perspectiveMatrix);
 
 		/**
-		 * Get the rotation values for the angle of rotation for where the user is looking.
+		 * Gets the rotation values for the angle of rotation for where the user is looking.
 		 * This is in Euler angles.
 		 * @return The rotation on the X, Y, and Z axis in Euler angles.
 		 */
@@ -106,15 +105,15 @@ namespace PV
 		const OVR::Sizei getRenderSize() const;
 
 		/**
-		 * Compose the final rendered image that the Rift should see per eye using textured quads.
+		 * Composes the final rendered image that the Rift should see per eye using textured quads.
 		 * @param leftEyeTexture The image that the left eye should see.
 		 * @param rightEyeTexture The image that the right eye should see.
 		 */
 		void ComposeFinalImage(unsigned int leftEyeTexture, unsigned int rightEyeTexture);
 
 		/**
-		 * This is the deconstructor for he Oculus Rift device.  This method will automatically
-		 * cleanup all resources associated with the Oculus Rift device.
+		 * Deconstructor for the Oculus Rift device.  Automatically
+		 * cleans up all resources associated with the Oculus Rift device.
 		 */
 		~OculusRift();
 	protected:

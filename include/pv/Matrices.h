@@ -67,7 +67,7 @@ namespace PV
 			*/
 			const T& operator[](const int subscript) const;
 			/**
-			 * Rotate the matrix by the specified angles.  Note that these are to be in degrees.
+			 * Rotates the matrix by the angles specified in degrees.
 			 * @param pitch The amount to rotate on the X axis in degrees.
 			 * @param yaw The amount to rotate on the Y axis in degrees.
 			 * @param roll The amount to rotate on the Z axis in degrees.
@@ -82,11 +82,11 @@ namespace PV
 			 */
 			void Translate(T x, T y, T z);
 			/**
-			 * Set the matrix to an identity matrix.
+			 * Sets the matrix to an identity matrix.
 			 */
 			void SetIdentity();
 			/**
-			 * Get the matrix as an array of type T.
+			 * Gets the matrix as an array of type T.
 			 */
 			T* getArray();
 		protected:

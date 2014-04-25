@@ -37,12 +37,12 @@ namespace PV
 	{
 	public:
 		/**
-		 * The default constructor for a Microsoft Kinect for Windows V1 sensor.  It will attempt to connect to the sensor with an index
+		 * The default constructor for a Microsoft Kinect for Windows V1 sensor.  Attempts to connect to the sensor with an index
 		 * of 0.
 		 */
 		Kinect1();
 		/**
-		 * The default constructor for a Microsoft Kinect for Windows V1 sensor.  It will attempt to connect to the sensor with the
+		 * The default constructor for a Microsoft Kinect for Windows V1 sensor.  Attempts to connect to the sensor with the
 		 * specefied index.
 		 *
 		 * @param index The index of the Kinect for Windows V1 sensor to use.

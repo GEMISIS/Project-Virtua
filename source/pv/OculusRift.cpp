@@ -7,7 +7,7 @@ namespace PV
 {
 	void InitRift()
 	{
-		// Check if we are debugging or not.
+		// Check for debugging.
 		ovr_Initialize();
 	}
 	bool DetectDevice()
@@ -16,8 +16,8 @@ namespace PV
 		bool active = false;
 		return active;
 	}
-	/**
- * This is the constructor used to create a new Oculus Rift device.
+/**
+ * Constructor used to create a new Oculus Rift device.
  *
  * This constructor will automatically attempt to initialize and setup an
  * Oculus Rift device that is connected to the computer.  Use the IsConnected
@@ -94,11 +94,11 @@ namespace PV
 	}
 
 	/**
-	 * This method will initialize the Oculus Rift headset.
+	 * Initializes the Oculus Rift headset.
 	 *
-	 * This method goes through and connect to the Oculus Rift hardware.  It then retrieves
-	 * the sensor, as well as a sensor fusion, both of which can be used to retrieve data
-	 * from the Oculus Rift.
+	 * Connects to the Oculus Rift hardware. Then retrieves the sensor as well
+	 * as a sensor fusion, both of which can be used to retrieve data from the
+	 * Oculus Rift.
 	 */
 	void OculusRift::Initialize()
 	{
@@ -225,7 +225,7 @@ namespace PV
 	/**
 	 * Returns a boolean indicating whether the Oculus Rift is connected.
 	 *
-	 * This method checks to see if the Oculus Rift is connected and returns
+	 * Checks if the Oculus Rift is connected and returns
 	 * a boolean indicating whether it is or not.
 	 * @return Returns true if the Oculus Rift is connected, false otherwise.
 	 */
@@ -235,9 +235,9 @@ namespace PV
 	}
 
 	/**
-	 * This method updates the data from the Oculus Rift headset.
+	 * Updates the data from the Oculus Rift headset.
 	 *
-	 * This method updates data recieved from the Oculus Rift.  It currently pulls the change in
+	 * Updates data recieved from the Oculus Rift.  It pulls the change in
 	 * orientation and updates the rotation of where the user is looking.
 	 */
 	void OculusRift::Update()
@@ -339,7 +339,7 @@ namespace PV
 	}
 
 	/**
-	 * Get the rotation values for the angle of rotation for where the user is looking.
+	 * Gets the rotation values for the angle of rotation for where the user is looking.
 	 * This is in Euler angles.
 	 * @return The rotation on the X, Y, and Z axis in Euler angles.
 	 */
@@ -359,10 +359,10 @@ namespace PV
 
 
 	/**
-	 * This is the deconstructor for the Oculus Rift device.
+	 * Deconstructor for the Oculus Rift device.
 	 *
-	 * This is the deconstructor for he Oculus Rift device.  This method will automatically
-	 * cleanup all resources associated with the Oculus Rift device.
+	 * Seconstructor for he Oculus Rift device.  Automatically
+	 * cleans up all resources associated with the Oculus Rift device.
 	 */
 	OculusRift::~OculusRift()
 	{

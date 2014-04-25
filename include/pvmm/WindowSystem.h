@@ -24,7 +24,7 @@ namespace PV
 	public:
 		Window();
 		/**
-		* This method creates a window using the given information and then returns its status.
+		* Creates a window using the given information and then returns its status.
 		* The default window process simply handles the window closing as well as changing the viewport
 		* when the window size changes.
 		* @param title The title to be displayed in the window.
@@ -34,7 +34,7 @@ namespace PV
 		WINDOW_ERRORS create(LPCWSTR title);
 
 		/**
-		* This method creates a window using the given information and then returns its status.
+		* Creates a window using the given information and then returns its status.
 		* @param title The title to be displayed in the window.
 		* @param callback The callback to use when updating the window.
 		* @return On success, this method will return 1.
@@ -43,7 +43,7 @@ namespace PV
 		WINDOW_ERRORS create(LPCWSTR title, windowProcessCallback callback);
 
 		/**
-		* This method creates a window using the given information and then returns its status.
+		* Creates a window using the given information and then returns its status.
 		* @param title The title to be displayed in the window.
 		* @param callback The callback to use when updating the window.
 		* @param fullscreen If true, the window will be made full screen, with the width and height determining the
@@ -55,7 +55,7 @@ namespace PV
 		WINDOW_ERRORS create(LPCWSTR title, bool fullscreen, windowProcessCallback callback);
 
 		/**
-		* This method creates a window using the given information and then returns its status.
+		* Creates a window using the given information and then returns its status.
 		* @param title The title to be displayed in the window.
 		* @param width An unsigned integer for the width of the window.
 		* @param height An unsigned integer for the height of the window.
@@ -69,7 +69,7 @@ namespace PV
 		WINDOW_ERRORS create(LPCWSTR title, unsigned int width, unsigned int height, bool fullscreen, windowProcessCallback callback);
 
 		/**
-		 * Set the window's process callback method.  This is used when doing things such as resizing
+		 * Sets the window's process callback method.  This is used when doing things such as resizing
 		 * the window, closing the window, etc.
 		 * @param callback The function to use.
 		 */
@@ -82,26 +82,26 @@ namespace PV
 		 */
 		int setVisible(bool visible);
 		/**
-		 * This will set the window as the current focus.
-		 * @return This will return 1 if the window was brougth to the foreground and 0 otherwise.
+		 * Sets the window as the current focus.
+		 * @return This will return 1 if the window was brought to the foreground and 0 otherwise.
 		 */
 		int Focus();
 		/**
-		 * This will update the window's buffer.
+		 * Updates the window's buffer.
 		 */
 		void Update();
 		/**
-		 * This will set the window to use an OpenGL drawing context.
+		 * Sets the window to use an OpenGL drawing context.
 		 * @return Returns an error if something goes wrong when setting the drawing state.
 		 */
 		int setWindowDrawingStateGL();
 		/**
-		 * Make this window the current OpenGL context for rendering to.
+		 * Makes this window the current OpenGL context for rendering to.
 		 * @return Return OK if there is no error, otherwise return the error.
 		 */
 		int MakeCurrentGLContext();
 		/**
-		 * This method returns the window's handle object if it exists.
+		 * Gets the window's handle object if it exists.
 		 * @return Returns the window's handle if it exists.  Will return NULL otherwise.
 		 */
 		const HWND GetWindowHandle();
@@ -139,12 +139,12 @@ namespace PV
 		 */
 		const LPCWSTR Title();
 		/**
-		 * This will destroy the window and its associated properties.  Be careful calling this if
+		 * Destroys the window and its associated properties.  Be careful calling this if
 		 * the window is already destroyed by the user!
 		 */
 		void destroy();
 		/**
-		 * This will destroy the OpenGL context associated with this window.
+		 * Destroys the OpenGL context associated with this window.
 		 */
 		void destroyGLSystem();
 
@@ -200,7 +200,7 @@ namespace PV
 		LPCWSTR title;
 
 		/**
-		 * This method creates a window using the given information.  If an error occurs, it is returned.
+		 * Creates a window using the given information.  If an error occurs, it is returned.
 		 * @param title The title to be displayed in the window.
 		 * @param width An unsigned integer for the width of the window.
 		 * @param height An unsigned integer for the height of the window.
