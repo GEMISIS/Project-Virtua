@@ -12,10 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\pvmm\MidOpenGL.cpp" />
+    <ClCompile Include="..\source\pvmm\WavefrontObject.cpp" />
     <ClCompile Include="..\source\pvmm\windowSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\pvmm\DrawableObject.h" />
     <ClInclude Include="..\include\pvmm\MidOpenGL.h" />
+    <ClInclude Include="..\include\pvmm\WavefrontObject.h" />
     <ClInclude Include="..\include\pvmm\WindowSystem.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

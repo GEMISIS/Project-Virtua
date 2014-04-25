@@ -27,6 +27,7 @@ namespace PV
 	pv_glBindBufferFunction pv_glBindBuffer = NULL;
 	pv_glBufferDataFunction pv_glBufferData = NULL;
 	pv_glEnableVertexAttribArrayFunction pv_glEnableVertexAttribArray = NULL;
+	pv_glDisableVertexAttribArrayFunction pv_glDisableVertexAttribArray = NULL;
 	pv_glVertexAttribPointerFunction pv_glVertexAttribPointer = NULL;
 	pv_glActiveTextureFunction pv_glActiveTexture = NULL;
 	pv_glBindAttribLocationFunction pv_glBindAttribLocation = NULL;
@@ -69,6 +70,7 @@ namespace PV
 		pv_glBindBuffer = (pv_glBindBufferFunction)glGetProcAddress("glBindBuffer");
 		pv_glBufferData = (pv_glBufferDataFunction)glGetProcAddress("glBufferData");
 		pv_glEnableVertexAttribArray = (pv_glEnableVertexAttribArrayFunction)glGetProcAddress("glEnableVertexAttribArray");
+		pv_glDisableVertexAttribArray = (pv_glDisableVertexAttribArrayFunction)glGetProcAddress("glDisableVertexAttribArray");
 		pv_glVertexAttribPointer = (pv_glVertexAttribPointerFunction)glGetProcAddress("glVertexAttribPointer");
 
 		pv_glActiveTexture = (pv_glActiveTextureFunction)glGetProcAddress("glActiveTexture");

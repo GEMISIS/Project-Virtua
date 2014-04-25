@@ -187,9 +187,13 @@ typedef void(__stdcall* pv_glBindBufferFunction) (GLenum target, GLuint buffer);
 	typedef void(__stdcall* pv_glBufferDataFunction) (GLenum target, signed long int size, const GLvoid * data, GLenum usage);
 #endif
 /**
-* A function pointer for the glEnableVertexAttribArray function.
-*/
+ * A function pointer for the glEnableVertexAttribArray function.
+ */
 typedef void(__stdcall* pv_glEnableVertexAttribArrayFunction) (GLuint index);
+/**
+ * A function pointer for the glDisableVertexAttribArray function.
+ */
+typedef void(__stdcall* pv_glDisableVertexAttribArrayFunction) (GLuint index);
 /**
 * A function pointer for the glVertexAttribPointer function.
 */
@@ -575,6 +579,7 @@ typedef void(__stdcall* pv_glGenerateMipmapFunction) (unsigned int target);
 	extern pv_glBindBufferFunction pv_glBindBuffer;
 	extern pv_glBufferDataFunction pv_glBufferData;
 	extern pv_glEnableVertexAttribArrayFunction pv_glEnableVertexAttribArray;
+	extern pv_glDisableVertexAttribArrayFunction pv_glDisableVertexAttribArray;
 	extern pv_glVertexAttribPointerFunction pv_glVertexAttribPointer;
 	extern pv_glActiveTextureFunction pv_glActiveTexture;
 

@@ -9,21 +9,50 @@ namespace PV
 	namespace Math
 	{
 		/**
-		 * A vector with 3 components (x, y, and z).
-		 */
+		* A vector with 2 components (x and y).
+		*/
+		struct vec2
+		{
+			float x, y;
+		};
+		/**
+		* A vector with 3 components (x, y, and z).
+		*/
 		struct vec3
 		{
 			float x, y, z;
 		};
 		/**
-		 * Normalizes a vector to be between 0 and 1 and returns the result..
-		 * @param vector The vector to normalize.
-		 * @return Returns the vector normalized to be between 0 and 1.
-		 */
+		* Normalizes a vector to be between 0 and 1 and returns the result..
+		* @param vector The vector to normalize.
+		* @return Returns the vector normalized to be between 0 and 1.
+		*/
+		inline vec2 normalize(vec2 vector)
+		{
+			float length = sqrtf((vector.x * vector.x) + (vector.y * vector.y));
+			vec2 output = { vector.x / length, vector.y / length };
+			return output;
+		}
+		/**
+		* Normalizes a vector to be between 0 and 1 and returns the result..
+		* @param vector The vector to normalize.
+		* @return Returns the vector normalized to be between 0 and 1.
+		*/
 		inline vec3 normalize(vec3 vector)
 		{
 			float length = sqrtf((vector.x * vector.x) + (vector.y * vector.y) + (vector.z * vector.z));
 			vec3 output = { vector.x / length, vector.y / length, vector.z / length };
+			return output;
+		}
+		/**
+		* Cross multiplies two vectors and returns the result.
+		* @param a The first vector to use in the cross multiplication.
+		* @param b The second vector to use in the cross multiplication.
+		* @return Returns the product of the the two vectors.
+		*/
+		inline vec2 crossMultiply(vec2 a, vec2 b)
+		{
+			vec2 output = { a.x * b.y, a.y * b.x };
 			return output;
 		}
 		/**
