@@ -71,16 +71,20 @@ public:
 
     // *** Creation of NEW JSON objects
 
-    static JSON*    CreateObject()               { return new JSON(JSON_Object);}
-    static JSON*    CreateNull()                 { return new JSON(JSON_Null); }
-    static JSON*    CreateArray()                { return new JSON(JSON_Array); }
-    static JSON*    CreateBool(bool b)           { return createHelper(JSON_Bool, b ? 1.0 : 0.0); }
-    static JSON*    CreateNumber(double num)     { return createHelper(JSON_Number, num); }
-    static JSON*    CreateString(const char *s)  { return createHelper(JSON_String, 0.0, s); }
+    static JSON*    CreateObject() { return new JSON(JSON_Object);}
+    static JSON*    CreateNull()   { return new JSON(JSON_Null); }
+    static JSON*    CreateArray()  { return new JSON(JSON_Array); }
+    static JSON*    CreateBool(bool b);
+    static JSON*    CreateNumber(double num);
+    static JSON*    CreateInt(int num);
+    static JSON*    CreateString(const char *s);
 
     // Creates a new JSON object from parsing string.
     // Returns null pointer and fills in *perror in case of parse error.
     static JSON*    Parse(const char* buff, const char** perror = 0);
+
+	// This version works for buffers that are not null terminated strings.
+	static JSON*	ParseBuffer(const char *buff, int len, const char** perror = 0);
 
     // Loads and parses a JSON object from a file.
     // Returns 0 and assigns perror with error message on fail.
@@ -102,6 +106,12 @@ public:
     JSON*           GetItemByIndex(unsigned i);
     JSON*           GetItemByName(const char* name);
 
+	// Accessors by name
+	double			GetNumberByName(const char *name, double defValue = 0.0);
+	int				GetIntByName(const char *name, int defValue = 0);
+	bool			GetBoolByName(const char *name, bool defValue = false);
+	String			GetStringByName(const char *name, const String &defValue = "");
+
     // Returns next item in a list of children; 0 if no more items exist.
     JSON*           GetNextItem(JSON* item)  { return Children.IsNull(item->pNext) ? 0 : item->pNext; }
     JSON*           GetPrevItem(JSON* item)  { return Children.IsNull(item->pPrev) ? 0 : item->pPrev; }
@@ -111,6 +121,7 @@ public:
     void            AddItem(const char *string, JSON* item);
     void            AddNullItem(const char* name)                    { AddItem(name, CreateNull()); }
     void            AddBoolItem(const char* name, bool b)            { AddItem(name, CreateBool(b)); }
+    void            AddIntItem(const char* name, int n)              { AddItem(name, CreateInt(n)); }
     void            AddNumberItem(const char* name, double n)        { AddItem(name, CreateNumber(n)); }
     void            AddStringItem(const char* name, const char* s)   { AddItem(name, CreateString(s)); }
 //    void            ReplaceItem(unsigned index, JSON* new_item);
@@ -123,6 +134,7 @@ public:
     void            AddArrayElement(JSON *item);
     void            InsertArrayElement(int index, JSON* item);
     void            AddArrayNumber(double n)        { AddArrayElement(CreateNumber(n)); }
+    void            AddArrayInt(int n)              { AddArrayElement(CreateInt(n)); }
     void            AddArrayString(const char* s)   { AddArrayElement(CreateString(s)); }
 
     // Accessed array elements; currently inefficient.
@@ -134,8 +146,6 @@ public:
 
 protected:
     JSON(JSONItemType itemType = JSON_Object);
-
-    static JSON*    createHelper(JSONItemType itemType, double dval, const char* strVal = 0);
 
     // JSON Parsing helper functions.
     const char*     parseValue(const char *buff, const char** perror);

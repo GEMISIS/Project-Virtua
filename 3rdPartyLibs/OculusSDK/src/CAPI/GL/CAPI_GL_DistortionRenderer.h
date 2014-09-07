@@ -45,11 +45,11 @@ public:
     // ***** Public DistortionRenderer interface
 	
     virtual bool Initialize(const ovrRenderAPIConfig* apiConfig,
-                            unsigned hmdCaps, unsigned distortionCaps);
+                            unsigned distortionCaps);
 
-    virtual void SubmitEye(int eyeId, ovrTexture* eyeTexture);
+    virtual void SubmitEye(int eyeId, const ovrTexture* eyeTexture);
 
-    virtual void EndFrame(bool swapBuffers, unsigned char* latencyTesterDrawColor, unsigned char* latencyTester2DrawColor);
+    virtual void EndFrame(bool swapBuffers);
 
     void         WaitUntilGpuIdle();
 
@@ -57,12 +57,61 @@ public:
 	// Note, it exits when time expires, even if GPU is not in idle state yet.
 	double       FlushGpuAndWaitTillTime(double absTime);
 
-private:    
+protected:
+    
+    
+    class GraphicsState : public CAPI::DistortionRenderer::GraphicsState
+    {
+    public:
+        GraphicsState();
+        virtual void Save();
+        virtual void Restore();
+        
+#ifdef OVR_OS_MAC
+        // Asking for Core Profile is equivalent to asking whether we have a
+        // 3.2+ context on mac.
+        bool isAtLeastOpenGL3();
+#endif
+
+    protected:
+        void ApplyBool(GLenum Name, GLint Value, GLint index = -1);
+        
+    public:
+        GLVersionAndExtensions GLVersionInfo;
+        
+        GLint Viewport[4];
+        GLfloat ClearColor[4];
+        GLint DepthTest;
+        GLint CullFace;
+        GLint SRGB;
+        GLint Program;
+        GLint ActiveTexture;
+        GLint TextureBinding;
+        GLint VertexArrayBinding;
+        GLint ElementArrayBufferBinding;
+        GLint ArrayBufferBinding;
+        GLint FrameBufferBinding;
+        
+        GLint Blend;
+        GLint ColorWritemask[4];
+        GLint Dither;
+        GLint Fog;
+        GLint Lighting;
+        GLint RasterizerDiscard;
+        GLint RenderMode;
+        GLint SampleMask;
+        GLint ScissorTest;
+        GLfloat ZoomX;
+        GLfloat ZoomY;
+    };
+
     // TBD: Should we be using oe from RState instead?
     unsigned            DistortionCaps;
 
 	struct FOR_EACH_EYE
 	{
+        FOR_EACH_EYE() : TextureSize(0), RenderViewport(Sizei(0)) { }
+
 #if 0
 		IDirect3DVertexBuffer9  * dxVerts;
 		IDirect3DIndexBuffer9   * dxIndices;
@@ -70,9 +119,11 @@ private:
 		int                       numVerts;
 		int                       numIndices;
 
-		GLuint                     texture;
+		GLuint                    texture;
 
-		ovrVector2f			 	  UVScaleOffset[2]; 
+		ovrVector2f			 	  UVScaleOffset[2];
+        Sizei                     TextureSize;
+        Recti                     RenderViewport;
 	} eachEye[2];
 
     // GL context and utility variables.
@@ -89,20 +140,20 @@ private:
     void renderDistortion(Texture* leftEyeTexture, Texture* rightEyeTexture);
 
     void renderPrimitives(const ShaderFill* fill, Buffer* vertices, Buffer* indices,
-                          Matrix4f* viewMatrix, int offset, int count,
-                          PrimitiveType rprim, bool useDistortionVertex);
+                          int offset, int count,
+						  PrimitiveType rprim, GLuint* vao, bool isDistortionMesh);
 
 	void createDrawQuad();
     void renderLatencyQuad(unsigned char* latencyTesterDrawColor);
     void renderLatencyPixel(unsigned char* latencyTesterPixelColor);
 	
-    Ptr<Texture>        pEyeTextures[2];
+    void renderEndFrame();
 
-    // U,V scale and offset needed for timewarp.
-    ovrVector2f         UVScaleOffset[2][2];
+    Ptr<Texture>        pEyeTextures[2];
 
 	Ptr<Buffer>         DistortionMeshVBs[2];    // one per-eye
 	Ptr<Buffer>         DistortionMeshIBs[2];    // one per-eye
+	GLuint              DistortionMeshVAOs[2];   // one per-eye
 
 	Ptr<ShaderSet>      DistortionShader;
 
@@ -111,13 +162,25 @@ private:
         Matrix4f  Proj;
         Matrix4f  View;
     }                   StdUniforms;
-
+	
+	GLuint              LatencyVAO;
     Ptr<Buffer>         LatencyTesterQuadVB;
     Ptr<ShaderSet>      SimpleQuadShader;
+    Ptr<ShaderSet>      SimpleQuadGammaShader;
 
     Ptr<Texture>             CurRenderTarget;
     Array<Ptr<Texture> >     DepthBuffers;
     GLuint                   CurrentFbo;
+
+	GLint SavedViewport[4];
+	GLfloat SavedClearColor[4];
+	GLint SavedDepthTest;
+	GLint SavedCullFace;
+	GLint SavedProgram;
+	GLint SavedActiveTexture;
+	GLint SavedBoundTexture;
+	GLint SavedVertexArray;
+    GLint SavedBoundFrameBuffer;
 };
 
 }}} // OVR::CAPI::GL

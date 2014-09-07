@@ -24,6 +24,12 @@
     <ClCompile Include="..\source\pvmm\WavefrontObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\pvmm\tiny_obj_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pvmm\lodepng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\pvmm\MidOpenGL.h">
@@ -32,10 +38,13 @@
     <ClInclude Include="..\include\pvmm\WindowSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\pvmm\DrawableObject.h">
+    <ClInclude Include="..\include\pvmm\WavefrontObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\pvmm\WavefrontObject.h">
+    <ClInclude Include="..\include\pvmm\tiny_obj_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pvmm\lodepng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

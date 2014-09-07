@@ -11,13 +11,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\source\pvmm\lodepng.cpp" />
     <ClCompile Include="..\source\pvmm\MidOpenGL.cpp" />
+    <ClCompile Include="..\source\pvmm\tiny_obj_loader.cpp" />
     <ClCompile Include="..\source\pvmm\WavefrontObject.cpp" />
     <ClCompile Include="..\source\pvmm\windowSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\pvmm\DrawableObject.h" />
+    <ClInclude Include="..\include\pvmm\lodepng.h" />
     <ClInclude Include="..\include\pvmm\MidOpenGL.h" />
+    <ClInclude Include="..\include\pvmm\tiny_obj_loader.h" />
     <ClInclude Include="..\include\pvmm\WavefrontObject.h" />
     <ClInclude Include="..\include\pvmm\WindowSystem.h" />
   </ItemGroup>
@@ -38,7 +41,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

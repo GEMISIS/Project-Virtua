@@ -18,7 +18,6 @@ unsigned int colorsBufferHandle;
 unsigned int texCoordsBufferHandle;
 unsigned int verticesArrayHandle;
 float rotation = 0.0f;
-WavefrontObject* obj;
 
 void initQuad()
 {
@@ -67,9 +66,6 @@ void initQuad()
 
 	pv_glBindVertexArray(0);
 	pv_glBindBuffer(PV_GL_ARRAY_BUFFER, 0);
-
-	obj = new WavefrontObject();
-	obj->loadGraphics("MKIII.obj");
 }
 
 void handleInput(OculusRift* rift, Kinect1* kinect, Math::vec3 &position, Math::vec3 &rotation)
@@ -77,9 +73,6 @@ void handleInput(OculusRift* rift, Kinect1* kinect, Math::vec3 &position, Math::
 	if (rift->isConnected())
 	{
 		rift->Update();
-		rotation.x = -rift->GetRotation().x * (float)M_PI / 180.0f;
-		rotation.y = -rift->GetRotation().y *(float)M_PI / 180.0f;
-		rotation.z = -rift->GetRotation().z *(float)M_PI / 180.0f;
 	}
 
 	const NUI_SKELETON_DATA skeleton = kinect->getMainPerson();
@@ -92,19 +85,23 @@ void handleInput(OculusRift* rift, Kinect1* kinect, Math::vec3 &position, Math::
 
 	if ((1 << 16) & GetAsyncKeyState(VK_LEFT))
 	{
+		rift->DismissWarningScreen();
 		rotation.y += 1.0f * (float)M_PI / 180.0f;
 	}
 	if ((1 << 16) & GetAsyncKeyState(VK_RIGHT))
 	{
+		rift->DismissWarningScreen();
 		rotation.y -= 1.0f * (float)M_PI / 180.0f;
 	}
 	if ((1 << 16) & GetAsyncKeyState(VK_UP))
 	{
+		rift->DismissWarningScreen();
 		position.x += sin(rotation.y);
 		position.z += cos(rotation.y);
 	}
 	if ((1 << 16) & GetAsyncKeyState(VK_DOWN))
 	{
+		rift->DismissWarningScreen();
 		position.x -= sin(rotation.y);
 		position.z -= cos(rotation.y);
 	}
@@ -140,12 +137,11 @@ void drawGLScene(unsigned int program, Math::Matrix<float> perspectiveMatrix, Ma
 	pv_glBindVertexArray(verticesArrayHandle);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	pv_glBindVertexArray(0);
-
-	obj->draw();
 }
 
 int main()
 {
+	InitRift();
 	Window testWindow;
 	//Matrices to handle camera view and warping for OculusRift
 	Math::Matrix<float> perspectiveMatrix(4, 4);
@@ -159,7 +155,7 @@ int main()
 	Kinect1* kinect = new Kinect1();
 	MSG msg;
 
-	testWindow.create(L"Project Virtua - Test Project");
+	testWindow.create(L"Project Virtua - Test Project", 1280, 800, false, *(windowProcessCallback*)NULL);
 	testWindow.setWindowDrawingStateGL();
 	testWindow.setVisible(true);
 
@@ -191,25 +187,25 @@ int main()
 		}
 
 		handleInput(&rift, kinect, position, rotation);
-		createLookAtMatrix(viewMatrix, position, rotation);
+		createLookAtMatrix(viewOffsetMatrix, position, rotation);
 
 		testWindow.MakeCurrentGLContext();
 		//Attempts to render to OculusRift
 		if (rift.StartRender())
 		{
 			//Renders left eye
-			rift.StartEyeRender(Left, viewOffsetMatrix);
+			rift.StartEyeRender(Left, viewMatrix);
 			{
 				rift.getPerspectiveMatrix(Left, perspectiveMatrix);
-				drawGLScene(program, perspectiveMatrix, (viewOffsetMatrix * viewMatrix));
+				drawGLScene(program, perspectiveMatrix, viewMatrix * viewOffsetMatrix);
 			}
 			rift.EndEyeRender(Left);
 
 			//Renders right eye
-			rift.StartEyeRender(Right, viewOffsetMatrix);
+			rift.StartEyeRender(Right, viewMatrix);
 			{
 				rift.getPerspectiveMatrix(Right, perspectiveMatrix);
-				drawGLScene(program, perspectiveMatrix, (viewOffsetMatrix * viewMatrix));
+				drawGLScene(program, perspectiveMatrix, viewMatrix * viewOffsetMatrix);
 			}
 			rift.EndEyeRender(Right);
 

@@ -48,9 +48,9 @@ class   SysFile;
 struct FileStat
 {
     // No change or create time because they are not available on most systems
-    SInt64  ModifyTime;
-    SInt64  AccessTime;
-    SInt64  FileSize;
+    int64_t ModifyTime;
+    int64_t AccessTime;
+    int64_t FileSize;
 
     bool operator== (const FileStat& stat) const
     {
@@ -86,7 +86,7 @@ public:
     OVR_FORCE_INLINE bool  Create(const String& path, int mode = Mode_ReadWrite)
     { return Open(path, Open_ReadWrite|Open_Create, mode); }
 
-    // Helper function: obtain file statistics information. In GFx, this is used to detect file changes.
+    // Helper function: obtain file statistics information. In OVR, this is used to detect file changes.
     // Return 0 if function failed, most likely because the file doesn't exist.
     static bool OVR_CDECL GetFileStat(FileStat* pfileStats, const String& path);
     

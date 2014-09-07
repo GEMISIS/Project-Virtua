@@ -30,6 +30,7 @@ limitations under the License.
 #include "CAPI_HMDRenderState.h"
 #include "CAPI_FrameTimeManager.h"
 
+typedef void (*PostDistortionCallback)(void* pRenderContext);
 
 namespace OVR { namespace CAPI {
 
@@ -48,11 +49,25 @@ public:
     
     DistortionRenderer(ovrRenderAPIType api, ovrHmd hmd,
                        FrameTimeManager& timeManager,              
-                       const HMDRenderState& renderState)
-        : RenderAPI(api), HMD(hmd), TimeManager(timeManager), RState(renderState)
-    { }
+                       const HMDRenderState& renderState) :
+		LastUsedOverdriveTextureIndex(-1),
+        LatencyTestActive(false),
+        LatencyTest2Active(false),
+        RenderAPI(api),
+        HMD(hmd),
+        TimeManager(timeManager),
+        RState(renderState),
+        GfxState(),
+        RegisteredPostDistortionCallback(NULL)
+    {
+#ifdef OVR_OS_WIN32
+        timer = CreateWaitableTimer(NULL, TRUE, NULL);
+        OVR_ASSERT(timer != NULL);
+#endif
+    }
     virtual ~DistortionRenderer()
-    { }
+    {
+    }
     
 
     // Configures the Renderer based on externally passed API settings. Must be
@@ -60,19 +75,27 @@ public:
     // Under D3D, apiConfig includes D3D Device pointer, back buffer and other
     // needed structures.
     virtual bool Initialize(const ovrRenderAPIConfig* apiConfig,
-                            unsigned hmdCaps, unsigned distortionCaps) = 0;
+                            unsigned distortionCaps) = 0;
 
     // Submits one eye texture for rendering. This is in the separate method to
     // allow "submit as you render" scenarios on horizontal screens where one
     // eye can be scanned out before the other.
-    virtual void SubmitEye(int eyeId, ovrTexture* eyeTexture) = 0;
+    virtual void SubmitEye(int eyeId, const ovrTexture* eyeTexture) = 0;
 
     // Finish the frame, optionally swapping buffers.
     // Many implementations may actually apply the distortion here.
-    virtual void EndFrame(bool swapBuffers, unsigned char* latencyTesterDrawColor,
-                                            unsigned char* latencyTester2DrawColor) = 0;
+    virtual void EndFrame(bool swapBuffers) = 0;
     
+    void RegisterPostDistortionCallback(PostDistortionCallback postDistortionCallback)
+    {
+        RegisteredPostDistortionCallback = postDistortionCallback;
+    }
 
+	// Stores the current graphics pipeline state so it can be restored later.
+	void SaveGraphicsState() { if (!(RState.DistortionCaps & ovrDistortionCap_NoRestore)) GfxState->Save(); }
+
+	// Restores the saved graphics pipeline state.
+	void RestoreGraphicsState() { if (!(RState.DistortionCaps & ovrDistortionCap_NoRestore)) GfxState->Restore(); }
 
     // *** Creation Factory logic
     
@@ -85,16 +108,57 @@ public:
 
     static CreateFunc APICreateRegistry[ovrRenderAPI_Count];
 
+    // Color is expected to be 3 byte RGB
+    void SetLatencyTestColor(unsigned char* color);
+    void SetLatencyTest2Color(unsigned char* color);
+    
 protected:
+	// Used for pixel luminance overdrive on DK2 displays
+	// A copy of back buffer images will be ping ponged
+	// TODO: figure out 0 dynamically based on DK2 latency?
+	static const int	NumOverdriveTextures = 2;
+	int					LastUsedOverdriveTextureIndex;
+
+    bool                LatencyTestActive;
+    unsigned char       LatencyTestDrawColor[3];
+    bool                LatencyTest2Active;
+    unsigned char       LatencyTest2DrawColor[3];
+
+    bool IsOverdriveActive()
+	{
+		// doesn't make sense to use overdrive when vsync is disabled as we cannot guarantee
+		// when the rendered frame will be displayed
+		return LastUsedOverdriveTextureIndex >= 0 && !((RState.EnabledHmdCaps & ovrHmdCap_NoVSync) > 0);
+	}
+
+    double WaitTillTime(double absTime);
+
+#ifdef OVR_OS_WIN32
+    HANDLE timer;
+    LARGE_INTEGER waitableTimerInterval;
+#endif
+
+    class GraphicsState : public RefCountBase<GraphicsState>
+    {
+    public:
+        GraphicsState() : IsValid(false) {}
+        virtual ~GraphicsState() {}
+        virtual void Save() = 0;
+        virtual void Restore() = 0;
+        
+    protected:
+        bool IsValid;
+    };
+    
     const ovrRenderAPIType  RenderAPI;
     const ovrHmd            HMD;
     FrameTimeManager&       TimeManager;
-    const HMDRenderState&   RState;    
+    const HMDRenderState&   RState;
+    Ptr<GraphicsState>      GfxState;
+    PostDistortionCallback  RegisteredPostDistortionCallback;
 };
 
 }} // namespace OVR::CAPI
 
 
 #endif // OVR_CAPI_DistortionRenderer_h
-
-

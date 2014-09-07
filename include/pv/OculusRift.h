@@ -1,5 +1,4 @@
-#ifndef _OCULUS_RIFT_H_
-#define _OCULUS_RIFT_H_
+#pragma once
 
 #include "pv/types.h"
 #include "pv/Matrices.h"
@@ -7,6 +6,10 @@
 
 namespace PV
 {
+	/**
+	* Initializes the Oculus VR SDK.
+	*/
+	bool InitRift();
 	/**
 	 * Checks to see if there is an Oculus Rift available.
 	 */
@@ -64,6 +67,11 @@ namespace PV
 		 * orientation and updates the rotation of where the user is looking.
 		 */
 		void Update();
+
+		/**
+		 * Dismisses the warning screen shown when the application starts on the Oculus Rift.
+		 */
+		void DismissWarningScreen();
 
 		/**
 		 * Begins rendering a scene to the Oculus Rift.
@@ -129,24 +137,14 @@ namespace PV
 		OVR::Sizei renderSize;
 
 		/**
-		 * The head mounted display device description.
-		 */
-		ovrHmdDesc HMDDesc;
-
-		/**
 		 * A structure to hold the state of the Oculus Rift's sensors (Gyroscope, etc.)
 		 */
-		ovrSensorState sensorState;
+		ovrTrackingState sensorState;
 
 		/**
 		 * The OpenGL configuration for the Oculus Rift's renderer.
 		 */
 		ovrGLConfig openGLConfig;
-
-		/** 
-		 * The rendering descriptions for each eye.
-		 */
-		ovrEyeRenderDesc eyeRenderDesc[2];
 
 		/**
 		 * The OpenGL textures to use for each eye.
@@ -156,12 +154,12 @@ namespace PV
 		/**
 		 * The Oculus Rift's descriptions for each eye.
 		 */
-		ovrEyeDesc eyes[2];
+		ovrEyeRenderDesc eyes[2];
 
 		/** 
 		 * The poses of each eye from the Oculus Rift.
 		 */
-		OVR::Posef eyePoses[2];
+		ovrPosef eyePoses[2];
 
 		/**
 		The texture to use for the left eye.
@@ -208,16 +206,6 @@ namespace PV
 		  * The orientation of the oculus rift. (Quaternion)
 		  */
 		orientation_quart_t Orientation_quart;
-		/**
-		  * The previous orientation of the oculus rift. (yaw, pitch, roll) This is used to
-		  * update the orientation data properly.
-		  */
-		orientation_t OldOrientation;
-		/**
-		  * The previous orientation of the oculus rift. (Quaternion) This is used to
-		  * update the orientation data properly.
-		  */
-		orientation_quart_t OldOrientation_quart;
 
 		/**
 		 * The rotation data for where the user is looking.
@@ -230,4 +218,3 @@ namespace PV
 		void setupFrameBuffer();
 	};
 };
-#endif

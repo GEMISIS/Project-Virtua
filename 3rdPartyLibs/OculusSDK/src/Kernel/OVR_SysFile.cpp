@@ -31,6 +31,7 @@ limitations under the License.
 #include <stdio.h>
 
 #include "OVR_SysFile.h"
+#include "OVR_Log.h"
 
 namespace OVR {
 
@@ -50,21 +51,21 @@ public:
 
     // Return position / file size
     virtual int         Tell()                      { return 0; }
-    virtual SInt64      LTell()                     { return 0; }
+    virtual int64_t     LTell()                     { return 0; }
     virtual int         GetLength()                 { return 0; }
-    virtual SInt64      LGetLength()                { return 0; }
+    virtual int64_t     LGetLength()                { return 0; }
 
 //  virtual bool        Stat(FileStats *pfs)        { return 0; }
     virtual int         GetErrorCode()              { return Error_FileNotFound; }
 
     // ** Stream implementation & I/O
-    virtual int         Write(const UByte *pbuffer, int numBytes)     { return -1; OVR_UNUSED2(pbuffer, numBytes); }
-    virtual int         Read(UByte *pbuffer, int numBytes)            { return -1; OVR_UNUSED2(pbuffer, numBytes); }
+    virtual int         Write(const uint8_t *pbuffer, int numBytes)     { return -1; OVR_UNUSED2(pbuffer, numBytes); }
+    virtual int         Read(uint8_t *pbuffer, int numBytes)            { return -1; OVR_UNUSED2(pbuffer, numBytes); }
     virtual int         SkipBytes(int numBytes)                       { return 0;  OVR_UNUSED(numBytes); }
     virtual int         BytesAvailable()                              { return 0; }
     virtual bool        Flush()                                       { return 0; }
     virtual int         Seek(int offset, int origin)                  { return -1; OVR_UNUSED2(offset, origin); }
-    virtual SInt64      LSeek(SInt64 offset, int origin)              { return -1; OVR_UNUSED2(offset, origin); }
+    virtual int64_t     LSeek(int64_t offset, int origin)              { return -1; OVR_UNUSED2(offset, origin); }
     
     virtual int         CopyFromStream(File *pstream, int byteSize)   { return -1; OVR_UNUSED2(pstream, byteSize); }
     virtual bool        Close()                                       { return 0; }    
@@ -100,6 +101,7 @@ bool SysFile::Open(const String& path, int flags, int mode)
     if ((!pFile) || (!pFile->IsValid()))
     {
         pFile = *new UnopenedFile;
+        OVR_DEBUG_LOG(("Failed to open file: %s", path.ToCStr()));
         return 0;
     }
     //pFile = *OVR_NEW DelegatedFile(pFile); // MA Testing

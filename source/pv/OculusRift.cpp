@@ -5,10 +5,10 @@
 
 namespace PV
 {
-	void InitRift()
+	bool InitRift()
 	{
 		// Check for debugging.
-		ovr_Initialize();
+		return ovr_Initialize();
 	}
 	bool DetectDevice()
 	{
@@ -35,19 +35,10 @@ namespace PV
 		this->Orientation.pitch = 0.0f;
 		this->Orientation.roll = 0.0f;
 
-		this->OldOrientation.yaw = 0.0f;
-		this->OldOrientation.pitch = 0.0f;
-		this->OldOrientation.roll = 0.0f;
-
 		this->Orientation_quart.angle = 0.0f;
 		this->Orientation_quart.axis.x = 0.0f;
 		this->Orientation_quart.axis.y = 0.0f;
 		this->Orientation_quart.axis.z = 0.0f;
-
-		this->OldOrientation_quart.angle = 0.0f;
-		this->OldOrientation_quart.axis.x = 0.0f;
-		this->OldOrientation_quart.axis.y = 0.0f;
-		this->OldOrientation_quart.axis.z = 0.0f;
 
 		this->virtuallyConnected = false;
 
@@ -56,13 +47,23 @@ namespace PV
 
 		if (this->connected)
 		{
+			int caps = ovrHmd_GetEnabledCaps(this->HMD);
+			if (!(ovrHmd_GetEnabledCaps(this->HMD) & ovrHmdCap_ExtendDesktop))
+			{
+				ovrHmd_AttachToWindow(this->HMD, window, nullptr, nullptr);
+			}
 			// Setup the user's data for the Oculus Rift.
 			this->Setup(openGlContext, window, deviceContext);
 		}
+		else
+		{
+			this->HMD = NULL;
+		}
+		/*
 		else if (useDemoRift)
 		{
 			// If using a demo Oculus Rift, setup the virtual data.
-			/*
+
 			this->HMD.HResolution = 1280;
 			this->HMD.VResolution = 800;
 			this->HMD.HScreenSize = 0.149759993f;
@@ -82,7 +83,6 @@ namespace PV
 			this->HMD.DesktopX = 0;
 			this->HMD.DesktopY = 0;
 			this->viewport = OVR::Util::Render::Viewport(0, 0, this->HMD.HResolution, this->HMD.VResolution);
-			*/
 
 			// Say that it is connected, but virtually.
 			this->connected = true;
@@ -91,6 +91,7 @@ namespace PV
 			// Setup the user's data for the Oculus Rift.
 			this->Setup(openGlContext, window, deviceContext);
 		}
+		*/
 	}
 
 	/**
@@ -102,57 +103,56 @@ namespace PV
 	 */
 	void OculusRift::Initialize()
 	{
-		InitRift();
-
 		// Set the boolean indicating that there is an oculus rift to false.
 		this->connected = false;
+		int rifts = ovrHmd_Detect();
 
-		this->HMD = ovrHmd_Create(0);
-
-		if (this->HMD)
+		if (rifts > 0)
 		{
-			ovrHmd_GetDesc(this->HMD, &this->HMDDesc);
-			if (this->HMDDesc.Type == ovrHmd_DK1 || this->HMDDesc.Type == ovrHmd_DK2)
+			this->HMD = ovrHmd_Create(0);
+
+			if (this->HMD)
 			{
-				ovrHmd_StartSensor(this->HMD, ovrHmdCap_Orientation | ovrHmdCap_YawCorrection | ovrHmdCap_Position | ovrHmdCap_LowPersistence, ovrHmdCap_Orientation);
-				this->sensorState = ovrHmd_GetSensorState(this->HMD, 0.0);
-				this->connected = true;
+				if (this->HMD->Type == ovrHmd_DK1 || this->HMD->Type == ovrHmd_DK2)
+				{
+					ovrHmd_ConfigureTracking(this->HMD, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position | ovrHmdCap_LowPersistence, ovrTrackingCap_Orientation);
+					this->sensorState = ovrHmd_GetTrackingState(this->HMD, 0.0);
+					this->connected = true;
+				}
 			}
 		}
 	}
 
 	void OculusRift::Setup(HGLRC openGlContext, HWND window, HDC deviceContext)
 	{
-		OVR::Sizei size = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMDDesc.DefaultEyeFov[0], 1.0f);
-		OVR::Sizei size2 = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMDDesc.DefaultEyeFov[1], 1.0f);
+		OVR::Sizei size = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMD->DefaultEyeFov[0], 1.0f);
+		OVR::Sizei size2 = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMD->DefaultEyeFov[1], 1.0f);
 
-		this->renderSize.w = 1280;
-		this->renderSize.h = 800;
-
-		this->eyes[0].Eye = ovrEye_Left;
-		this->eyes[0].Fov = this->HMDDesc.DefaultEyeFov[0];
-		this->eyes[0].TextureSize = this->renderSize;
-		this->eyes[0].RenderViewport.Pos = OVR::Vector2i(0, 0);
-		this->eyes[0].RenderViewport.Size = OVR::Sizei(this->renderSize.w / 2, this->renderSize.h);
-
-		this->eyes[1].Eye = ovrEye_Right;
-		this->eyes[1].Fov = this->HMDDesc.DefaultEyeFov[1];
-		this->eyes[1].TextureSize = this->renderSize;
-		this->eyes[1].RenderViewport.Pos = OVR::Vector2i((this->renderSize.w + 1) / 2, 0);
-		this->eyes[1].RenderViewport.Size = this->eyes[0].RenderViewport.Size;
+		this->renderSize.w = this->HMD->Resolution.w;
+		this->renderSize.h = this->HMD->Resolution.h;
 
 		this->openGLConfig.OGL.Header.API = ovrRenderAPI_OpenGL;
-		this->openGLConfig.OGL.Header.RTSize = OVR::Sizei(HMDDesc.Resolution.w, HMDDesc.Resolution.h);
+		this->openGLConfig.OGL.Header.RTSize = OVR::Sizei(this->HMD->Resolution.w, this->HMD->Resolution.h);
 		this->openGLConfig.OGL.Header.Multisample = 0;
-		this->openGLConfig.OGL.WglContext = openGlContext;
 		this->openGLConfig.OGL.Window = window;
-		this->openGLConfig.OGL.GdiDc = deviceContext;
+		this->openGLConfig.OGL.DC = deviceContext;
 
-		if (!ovrHmd_ConfigureRendering(this->HMD, &this->openGLConfig.Config, 0, this->HMDDesc.DistortionCaps, eyes, eyeRenderDesc))
+		this->openGLConfig.Config.Header = this->openGLConfig.OGL.Header;
+
+		const ovrFovPort eyeFovs[2] = { this->HMD->DefaultEyeFov[0], this->HMD->DefaultEyeFov[1] };
+
+		if (!ovrHmd_ConfigureRendering(this->HMD, &this->openGLConfig.Config, ovrDistortionCap_TimeWarp |
+			ovrDistortionCap_Chromatic |
+			ovrDistortionCap_Vignette, eyeFovs, this->eyes))
 		{
 			this->connected = false;
 			printf("Error configuring Oculus Rift renderer!\n");
 		}
+
+		ovrHmd_SetEnabledCaps(this->HMD, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position | ovrHmdCap_LowPersistence);
+
+		((ovrGLTexture&)this->eyeTextures[0]).OGL.TexId = this->leftEyeTexture;
+		((ovrGLTexture&)this->eyeTextures[1]).OGL.TexId = this->rightEyeTexture;
 
 		this->setupFrameBuffer();
 		this->SetRenderTextures(this->leftEyeTexture, this->rightEyeTexture);
@@ -211,14 +211,32 @@ namespace PV
 
 	void OculusRift::SetRenderTextures(unsigned int leftEyeTexture, unsigned int rightEyeTexture)
 	{
+		this->eyeTextures[0].Texture.Header.TextureSize.w = this->renderSize.w;
+		this->eyeTextures[0].Texture.Header.TextureSize.h = this->renderSize.h;
+		this->eyeTextures[0].Texture.Header.RenderViewport.Size.w = this->renderSize.w;
+		this->eyeTextures[0].Texture.Header.RenderViewport.Size.h = this->renderSize.h;
+		this->eyeTextures[0].Texture.Header.RenderViewport.Pos.x = 0;
+		this->eyeTextures[0].Texture.Header.RenderViewport.Pos.y = 0;
+		this->eyeTextures[0].Texture.Header.API = ovrRenderAPI_OpenGL;
+
+		this->eyeTextures[1].Texture.Header.TextureSize.w = this->renderSize.w;
+		this->eyeTextures[1].Texture.Header.TextureSize.h = this->renderSize.h;
+		this->eyeTextures[1].Texture.Header.RenderViewport.Size.w = this->renderSize.w;
+		this->eyeTextures[1].Texture.Header.RenderViewport.Size.h = this->renderSize.h;
+		this->eyeTextures[1].Texture.Header.RenderViewport.Pos.x = 0;
+		this->eyeTextures[1].Texture.Header.RenderViewport.Pos.y = 0;
+		this->eyeTextures[1].Texture.Header.API = ovrRenderAPI_OpenGL;
+
 		this->eyeTextures[0].OGL.Header.API = ovrRenderAPI_OpenGL;
-		this->eyeTextures[0].OGL.Header.TextureSize = this->renderSize;
-		this->eyeTextures[0].OGL.Header.RenderViewport = this->eyes[0].RenderViewport;
+		this->eyeTextures[0].OGL.Header.TextureSize.w = this->renderSize.w;
+		this->eyeTextures[0].OGL.Header.TextureSize.h = this->renderSize.h;
+		this->eyeTextures[0].OGL.Header.RenderViewport = this->eyes[0].DistortedViewport;
 		this->eyeTextures[0].OGL.TexId = leftEyeTexture;
 
 		this->eyeTextures[1].OGL.Header.API = ovrRenderAPI_OpenGL;
-		this->eyeTextures[1].OGL.Header.TextureSize = this->renderSize;
-		this->eyeTextures[1].OGL.Header.RenderViewport = this->eyes[1].RenderViewport;
+		this->eyeTextures[1].OGL.Header.TextureSize.w = this->renderSize.w;
+		this->eyeTextures[1].OGL.Header.TextureSize.h = this->renderSize.h;
+		this->eyeTextures[1].OGL.Header.RenderViewport = this->eyes[1].DistortedViewport;
 		this->eyeTextures[1].OGL.TexId = rightEyeTexture;
 	}
 
@@ -244,24 +262,23 @@ namespace PV
 	{
 		if (this->connected && !this->virtuallyConnected)
 		{
-			this->sensorState = ovrHmd_GetSensorState(this->HMD, 0.0);
+			this->sensorState = ovrHmd_GetTrackingState(this->HMD, 0.0);
 			if (this->sensorState.StatusFlags & (ovrStatus_OrientationTracked))
 			{
-				this->OldOrientation.yaw = this->Orientation.yaw;
-				this->OldOrientation.pitch = this->Orientation.pitch;
-				this->OldOrientation.roll = this->Orientation.roll;
-
-				OVR::Posef pose = this->sensorState.Recorded.Pose;
-				pose.Orientation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
-
-				this->Orientation.pitch = this->Orientation.pitch * 180.0f / 3.14159265358979323846f;
-				this->Orientation.yaw = this->Orientation.yaw * 180.0f / 3.14159265358979323846f;
-				this->Orientation.roll = this->Orientation.roll * 180.0f / 3.14159265358979323846f;
-
-				this->Rotation.x -= (this->Orientation.pitch - this->OldOrientation.pitch);
-				this->Rotation.y -= (this->Orientation.yaw - this->OldOrientation.yaw);
-				this->Rotation.z -= (this->Orientation.roll - this->OldOrientation.roll);
+				//this->Rotation.x = this->Orientation.pitch * 180.0f / 3.14159265358979323846f;
+				//this->Rotation.y = this->Orientation.yaw * 180.0f / 3.14159265358979323846f;
+				//this->Rotation.z = this->Orientation.roll * 180.0f / 3.14159265358979323846f;
 			}
+		}
+	}
+
+	void OculusRift::DismissWarningScreen()
+	{
+		static ovrHSWDisplayState hswDisplayState;
+		ovrHmd_GetHSWDisplayState(this->HMD, &hswDisplayState);
+		if (hswDisplayState.Displayed) {
+			ovrHmd_DismissHSWDisplay(this->HMD);
+			return;
 		}
 	}
 
@@ -269,7 +286,9 @@ namespace PV
 	{
 		if (this->isConnected())
 		{
-			ovrHmd_BeginFrame(this->HMD, 0);
+			static int frameIndex = 0;
+			ovrHmd_BeginFrame(this->HMD, frameIndex);
+			frameIndex++;
 			return true;
 		}
 		return false;
@@ -279,19 +298,27 @@ namespace PV
 	{
 		if (this->isConnected())
 		{
-			eyePoses[eye] = ovrHmd_BeginEyeRender(this->HMD, this->HMDDesc.EyeRenderOrder[eye]);
-			viewMatrix.Translate(this->eyeRenderDesc[this->HMDDesc.EyeRenderOrder[eye]].ViewAdjust.x, this->eyeRenderDesc[this->HMDDesc.EyeRenderOrder[eye]].ViewAdjust.y, this->eyeRenderDesc[this->HMDDesc.EyeRenderOrder[eye]].ViewAdjust.z);
-			glViewport(this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.x,
-				this->eyeRenderDesc[eye].Desc.RenderViewport.Pos.y,
-				this->eyeRenderDesc[eye].Desc.RenderViewport.Size.w,
-				this->eyeRenderDesc[eye].Desc.RenderViewport.Size.h);
-			switch (this->HMDDesc.EyeRenderOrder[eye])
+			this->eyePoses[this->HMD->EyeRenderOrder[eye]] = 
+				ovrHmd_GetEyePose(this->HMD, this->HMD->EyeRenderOrder[eye]);
+
+			OVR::Quat<float> getters = this->eyePoses[this->HMD->EyeRenderOrder[eye]].Orientation;
+			getters.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&this->Orientation.yaw, &this->Orientation.pitch, &this->Orientation.roll);
+			
+			viewMatrix.SetIdentity();
+			viewMatrix.Rotate(this->Orientation.pitch, this->Orientation.yaw, this->Orientation.roll);
+			viewMatrix.Translate(this->eyePoses[this->HMD->EyeRenderOrder[eye]].Position.x,
+				this->eyePoses[this->HMD->EyeRenderOrder[eye]].Position.y,
+				this->eyePoses[this->HMD->EyeRenderOrder[eye]].Position.z);
+
+			switch (this->HMD->EyeRenderOrder[eye])
 			{
 			case ovrEye_Left:
+				glViewport(0, 0, 640, 800);
 				pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, this->leftFrameBuffer);
 				pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, this->leftDepthBuffer);
 				break;
 			case ovrEye_Right:
+				glViewport(640, 0, 640, 800);
 				pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, this->rightFrameBuffer);
 				pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, this->rightDepthBuffer);
 				break;
@@ -303,9 +330,10 @@ namespace PV
 	{
 		if (this->isConnected())
 		{
+			glViewport(0, 0, 1280, 800);
 			pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
 			pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, 0);
-			switch (this->HMDDesc.EyeRenderOrder[eye])
+			switch (this->HMD->EyeRenderOrder[eye])
 			{
 			case ovrEye_Left:
 				glBindTexture(GL_TEXTURE_2D, this->leftEyeTexture);
@@ -318,7 +346,6 @@ namespace PV
 				glBindTexture(GL_TEXTURE_2D, 0);
 				break;
 			}
-			ovrHmd_EndEyeRender(this->HMD, this->HMDDesc.EyeRenderOrder[eye], this->eyePoses[eye], &this->eyeTextures[this->HMDDesc.EyeRenderOrder[eye]].Texture);
 		}
 	}
 
@@ -326,13 +353,14 @@ namespace PV
 	{
 		if (this->isConnected())
 		{
-			ovrHmd_EndFrame(this->HMD);
+			ovrTexture textures[2] = { this->eyeTextures[0].Texture, this->eyeTextures[1].Texture };
+			ovrHmd_EndFrame(this->HMD, this->eyePoses, textures);
 		}
 	}
 
 	void OculusRift::getPerspectiveMatrix(RiftEye eye, Math::Matrix<float> &perspectiveMatrix)
 	{
-		ovrMatrix4f proj = ovrMatrix4f_Projection(this->eyes[HMDDesc.EyeRenderOrder[eye]].Fov, 0.01f, 10000.0f, true);
+		ovrMatrix4f proj = ovrMatrix4f_Projection(this->eyes[this->HMD->EyeRenderOrder[eye]].Fov, 0.01f, 10000.0f, true);
 		for (int y = 0; y < 4; y += 1)
 		{
 			for (int x = 0; x < 4; x += 1)
@@ -370,7 +398,10 @@ namespace PV
 	 */
 	OculusRift::~OculusRift()
 	{
-		ovrHmd_Destroy(this->HMD);
+		if (this->HMD != NULL)
+		{
+			ovrHmd_Destroy(this->HMD);
+		}
 		ovr_Shutdown();
 	}
 };
