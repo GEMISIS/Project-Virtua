@@ -7,7 +7,6 @@ namespace PV
 {
 	bool InitRift()
 	{
-		// Check for debugging.
 		return ovr_Initialize();
 	}
 	bool DetectDevice()
@@ -16,21 +15,9 @@ namespace PV
 		bool active = false;
 		return active;
 	}
-/**
- * Constructor used to create a new Oculus Rift device.
- *
- * This constructor will automatically attempt to initialize and setup an
- * Oculus Rift device that is connected to the computer.  Use the IsConnected
- * method to see if the device was successfully setup.
- */
 	OculusRift::OculusRift(bool useDemoRift, HGLRC openGlContext, HWND window, HDC deviceContext)
 	{
 		// Setup the initial values for all of the rotations.
-		this->Rotation.x = 0.0f;
-		this->Rotation.y = 0.0f;
-		this->Rotation.z = 0.0f;
-		this->Rotation.w = 0.0f;
-
 		this->Orientation.yaw = 0.0f;
 		this->Orientation.pitch = 0.0f;
 		this->Orientation.roll = 0.0f;
@@ -47,12 +34,15 @@ namespace PV
 
 		if (this->connected)
 		{
+			// Get the list of enabled capabilities, then attach it to a window if the extend
+			// desktop capability is disabled.
 			int caps = ovrHmd_GetEnabledCaps(this->HMD);
 			if (!(ovrHmd_GetEnabledCaps(this->HMD) & ovrHmdCap_ExtendDesktop))
 			{
 				ovrHmd_AttachToWindow(this->HMD, window, nullptr, nullptr);
 			}
-			// Setup the user's data for the Oculus Rift.
+
+			// Setup the OpenGL side for the Oculus Rift.
 			this->Setup(openGlContext, window, deviceContext);
 		}
 		else
@@ -94,23 +84,19 @@ namespace PV
 		*/
 	}
 
-	/**
-	 * Initializes the Oculus Rift headset.
-	 *
-	 * Connects to the Oculus Rift hardware. Then retrieves the sensor as well
-	 * as a sensor fusion, both of which can be used to retrieve data from the
-	 * Oculus Rift.
-	 */
 	void OculusRift::Initialize()
 	{
 		// Set the boolean indicating that there is an oculus rift to false.
 		this->connected = false;
-		int rifts = ovrHmd_Detect();
 
+		// Get the number of rifts, and attach the HMD handle to the first instance of an Oculus Rift.
+		int rifts = ovrHmd_Detect();
 		if (rifts > 0)
 		{
 			this->HMD = ovrHmd_Create(0);
 
+			// If the HMD was found, check that it is an Oculus Rift, then configure it's tracking and
+			// tell the class it's connected.
 			if (this->HMD)
 			{
 				if (this->HMD->Type == ovrHmd_DK1 || this->HMD->Type == ovrHmd_DK2)
@@ -125,22 +111,20 @@ namespace PV
 
 	void OculusRift::Setup(HGLRC openGlContext, HWND window, HDC deviceContext)
 	{
-		OVR::Sizei size = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMD->DefaultEyeFov[0], 1.0f);
-		OVR::Sizei size2 = ovrHmd_GetFovTextureSize(this->HMD, ovrEye_Left, this->HMD->DefaultEyeFov[1], 1.0f);
-
+		// Set the render size for the window.
 		this->renderSize.w = this->HMD->Resolution.w;
 		this->renderSize.h = this->HMD->Resolution.h;
 
+		// Configure the OpenGL header, then attach it to the normal config header.
 		this->openGLConfig.OGL.Header.API = ovrRenderAPI_OpenGL;
-		this->openGLConfig.OGL.Header.RTSize = OVR::Sizei(this->HMD->Resolution.w, this->HMD->Resolution.h);
+		this->openGLConfig.OGL.Header.RTSize = OVR::Sizei(this->renderSize.w, this->renderSize.h);
 		this->openGLConfig.OGL.Header.Multisample = 0;
 		this->openGLConfig.OGL.Window = window;
 		this->openGLConfig.OGL.DC = deviceContext;
-
 		this->openGLConfig.Config.Header = this->openGLConfig.OGL.Header;
 
+		// Setup the field of views for each eye and configure the rendering with them.
 		const ovrFovPort eyeFovs[2] = { this->HMD->DefaultEyeFov[0], this->HMD->DefaultEyeFov[1] };
-
 		if (!ovrHmd_ConfigureRendering(this->HMD, &this->openGLConfig.Config, ovrDistortionCap_TimeWarp |
 			ovrDistortionCap_Chromatic |
 			ovrDistortionCap_Vignette, eyeFovs, this->eyes))
@@ -149,11 +133,12 @@ namespace PV
 			printf("Error configuring Oculus Rift renderer!\n");
 		}
 
+		// Set the cabilities for what is needed for the head tracking.
 		ovrHmd_SetEnabledCaps(this->HMD, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position | ovrHmdCap_LowPersistence);
 
+		// Setup the textures and frame buffers.
 		((ovrGLTexture&)this->eyeTextures[0]).OGL.TexId = this->leftEyeTexture;
 		((ovrGLTexture&)this->eyeTextures[1]).OGL.TexId = this->rightEyeTexture;
-
 		this->setupFrameBuffer();
 		this->SetRenderTextures(this->leftEyeTexture, this->rightEyeTexture);
 	}
@@ -189,14 +174,6 @@ namespace PV
 		pv_glFramebufferRenderbuffer(PV_GL_FRAMEBUFFER, PV_GL_DEPTH_ATTACHMENT, PV_GL_RENDERBUFFER, this->leftDepthBuffer);
 		pv_glFramebufferTexture2D(PV_GL_FRAMEBUFFER, PV_GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->leftEyeTexture, 0);
 
-		if (pv_glCheckFramebufferStatus(PV_GL_FRAMEBUFFER) != PV_GL_FRAMEBUFFER_COMPLETE)
-		{
-			printf("Error creating left eye frame buffer!!");
-		}
-
-		pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
-		pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, 0);
-
 		glBindTexture(GL_TEXTURE_2D, this->rightEyeTexture);
 		pv_glGenFramebuffers(1, &this->rightFrameBuffer);
 		pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, this->rightFrameBuffer);
@@ -207,6 +184,7 @@ namespace PV
 		pv_glFramebufferTexture2D(PV_GL_FRAMEBUFFER, PV_GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->rightEyeTexture, 0);
 
 		pv_glBindFramebuffer(PV_GL_FRAMEBUFFER, 0);
+		pv_glBindRenderbuffer(PV_GL_RENDERBUFFER, 0);
 	}
 
 	void OculusRift::SetRenderTextures(unsigned int leftEyeTexture, unsigned int rightEyeTexture)
@@ -371,24 +349,19 @@ namespace PV
 	}
 
 	/**
-	 * Gets the rotation values for the angle of rotation for where the user is looking.
-	 * This is in Euler angles.
-	 * @return The rotation on the X, Y, and Z axis in Euler angles.
-	 */
-	const rotation_t OculusRift::GetRotation() const
+	* Gets the rotation values for the angle of rotation for where the user is looking.
+	* This is in Euler angles.
+	* @return The rotation yaw, pitch, and roll in Euler angles.
+	*/
+	const orientation_t OculusRift::GetRotation() const
 	{
-		return this->Rotation;
+		return this->Orientation;
 	}
 
 	const OVR::Sizei OculusRift::getRenderSize() const
 	{
 		return (const OVR::Sizei)this->renderSize;
 	}
-
-	void OculusRift::ComposeFinalImage(unsigned int leftEyeTexture, unsigned int rightEyeTexture)
-	{
-	}
-
 
 	/**
 	 * Deconstructor for the Oculus Rift device.

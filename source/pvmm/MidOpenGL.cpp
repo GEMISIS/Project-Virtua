@@ -91,8 +91,8 @@ namespace PV
 
 	void createPerspectiveMatrix(float* array, float fieldOfView, float aspectRatio, float nearValue, float farValue)
 	{
-		float width = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
-		float height = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
+		float width = (nearValue * tanf(fieldOfView * (float)M_PI / 360.0f)) - -(nearValue * tanf(fieldOfView * (float)M_PI / 360.0f));
+		float height = (nearValue * tanf(fieldOfView * (float)M_PI / 360.0f)) - -(nearValue * tanf(fieldOfView * (float)M_PI / 360.0f));
 		float depth = farValue - nearValue;
 
 		for (int i = 0; i < 16; i += 1)
@@ -122,8 +122,8 @@ namespace PV
 	}
 	void createPerspectiveMatrix(PV::Math::Matrix<float> &matrix, float fieldOfView, float aspectRatio, float nearValue, float farValue)
 	{
-		float width = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
-		float height = (nearValue * tan(fieldOfView * M_PI / 360.0f)) - -(nearValue * tan(fieldOfView * M_PI / 360.0f));
+		float width = (nearValue * tanf(fieldOfView * (float)M_PI / 360.0f)) - -(nearValue * tanf(fieldOfView * (float)M_PI / 360.0f));
+		float height = (nearValue * tanf(fieldOfView * (float)M_PI / 360.0f)) - -(nearValue * tanf(fieldOfView * (float)M_PI / 360.0f));
 		float depth = farValue - nearValue;
 
 		matrix = PV::Math::Matrix <float>(4, 4);

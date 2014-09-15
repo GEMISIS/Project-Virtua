@@ -24,10 +24,11 @@ namespace PV
 	{
 	public:
 		/**
-		 * Attempts to initialize and setup an Oculus Rift device that is connected to
-		 * the computer.  Use the IsConnected method to see if the device was successfully
-		 * setup.  You can also specify to create a virtual Oculus Rift device if the hardware
-		 * is not found.  This is useful for testing the output from the device.
+		 * Constructor used to create a new Oculus Rift device.
+		 *
+		 * This constructor will automatically attempt to initialize and setup an
+		 * Oculus Rift device that is connected to the computer.  Use the IsConnected
+		 * method to see if the device was successfully setup.
 		 * @param useDemoRift Class creates a virtual Oculus Rift when true.
 		 * @param openGlContext The OpenGL context to use for rendering the final scene to.
 		 * @param window The window that contains the OpenGL context.
@@ -35,11 +36,14 @@ namespace PV
 		 */
 		OculusRift(bool useDemoRift, HGLRC openGlContext, HWND window, HDC deviceContext);
 		/**
-		 * Connects to the Oculus Rift hardware.  It then retrieves the sensor,
-		 * as well as a sensor fusion, both of which can be used to retrieve data
-		 * from the Oculus Rift.
+		 * Initializes the Oculus Rift headset.
+		 *
+		 * Connects to the Oculus Rift hardware. Then retrieves the sensor as well
+		 * as a sensor fusion, both of which can be used to retrieve data from the
+		 * Oculus Rift.
 		 */
 		void Initialize();
+
 		/**
 		 * Sets up the Oculus Rift for use.
 		 * @param openGlContext The OpenGL context to use for rendering the final scene to.
@@ -103,21 +107,14 @@ namespace PV
 		/**
 		 * Gets the rotation values for the angle of rotation for where the user is looking.
 		 * This is in Euler angles.
-		 * @return The rotation on the X, Y, and Z axis in Euler angles.
+		 * @return The rotation yaw, pitch, and roll in Euler angles.
 		 */
-		const rotation_t GetRotation() const;
+		const orientation_t GetRotation() const;
 
 		/**
 		* Gets the size of the textures to render to.
 		*/
 		const OVR::Sizei getRenderSize() const;
-
-		/**
-		 * Composes the final rendered image that the Rift should see per eye using textured quads.
-		 * @param leftEyeTexture The image that the left eye should see.
-		 * @param rightEyeTexture The image that the right eye should see.
-		 */
-		void ComposeFinalImage(unsigned int leftEyeTexture, unsigned int rightEyeTexture);
 
 		/**
 		 * Deconstructor for the Oculus Rift device.  Automatically
@@ -206,11 +203,6 @@ namespace PV
 		  * The orientation of the oculus rift. (Quaternion)
 		  */
 		orientation_quart_t Orientation_quart;
-
-		/**
-		 * The rotation data for where the user is looking.
-		 */
-		rotation_t Rotation;
 
 		/**
 		 * Sets up the frame buffers for the left and right eyes.
